@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OTools.Course\OTools.Course.csproj" />
+    <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
+  </ItemGroup>
+
 </Project>
