@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="SharpHook" Version="4.0.0" />
+    <PackageReference Include="Sunley.Mathematics-net6" Version="1.2.2" />
+  </ItemGroup>
+
 </Project>
