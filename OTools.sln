@@ -8,14 +8,31 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.Map", "src\OTools.Map\OTools.Map.csproj", "{5CFAAF12-7A83-424F-AC47-02B8EC0CE076}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.Course", "src\OTools.Course\OTools.Course.csproj", "{60EF8E1D-0FBB-4965-A455-82D496BA8FA2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CFAAF12-7A83-424F-AC47-02B8EC0CE076} = {5CFAAF12-7A83-424F-AC47-02B8EC0CE076}
+		{C02B02E1-7118-4CA2-B612-75181A6C8FA1} = {C02B02E1-7118-4CA2-B612-75181A6C8FA1}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.Event", "src\OTools.Event\OTools.Event.csproj", "{A73FA582-4BC4-4FC6-992F-E661ECE93243}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C02B02E1-7118-4CA2-B612-75181A6C8FA1} = {C02B02E1-7118-4CA2-B612-75181A6C8FA1}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.FileFormatConverter", "src\OTools.FileFormatConverter\OTools.FileFormatConverter.csproj", "{9C96D57C-0231-4EDC-A7CB-100AC8D12C9A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CFAAF12-7A83-424F-AC47-02B8EC0CE076} = {5CFAAF12-7A83-424F-AC47-02B8EC0CE076}
+		{60EF8E1D-0FBB-4965-A455-82D496BA8FA2} = {60EF8E1D-0FBB-4965-A455-82D496BA8FA2}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.OML", "src\OTools.OML\OTools.OML.csproj", "{483B4CD3-A130-4FDE-99BA-7CED802E90CD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CFAAF12-7A83-424F-AC47-02B8EC0CE076} = {5CFAAF12-7A83-424F-AC47-02B8EC0CE076}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.2DObjectRenderer", "src\OTools.2DObjectRenderer\OTools.2DObjectRenderer.csproj", "{98966DAC-1FFA-45B2-8143-BF814462AA7F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C02B02E1-7118-4CA2-B612-75181A6C8FA1} = {C02B02E1-7118-4CA2-B612-75181A6C8FA1}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.3DObjectRenderer", "src\OTools.3DObjectRenderer\OTools.3DObjectRenderer.csproj", "{D87D07D8-C506-4854-8849-609CC834790D}"
 EndProject
@@ -27,7 +44,26 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.SiIntegrator", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.StartTimeDistributor", "src\OTools.StartTimeDistributor\OTools.StartTimeDistributor.csproj", "{AF7EE686-6418-49A8-9BBC-48CA59BC5BFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.GisDataProcessor", "OTools.GisDataProcessor\OTools.GisDataProcessor.csproj", "{C7FB2CF4-49E3-448C-BE03-B518FFFE2CF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.MapViewer", "src\OTools.MapViewer\OTools.MapViewer.csproj", "{899C6B7B-F3DA-4A32-9B20-B141EF942FEA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{98966DAC-1FFA-45B2-8143-BF814462AA7F} = {98966DAC-1FFA-45B2-8143-BF814462AA7F}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.MapMaker", "src\OTools.MapMaker\OTools.MapMaker.csproj", "{443F3C95-251B-4979-ABB0-0CC603FB7475}"
+	ProjectSection(ProjectDependencies) = postProject
+		{98966DAC-1FFA-45B2-8143-BF814462AA7F} = {98966DAC-1FFA-45B2-8143-BF814462AA7F}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.CoursePlanner", "src\OTools.CoursePlanner\OTools.CoursePlanner.csproj", "{CDCE3E9F-C129-4EE3-B437-C449A8188E33}"
+	ProjectSection(ProjectDependencies) = postProject
+		{60EF8E1D-0FBB-4965-A455-82D496BA8FA2} = {60EF8E1D-0FBB-4965-A455-82D496BA8FA2}
+		{98966DAC-1FFA-45B2-8143-BF814462AA7F} = {98966DAC-1FFA-45B2-8143-BF814462AA7F}
+		{9C96D57C-0231-4EDC-A7CB-100AC8D12C9A} = {9C96D57C-0231-4EDC-A7CB-100AC8D12C9A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.GisDataProcessor", "src\OTools.GisDataProcessor\OTools.GisDataProcessor.csproj", "{45EE52B2-26C8-4B10-BC48-729967503484}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.EventManager", "src\OTools.EventManager\OTools.EventManager.csproj", "{314C5682-8E46-48D3-9603-BA8C1612D879}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,10 +119,26 @@ Global
 		{AF7EE686-6418-49A8-9BBC-48CA59BC5BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF7EE686-6418-49A8-9BBC-48CA59BC5BFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF7EE686-6418-49A8-9BBC-48CA59BC5BFA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7FB2CF4-49E3-448C-BE03-B518FFFE2CF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7FB2CF4-49E3-448C-BE03-B518FFFE2CF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7FB2CF4-49E3-448C-BE03-B518FFFE2CF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7FB2CF4-49E3-448C-BE03-B518FFFE2CF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{899C6B7B-F3DA-4A32-9B20-B141EF942FEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{899C6B7B-F3DA-4A32-9B20-B141EF942FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{899C6B7B-F3DA-4A32-9B20-B141EF942FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{899C6B7B-F3DA-4A32-9B20-B141EF942FEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{443F3C95-251B-4979-ABB0-0CC603FB7475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{443F3C95-251B-4979-ABB0-0CC603FB7475}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{443F3C95-251B-4979-ABB0-0CC603FB7475}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{443F3C95-251B-4979-ABB0-0CC603FB7475}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDCE3E9F-C129-4EE3-B437-C449A8188E33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDCE3E9F-C129-4EE3-B437-C449A8188E33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDCE3E9F-C129-4EE3-B437-C449A8188E33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDCE3E9F-C129-4EE3-B437-C449A8188E33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45EE52B2-26C8-4B10-BC48-729967503484}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45EE52B2-26C8-4B10-BC48-729967503484}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45EE52B2-26C8-4B10-BC48-729967503484}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45EE52B2-26C8-4B10-BC48-729967503484}.Release|Any CPU.Build.0 = Release|Any CPU
+		{314C5682-8E46-48D3-9603-BA8C1612D879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{314C5682-8E46-48D3-9603-BA8C1612D879}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{314C5682-8E46-48D3-9603-BA8C1612D879}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{314C5682-8E46-48D3-9603-BA8C1612D879}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
