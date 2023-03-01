@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using OTools.Maps;
 
 namespace OTools.MapViewer
 {
@@ -7,6 +8,9 @@ namespace OTools.MapViewer
         public MainWindow()
         {
             InitializeComponent();
+            
+            Map map = MapLoader.Load(@"C:\Users\Joe\Downloads\map2.xml");
+            viewport.LoadAll(map);
         }
     }
 }

@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+              d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OTools.MapViewer.Viewport">
+	<ScrollViewer x:Name="scrollViewer"
+				  HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
+		<Canvas x:Name="canvas"
+				Width="1000000" Height="1000000">
+			<Rectangle Canvas.Left="50" Canvas.Top="50"
+					   Width="50" Height="50"
+					   Fill="Red" />
+		</Canvas>
+	</ScrollViewer>
+</UserControl>
