@@ -5,7 +5,7 @@ using OTools.Common;
 namespace OTools.Maps;
 
 [DebuggerDisplay("{Name}, {HexValue}")]
-public sealed class Colour : IStorable
+public sealed class Colour : IStorable, IEquatable<Colour?>
 {
     public Guid Id { get; init; }
 
@@ -98,6 +98,26 @@ public sealed class Colour : IStorable
         return (c, m, y, k);
     }
 
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as Colour);
+    }
+
+    public bool Equals(Colour? other)
+    {
+        return other is not null &&
+               Id.Equals(other.Id) &&
+               Name == other.Name &&
+               HexValue == other.HexValue;
+    }
+
+    public static bool operator ==(Colour lhs, Colour rhs)
+        => lhs.Equals(rhs);
+
+    public static bool operator !=(Colour lhs, Colour rhs)
+        => !(lhs == rhs);
+
+
     public static implicit operator Colour(uint hexValue)
         => new(hexValue);
 
@@ -107,5 +127,6 @@ public sealed class Colour : IStorable
     private static readonly Guid s_id = Guid.NewGuid();
     public static Colour Transparent
         => new(s_id, "Transparent", 0x0);
+
 
 }

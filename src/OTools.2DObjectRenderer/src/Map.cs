@@ -94,6 +94,11 @@ public class MapRender : IMapRender
             ZIndex = ZIndex(obj.OuterColour),
         };
 
+        // Prevents unnecessary ellipses
+        if (obj.OuterRadius == Colour.Transparent)
+            return new IShape[] { innerEllipse };
+        if (obj.InnerRadius == Colour.Transparent)
+            return new IShape[] { outerEllipse };
         return new IShape[] { innerEllipse, outerEllipse };
 
     }
@@ -361,22 +366,27 @@ public class MapRender : IMapRender
 
         List<IShape> renders = new();
 
-        Path border = new()
+        if (inst.Symbol.BorderColour != Colour.Transparent)
         {
-            Segments = segments,
-            Holes = holes,
+            Path border = new()
+            {
+                Segments = segments,
+                Holes = holes,
 
-            BorderWidth = inst.Symbol.BorderWidth,
-            BorderColour = inst.Symbol.BorderColour,
+                BorderWidth = inst.Symbol.BorderWidth,
+                BorderColour = inst.Symbol.BorderColour,
 
-            IsClosed = inst.IsClosed,
+                IsClosed = inst.IsClosed,
 
-            DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.BorderWidth),
+                DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.BorderWidth),
 
-            ZIndex = ZIndex(inst.Symbol.BorderColour),
-        };
+                ZIndex = ZIndex(inst.Symbol.BorderColour),
+            };
 
-        renders.Add(border);
+            renders.Add(border);
+        }
+
+
 
         if (inst.Symbol is AreaSymbol aSym)
         {
