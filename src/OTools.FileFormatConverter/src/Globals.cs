@@ -1,5 +1,8 @@
 ﻿global using static Globals;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("Console")]
 
 public static class Globals
 {

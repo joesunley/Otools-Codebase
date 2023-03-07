@@ -65,6 +65,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.GisDataProcessor", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.EventManager", "src\OTools.EventManager\OTools.EventManager.csproj", "{314C5682-8E46-48D3-9603-BA8C1612D879}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{4CCA9DF2-7BBB-45C8-8C1E-17DB6A1F2D24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "test\Console\Console.csproj", "{A145A962-E9DE-4BEB-AF60-0632151E4782}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,9 +143,16 @@ Global
 		{314C5682-8E46-48D3-9603-BA8C1612D879}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{314C5682-8E46-48D3-9603-BA8C1612D879}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{314C5682-8E46-48D3-9603-BA8C1612D879}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A145A962-E9DE-4BEB-AF60-0632151E4782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A145A962-E9DE-4BEB-AF60-0632151E4782}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A145A962-E9DE-4BEB-AF60-0632151E4782}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A145A962-E9DE-4BEB-AF60-0632151E4782}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A145A962-E9DE-4BEB-AF60-0632151E4782} = {4CCA9DF2-7BBB-45C8-8C1E-17DB6A1F2D24}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5827591C-8AF3-43EE-AD3F-8E7FBE7C7EC9}
