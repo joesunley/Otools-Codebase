@@ -1,4 +1,6 @@
-﻿namespace OTools.Maps;
+﻿using OTools.Common;
+
+namespace OTools.Maps;
 
 public abstract class MapObject : IStorable
 {

@@ -1,4 +1,4 @@
-﻿using OTools.Maps;
+﻿using OTools.Common;
 using Sunley.Mathematics;
 
 namespace OTools.Course;
