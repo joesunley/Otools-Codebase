@@ -1,7 +1,11 @@
-﻿using System.IO;
+﻿using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security.Authentication;
 using System.Text;
 
-namespace OTools.FileFormatConverter.src;
+namespace OTools.FileFormatConverter;
 
 #region Version 6/7/8
 
@@ -49,7 +53,77 @@ Note: all file positions are in bytes starting from the
 beginning of the file.
 */
 
-file struct FileHeader : IOcdObj
+//[StructLayout(LayoutKind.Explicit)]
+//file struct FileHeader : IOcdObj
+//{
+//    /*
+//      TFileHeader = record
+//        OCADMark: SmallInt;        {3245 (hex 0cad)}
+//        SectionMark: SmallInt;     {OCAD 6: 0
+//                                    OCAD 7: 7
+//                                    OCAD 8: 2 for normal files
+//                                            3 for course setting files}
+//        Version: SmallInt;         {6 for OCAD 6, 7 for OCAD 7, 8 for OCAD 8}
+//        Subversion: SmallInt;      {number of subversion (0 for 6.00,
+//                                   1 for 6.01 etc.)}
+//        FirstSymBlk: longint;      {file position of the first symbol
+//                                   block}
+//        FirstIdxBlk: longint;      {file position of the first index
+//                                   block}
+//        SetupPos: longint;         {file position of the setup record }
+//        SetupSize: longint;        {size (in bytes) of the setup record}
+//        InfoPos: longint;          {file position of the file
+//                                   information. The file information is
+//                                   stored as a zero-terminated string with
+//                                   up to 32767 characters + terminating
+//                                   zero}
+//        InfoSize: longint;         {size (in bytes) of the file
+//                                   information}
+//        FirstStIndexBlk: longint;  {OCAD 8 only. file position of the first
+//                                   string index block}
+//        Reserved2: longint;
+//        Reserved3: longint;
+//        Reserved4: longint;
+//      end;
+//     */
+
+//    [FieldOffset(0)]
+//    public short OCADMark;      // 3245 (hex 0cad)
+//    [FieldOffset(2)]
+//    public short SectionMark;   // OCAD 6: 0
+//                                // OCAD 7: 7
+//                                // OCAD 8: 2 for normal files
+//                                //         3 for course setting files
+//    [FieldOffset(4)]
+//    public short Version;       // 
+//    [FieldOffset(6)]
+//    public short SubVersion;    // Number of subversion: 0 for 6.00, 1 for 6.01 etc
+//    [FieldOffset(8)]
+//    public int FirstSymBlk;     // File position of the first symbol block
+//    [FieldOffset(12)]
+//    public int FirstIdxBlk;     // File position of the first index block
+//    [FieldOffset(16)]
+//    public int SetupPos;        // File position of the setup record
+//    [FieldOffset(20)]
+//    public int SetupSize;       // Size (in bytes) of the setup record
+//    [FieldOffset(24)]
+//    public int InfoPos;         // File position of the file information.
+//                                // The file information is stored as a zero-terminated string
+//                                // with up to 32767 characters + terminating zero
+//    [FieldOffset(28)]
+//    public int InfoSize;        // Size (in bytes) of the file information
+//    [FieldOffset(32)]
+//    public int FirstStIndexBlk; // OCAD 8 only. File position of the first string index block
+//    [FieldOffset(36)]
+//    public int Reserved2;
+//    [FieldOffset(40)]
+//    public int Reserved3;
+//    [FieldOffset(44)]
+//    public int Reserved4;
+//}
+
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_FileHeader : IOcdObj
 {
     /*
       TFileHeader = record
@@ -87,7 +161,7 @@ file struct FileHeader : IOcdObj
                                 // OCAD 7: 7
                                 // OCAD 8: 2 for normal files
                                 //         3 for course setting files
-    public short Version;       // 
+    public short Version;       // As expected
     public short SubVersion;    // Number of subversion: 0 for 6.00, 1 for 6.01 etc
     public int FirstSymBlk;     // File position of the first symbol block
     public int FirstIdxBlk;     // File position of the first index block
@@ -98,11 +172,84 @@ file struct FileHeader : IOcdObj
                                 // with up to 32767 characters + terminating zero
     public int InfoSize;        // Size (in bytes) of the file information
     public int FirstStIndexBlk; // OCAD 8 only. File position of the first string index block
-
-    public int Reserved2, Reserved3, Reserved4;
+    public int Reserved2;
+    public int Reserved3;
+    public int Reserved4;
 }
 
-file struct SymHeader : IOcdObj
+//[StructLayout(LayoutKind.Explicit)]
+//file struct SymHeader : IOcdObj
+//{
+//    /*
+//      TSymHeader = record
+//        nColors: SmallInt;         {Number of colors defined}
+//        nColorSep: SmallInt;       {Number or color separations
+//                                   defined}
+//        CyanFreq: SmallInt;        {Halftone frequency of the
+//                                   Cyan color separation. This
+//                                   is 10 times the value entered
+//                                   in the CMYK Separations dialog
+//                                   box.}
+//        CyanAng: SmallInt;         {Halftone angle of the cyan
+//                                   color separation. This is 10 times
+//                                   the value entered in the CMYK
+//                                   separations dialog box.}
+//        MagentaFreq: SmallInt;     {dito for magenta}
+//        MagentaAng: SmallInt;      {dito for magenta}
+//        YellowFreq: SmallInt;      {dito for yellow}
+//        YellowAng: SmallInt;       {dito for yellow}
+//        BlackFreq: SmallInt;       {dito for black}
+//        BlackAng: SmallInt;        {dito for black}
+//        Res1: SmallInt;
+//        Res2: SmallInt;
+//        aColorInfo: array [0..255] of TColorInfo;
+//                                   {the TColorInfo classure is
+//                                   explained below}
+//        aColorSep: array [0..31] of TColorSep;
+//                                   {the TColorSep classure is
+//                                   explained below. Note that only
+//                                   24 color separations are allowed.
+//                                   The rest is reserved for future
+//                                   use.}
+//      end;
+//    */
+
+//    [FieldOffset(0)]
+//    public short nColors;           // Number of colors defined
+//    [FieldOffset(2)]
+//    public short nColorSep;         // Number of color seperations defined
+//    [FieldOffset(4)]
+//    public short CyanFreq;          // Halftone frequency of the Cyan color seperation.
+//                                    // This is 10 times the value entered in the CMYK Separations dialog box
+//    [FieldOffset(6)]
+//    public short CyanAng;           // Halftone angle of the Cyan color seperation.
+//                                    // This is 10 times the value entered in the CMYK Separations dialog box
+//    [FieldOffset(6)]
+//    public short MagentaFreq;
+//    [FieldOffset(8)]
+//    public short MagentaAng;
+//    [FieldOffset(10)]
+//    public short YellowFreq;
+//    [FieldOffset(14)]
+//    public short YllowAng;
+//    [FieldOffset(16)]
+//    public short BlackFreq;
+//    [FieldOffset(18)]
+//    public short BlackAng;
+//    [FieldOffset(20)]
+//    public short Res1;
+//    [FieldOffset(22)]
+//    public short Res2;
+//    [FieldOffset(24)]
+//    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+//    public ColorInfo[] aColorInfo;  // (256) explained below
+//    [FieldOffset(96)] // TBD
+//    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+//    public ColorSep[] aColorSep;    // (32)  explained below. Only 24 allowed
+//}
+
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_SymHeader : IOcdObj
 {
     /*
       TSymHeader = record
@@ -147,16 +294,19 @@ file struct SymHeader : IOcdObj
     public short MagentaFreq;
     public short MagentaAng;
     public short YellowFreq;
-    public short YellowAng;
+    public short YllowAng;
     public short BlackFreq;
     public short BlackAng;
     public short Res1;
     public short Res2;
-    public ColorInfo[] aColorInfo;  // (256) explained below
-    public ColorSep[] aColorSep;    // (32)  explained below. Only 24 allowed
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public v6_ColorInfo[] aColorInfo;  // (256) explained below
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+    public v6_ColorSep[] aColorSep;    // (32)  explained below. Only 24 allowed
 }
 
-file struct ColorInfo : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_ColorInfo : IOcdObj
 {
     /*
      TColorInfo = record
@@ -184,12 +334,15 @@ file struct ColorInfo : IOcdObj
 
     public short ColorNum;
     public short Reserved;
-    public Cmyk Color;
+    public v6_Cmyk Color;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
     public string ColorName;
-    public byte[] SepPercentage;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+    public byte[] SepPercentage; // 32
 }
 
-file struct Cmyk : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_Cmyk : IOcdObj
 {
     /*
      TCmyk = record
@@ -202,13 +355,14 @@ file struct Cmyk : IOcdObj
       end;
     */
 
-    public byte Cyan;       // 2 times the Cyan value as it appears in the Define Color dialog box (to alllow half %s)
-    public byte Magenta;    // ditto
-    public byte Yellow;     // ditto
-    public byte Black;      // ditto
+    public byte Cyan;           // 2 times the Cyan value as it appears in the Define Color dialog box (to alllow half %s)
+    public byte Magenta;        // ditto
+    public byte Yellow;         // ditto
+    public byte Black;          // ditto
 }
 
-file struct ColorSep : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_ColorSep : IOcdObj
 {
     /*
      TColorSep = record
@@ -226,15 +380,17 @@ file struct ColorSep : IOcdObj
       end;
     */
 
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
     public string SepName;      // Name of the color seperation
-    public Cmyk Color;          // 0 in OCAD 6
+    public v6_Cmyk Color;          // 0 in OCAD 6
                                 // CMYK value of the seperation in OCAD 7
                                 // Only used in the Adobe Illustrator export
     public short RasterFreq;    // 10 times the halftone frequency as it appears in the Color Seperation dialog box
     public short RasterAngle;   // 10 times the halftone angle as it appears in the Color Seperation dialog box
 }
 
-file struct SymbolBlock : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_SymbolBlock : IOcdObj
 {
     /*
       TSymbolBlock = record
@@ -248,13 +404,15 @@ file struct SymbolBlock : IOcdObj
       end;
      */
 
-    public int NextBlock;   // File position of the next symbol block.
-                            // 0 of this is the last symbol block
-    public int[] FilePos;   // File position of up to 256 symbols.
-                            // 0 if there is no symbol for this index
+    public int NextBlock;       // File position of the next symbol block.
+                                // 0 of this is the last symbol block
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public int[] FilePos;       // File position of up to 256 symbols.
+                                // 0 if there is no symbol for this index
 }
 
-file struct BaseSym : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_BaseSym : IOcdObj
 {
     /*
       TBaseSym = record
@@ -343,13 +501,17 @@ file struct BaseSym : IOcdObj
                                 //  2: Hidden
     public short Res2, Res3;
     public int FilePos;         // File position, not used in the file, only when loaded in memory. Value in the file is not defined
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
     public byte[] Cols;         // (256) Set of the colors used in this symbol.
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
     public string Description;  // The description of the symbol
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 264)]
     public byte[] IconBits;     // (264) The icon can be uncompressed (16-bit colors) or compresed (256 color palette)
                                 // depending on the Flags field. In OCAD 6/7 it is always uncompressed
 }
 
-file struct PointSym : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_PointSym : IOcdObj
 {
     /*
       TPointSym = record
@@ -383,12 +545,45 @@ file struct PointSym : IOcdObj
       end;
      */
 
-    public short DataSize; // Number of coordinates (each 8 bytes) which follow this structure
-                           // each object header counts as 2 coordinates (16 bytes). Max 512
+    public short Size;          // Size of the symbol in bytes.
+                                // This depends on the type and the number of subsymbols
+    public short Sym;           // Symbol number.
+                                // This is 10 times the value that appears on screen (1010 for 101.0)
+    public short Otp;           // Object type:
+                                //  1: Point symbol
+                                //  2: Line symbol or Line text symbol
+                                //  3: Area symbol
+                                //  4: Text symbol
+                                //  5: Rectangle symbol
+    public byte SymTp;          // Symbol type:
+                                //  1: Line text and text symbols
+                                //  0: All other symbols
+    public byte Flags;          // OCAD 6/7: must be 0
+                                // OCAD 8:
+                                //  1: not oriented to north (inverted for better compatibility)
+                                //  2: Icon is compressed
+    public short Extent;        // Extent how much the rendered symbols can reach outside the coordinates of an object with this symbol
+    public bool Selected;       // Symbol is selected in the symbol box
+    public byte Status;         // Status of the symbol:
+                                //  0: Normal
+                                //  1: Protected
+                                //  2: Hidden
+    public short Res2, Res3;
+    public int FilePos;         // File position, not used in the file, only when loaded in memory. Value in the file is not defined
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public byte[] Cols;         // (256) Set of the colors used in this symbol.
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string Description;  // The description of the symbol
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 264)]
+    public byte[] IconBits;     // (264) The icon can be uncompressed (16-bit colors) or compresed (256 color palette)
+                                // depending on the Flags field. In OCAD 6/7 it is always uncompressed
+    public short DataSize;      // Number of coordinates (each 8 bytes) which follow this structure, each object
+                                // hheader counts as 2 coords (16 bytes). The max value is 512
     public short Reserved;
 }
 
-file struct SymElt : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_SymElt : IOcdObj
 {
     /*
       TSymElt = record
@@ -420,16 +615,19 @@ file struct SymElt : IOcdObj
                                 //  2: Area
                                 //  3: Circle
                                 //  4: Dot (filled circle)
-    public ushort stFlags; // unsure of data type (word)
-    public short stColor;
-    public short stLineWidth;
-    public short stDiameter;
-    public short stnPoly;
+    public ushort stFlags;      // Flags:
+                                //  1: Line with round ends
+    public short stColor;       // Color of the object. This is the number that appears in the Colors dialog box
+    public short stLineWidth;   // Line width for lines and circles (unit 0.01mm)
+    public short stDiameter;    // Diameter for circles and dots. The line width is included in this dimension for circles (Unit 0.01mm)
+    public short stnPoly;       // Number of coordinates
     public short stRes1, stRes2;
-    public Cord[] stPoly;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
+    public v6_Cord[] stPoly;       // Coordinates of the object ([0..511])
 }
 
-file struct LineSym : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_LineSym : IOcdObj
 {
     /*
       TLineSym = record
@@ -541,46 +739,104 @@ file struct LineSym : IOcdObj
       end;
      */
 
-    public short Tool;
-    public short LineColor;
-    public short LineWidth;
-    public bool LineEnds; // unsure of type (word) but states a bool value
-    public short DistFromStart;
-    public short DistToEnd;
-    public short MainLength;
-    public short EndLength;
-    public short MainGap;
-    public short SecGap;
-    public short EndGap;
-    public short MinSym;
-    public short nPrimSym;
-    public short PrimSymDist;
-    public ushort DblMode;
-    public ushort DblFlags;
-    public short DbFillColor;
-    public short DblLeftColor;
-    public short DblRightColor;
-    public short DblWidth;
-    public short DblLeftWidth;
-    public short DblRightWidth;
-    public short DblLength;
-    public short DblGap;
+    public short Size;          // Size of the symbol in bytes.
+                                // This depends on the type and the number of subsymbols
+    public short Sym;           // Symbol number.
+                                // This is 10 times the value that appears on screen (1010 for 101.0)
+    public short Otp;           // Object type:
+                                //  1: Point symbol
+                                //  2: Line symbol or Line text symbol
+                                //  3: Area symbol
+                                //  4: Text symbol
+                                //  5: Rectangle symbol
+    public byte SymTp;          // Symbol type:
+                                //  1: Line text and text symbols
+                                //  0: All other symbols
+    public byte Flags;          // OCAD 6/7: must be 0
+                                // OCAD 8:
+                                //  1: not oriented to north (inverted for better compatibility)
+                                //  2: Icon is compressed
+    public short Extent;        // Extent how much the rendered symbols can reach outside the coordinates of an object with this symbol
+    public bool Selected;       // Symbol is selected in the symbol box
+    public byte Status;         // Status of the symbol:
+                                //  0: Normal
+                                //  1: Protected
+                                //  2: Hidden
+    public short Tool;          // OCAD 6: Reserved
+                                // OCAD 7/8: Preferred drawing tool
+                                //  0: Off
+                                //  1: Curve mode
+                                //  2: Ellipse mode
+                                //  3: Circle mode
+                                //  4: Rectangular mode
+                                //  5: Straight line mode
+                                //  6: Freehand mode
+    public short Res3;
+    public int FilePos;         // File position, not used in the file, only when loaded in memory. Value in the file is not defined
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public byte[] Cols;         // (256) Set of the colors used in this symbol.
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string Description;  // The description of the symbol
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 264)]
+    public byte[] IconBits;     // (264) The icon can be uncompressed (16-bit colors) or compresed (256 color palette)
+                                // depending on the Flags field. In OCAD 6/7 it is always uncompressed
+    public short LineColor;     // Line color
+    public short LineWidth;     // Line width
+    public bool LineEnds;       // True if round line ends is checked
+    public short DistFromStart; // Distance from start
+    public short DistToEnd;     // Distance to the end
+    public short MainLength;    // Main length a
+    public short EndLength;     // End length b
+    public short MainGap;       // Main gap c
+    public short SecGap;        // Gap d
+    public short EndGap;        // Gap e
+    public short MinSym;        // -1: at least 0 gaps/symbols
+                                //  0: at least 1 gap /symbol
+                                //  1: at least 2 gaps/symbols
+    public short nPrimSym;      // Number of symbols
+    public short PrimSymDist;   // Distance
+    public ushort DblMode;      // Mode (Double line page)
+    public ushort DblFlags;     // Low order bit is set if fill is checked
+    public short DbFillColor;   // Fill color
+    public short DblLeftColor;  // Left line / Color
+    public short DblRightColor; // Right line / Color
+    public short DblWidth;      // Width
+    public short DblLeftWidth;  // Left line / Line width
+    public short DblRightWidth; // Right line / Line width
+    public short DblLength;     // Dashed / Distance a
+    public short DblGap;        // Dashed / Gap
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
     public short[] DblRes;
-    public ushort DecMode;
-    public short DecLast;
+    public ushort DecMode;      // Decrease mode: (ie. gullys?)
+                                //  0: off
+                                //  1: decreasing towards the end
+                                //  2: decreasing towards both ends
+    public short DecLast;       // Last Symbol
     public short DecRes;
-    public short FrColor;
-    public short FrWidth;
-    public short FrStyle;
-    public short PrimDSize;
-    public short SecDSize;
-    public short CornerDSize;
-    public short StartDSize;
-    public short EndDSize;
+    public short FrColor;       // OCAD 6: Reserved
+                                // OCAD 7/8: Color of the framing line
+    public short FrWidth;       // OCAD 6: Reserved
+                                // OCAD 7/8: Line width of the framing line
+    public short FrStyle;       // OCAD 6: Reserved
+                                // OCAD 7/8: Line style of the framing line
+                                //  0: flat cap  / bevel join
+                                //  1: round cap / round join
+                                //  2: flat cap  / miter join
+    public short PrimDSize;     // Number of coordinates (8 bytes) for the main symbol A which
+                                // follow this this struct. Each symbol header counts as 2 coords (16 bytes). Max 512
+    public short SecDSize;      // Number of coordinates (8 bytes) for the Secondary symbol which follows the
+                                // main symbol A. Each symbol header counts as 2 coords (16 bytes). Max 512
+    public short CornerDSize;   // Number of coordinates (8 bytes) for the Corner symbol which follows the
+                                // secondary symbol. Each symbol header counts as 2 coords (16 bytes). Max 512 
+    public short StartDSize;    // Number of coordinates (8 bytes) for the Start symbol C which follows the
+                                // corner symbol. Each symbol header counts as 2 coords (16 bytes). Max 512
+    public short EndDSize;      // Number of coordinates (8 bytes) for the End Symbol D which follows the
+                                // start symbol c. Each symbol header counts as 2 coords (16 bytes). Max 512
     public short Reserved;
 }
 
-file struct LTextSym : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_LTextSym : IOcdObj
 {
     /*
       TLTextSym = record
@@ -659,28 +915,89 @@ file struct LTextSym : IOcdObj
       end;
      */
 
-    public short Tool;
-    public short FrWidth;
-    public string FontName;
-    public short FontColor;
-    public short FontSize;
-    public short Weight;
-    public bool Italic;
-    public byte CharSet;
-    public short CharSpace;
-    public short WordSpace;
-    public short Alignment;
-    public short FrMode;
-    public string FrName;
-    public short FrColor;
-    public short FrSize;
-    public short FrWeight;
-    public ushort FrItalic; // wordbool?
-    public short FrOfX;
-    public short FrOfY;
+    public short Size;          // Size of the symbol in bytes.
+                                // This depends on the type and the number of subsymbols
+    public short Sym;           // Symbol number.
+                                // This is 10 times the value that appears on screen (1010 for 101.0)
+    public short Otp;           // Object type:
+                                //  1: Point symbol
+                                //  2: Line symbol or Line text symbol
+                                //  3: Area symbol
+                                //  4: Text symbol
+                                //  5: Rectangle symbol
+    public byte SymTp;          // Symbol type:
+                                //  1: Line text and text symbols
+                                //  0: All other symbols
+    public byte Flags;          // OCAD 6/7: must be 0
+                                // OCAD 8:
+                                //  1: not oriented to north (inverted for better compatibility)
+                                //  2: Icon is compressed
+    public short Extent;        // Extent how much the rendered symbols can reach outside the coordinates of an object with this symbol
+    public bool Selected;       // Symbol is selected in the symbol box
+    public byte Status;         // Status of the symbol:
+                                //  0: Normal
+                                //  1: Protected
+                                //  2: Hidden
+    public short Tool;          // OCAD 6: Reserved
+                                // OCAD 7/8: Preferred drawing tool
+                                //  0: Off
+                                //  1: Curve mode
+                                //  2: Ellipse mode
+                                //  3: Circle mode
+                                //  4: Rectangular mode
+                                //  5: Straight line mode
+                                //  6: Freehand mode
+    public short FrWidth;       // OCAD 6: Reserved
+                                // OCAD 7: Framing width (sorry, had to be squeezed in here)
+                                // OCAD 8: Not used
+    public int FilePos;         // File position, not used in the file, only when loaded in memory. Value in the file is not defined
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public byte[] Cols;         // (256) Set of the colors used in this symbol.
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string Description;  // The description of the symbol
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 264)]
+    public byte[] IconBits;     // (264) The icon can be uncompressed (16-bit colors) or compresed (256 color palette)
+                                // depending on the Flags field. In OCAD 6/7 it is always uncompressed
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string FontName;     // TrueType font
+    public short FontColor;     // Color
+    public short FontSize;      // 10 times the value in pt
+    public short Weight;        // Bold as used in the Windows GDI
+                                //  400: normal
+                                //  700: bold
+    public bool Italic;         // True if Italic is checked
+    public byte CharSet;        // OCAD 6/7: Must be 0
+                                // OCAD 8: CharSet of the text, if the text is not unicode
+    public short CharSpace;     // Character Spacing
+    public short WordSpace;     // Word Spacing
+    public short Alignment;     // Alignment:
+                                //  0: Left
+                                //  1: Center
+                                //  2: Right
+                                //  3: All line
+    public short FrMode;        // Framing mode:
+                                //  0: No framing
+                                //  1: Framing with a framing font
+                                //  2: OCAD 7/8 only: framing with a line
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string FrName;       // OCAD 6/7: TrueType font (Second/Framing font)
+                                // OCAD 8: Not used
+    public short FrColor;       // Color (Second/Framing font)
+    public short FrSize;        // OCAD 6/7: Size (Second/Framing font)
+                                // OCAD 8: Framing width
+    public short FrWeight;      // OCAD 6/7: Bold as used in the Windows GDI
+                                //  400: normal
+                                //  700: bold
+                                // OCAD 7: Not used
+    public ushort FrItalic;     // OCAD 6/7: True if Italic is checked (Second/Framing font)
+    public short FrOfX;         // OCAD 6/7: Horizontal offset
+                                // OCAD 8: Not used
+    public short FrOfY;         // OCAD 6/7: Vertical offset
+                                // OCAD 8: Not used
 }
 
-file struct AreaSym : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_AreaSym : IOcdObj
 {
     /*
       TAreaSym = record
@@ -743,25 +1060,74 @@ file struct AreaSym : IOcdObj
       end;
      */
 
-    public short Tool;
-    public ushort AreaFlags;
-    public short FillColor;
-    public short HatchMode;
-    public short HatchColor;
-    public short HatchLineWidth;
-    public short HatchDist;
-    public short HatchAngle1;
-    public short HatchAngle2;
-    public short HatchRes;
-    public short StructMode;
-    public short StructWidth;
-    public short StructHeight;
-    public short StructAngle;
+    public short Size;          // Size of the symbol in bytes.
+                                // This depends on the type and the number of subsymbols
+    public short Sym;           // Symbol number.
+                                // This is 10 times the value that appears on screen (1010 for 101.0)
+    public short Otp;           // Object type:
+                                //  1: Point symbol
+                                //  2: Line symbol or Line text symbol
+                                //  3: Area symbol
+                                //  4: Text symbol
+                                //  5: Rectangle symbol
+    public byte SymTp;          // Symbol type:
+                                //  1: Line text and text symbols
+                                //  0: All other symbols
+    public byte Flags;          // OCAD 6/7: must be 0
+                                // OCAD 8:
+                                //  1: not oriented to north (inverted for better compatibility)
+                                //  2: Icon is compressed
+    public short Extent;        // Extent how much the rendered symbols can reach outside the coordinates of an object with this symbol
+    public bool Selected;       // Symbol is selected in the symbol box
+    public byte Status;         // Status of the symbol:
+                                //  0: Normal
+                                //  1: Protected
+                                //  2: Hidden
+    public short Tool;          // OCAD 6: Reserved
+                                // OCAD 7/8: Preferred drawing tool
+                                //  0: Off
+                                //  1: Curve mode
+                                //  2: Ellipse mode
+                                //  3: Circle mode
+                                //  4: Rectangular mode
+                                //  5: Straight line mode
+                                //  6: Freehand mode
+    public short Res3;
+    public int FilePos;         // File position, not used in the file, only when loaded in memory. Value in the file is not defined
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public byte[] Cols;         // (256) Set of the colors used in this symbol.
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string Description;  // The description of the symbol
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 264)]
+    public byte[] IconBits;     // (264) The icon can be uncompressed (16-bit colors) or compresed (256 color palette)
+                                // depending on the Flags field. In OCAD 6/7 it is always uncompressed
+    public ushort AreaFlags;    // Reserved
+    public ushort FillOn;       // True if fill background is checked
+    public short FillColor;     // Fill Color
+    public short HatchMode;     // Hatch Mode:
+                                //  0: None
+                                //  1: Single hatch
+                                //  2: Cross hatch
+    public short HatchColor;    // Color (Hatch page)
+    public short HatchLineWidth;// Line width
+    public short HatchDist;     // Distance
+    public short HatchAngle1;   // Angle 1
+    public short HatchAngle2;   // Angle 2
+    public short HatchRes; 
+    public short StructMode;    // Structure:
+                                //  0: None
+                                //  1: Aligned rows
+                                //  2: Shifted rows
+    public short StructWidth;   // Width
+    public short StructHeight;  // Height
+    public short StructAngle;   // Angle
     public short StructRes;
-    public short DataSize;
+    public short DataSize;      // Number of coordinates (each 8 bytes) which follow this structure, each object
+                                // header counts as 2 coords (16 bytes). Max 512
 }
 
-file struct TextSym : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_TextSym : IOcdObj
 {
     /*
       TTextSym = record
@@ -842,38 +1208,93 @@ file struct TextSym : IOcdObj
       end;
      */
 
-    public short FrWidth;
-    public string FontName;
-    public short FontColor;
-    public short FontSize;
-    public short Weight;
-    public bool Italic;
-    public byte CharSet;
-    public short CharSpace;
-    public short WordSpace;
-    public short Alignment;
-    public short LineSpace;
-    public short ParaSpace;
-    public short IndentFirst;
-    public short IndentOther;
-    public short nTabs;
-    public int[] Tabs;
-    public ushort LBOn;
-    public short LBColor;
-    public short LBWidth;
-    public short LBDist;
+    public short Size;          // Size of the symbol in bytes.
+                                // This depends on the type and the number of subsymbols
+    public short Sym;           // Symbol number.
+                                // This is 10 times the value that appears on screen (1010 for 101.0)
+    public short Otp;           // Object type:
+                                //  1: Point symbol
+                                //  2: Line symbol or Line text symbol
+                                //  3: Area symbol
+                                //  4: Text symbol
+                                //  5: Rectangle symbol
+    public byte SymTp;          // Symbol type:
+                                //  1: Line text and text symbols
+                                //  0: All other symbols
+    public byte Flags;          // OCAD 6/7: must be 0
+                                // OCAD 8:
+                                //  1: not oriented to north (inverted for better compatibility)
+                                //  2: Icon is compressed
+    public short Extent;        // Extent how much the rendered symbols can reach outside the coordinates of an object with this symbol
+    public bool Selected;       // Symbol is selected in the symbol box
+    public byte Status;         // Status of the symbol:
+                                //  0: Normal
+                                //  1: Protected
+                                //  2: Hidden
+    public short Res2;
+    public short FrWidth;       // OCAD 6: Reserved
+                                // OCAD 7: Framing width. Sorry, this had to be squeezed in here
+                                // OCAD 8: Not used
+    public int FilePos;         // File position, not used in the file, only when loaded in memory. Value in the file is not defined
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public byte[] Cols;         // (256) Set of the colors used in this symbol.
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string Description;  // The description of the symbol
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 264)]
+    public byte[] IconBits;     // (264) The icon can be uncompressed (16-bit colors) or compresed (256 color palette)
+                                // depending on the Flags field. In OCAD 6/7 it is always uncompressed
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string FontName;     // TrueType font
+    public short FontColor;     // Color
+    public short FontSize;      // 10 times the value in pt
+    public short Weight;        // Bold as used in the Windows GDI
+                                //  400: normal
+                                //  700: bold
+    public bool Italic;         // True if Italic is checked
+    public byte CharSet;        // OCAD 6/7: Must be 0
+                                // OCAD 8: CharSet of the text, if the text is not unicode
+    public short CharSpace;     // Character Spacing
+    public short WordSpace;     // Word Spacing
+    public short Alignment;     // Alignment:
+                                //  0: Left
+                                //  1: Center
+                                //  2: Right
+                                //  3: All line
+    public short LineSpace;     // Line spacing
+    public short ParaSpace;     // Paragraph Spacing
+    public short IndentFirst;   // Indent first line
+    public short IndentOther;   // Indent other lines
+    public short nTabs;         // Number of tabulators
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+    public int[] Tabs;          // Tabulators
+    public ushort LBOn;         // True if Line below On is checked
+    public short LBColor;       // Line color (Line below)
+    public short LBWidth;       // Line width (Line below)
+    public short LBDist;        // Distance from text
     public short Res4;
-    public short FrMode;
-    public string FrName;
-    public short FrColor;
-    public short FrSize;
-    public short FrWeight;
-    public ushort FrItalic;
-    public short FrOfX;
-    public short FrOfY;
+    public short FrMode;        // Framing mode:
+                                //  0: No framing
+                                //  1: Framing with a framing font
+                                //  2: OCAD 7/8 only: framing with a line
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    public string FrName;       // OCAD 6/7: TrueType font (Second/Framing font)
+                                // OCAD 8: Not used
+    public short FrColor;       // Color (Second/Framing font)
+    public short FrSize;        // OCAD 6/7: Size (Second/Framing font)
+                                // OCAD 8: Framing width
+    public short FrWeight;      // OCAD 6/7: Bold as used in the Windows GDI
+                                //  400: normal
+                                //  700: bold
+                                // OCAD 7: Not used
+    public ushort FrItalic;     // OCAD 6/7: True if Italic is checked (Second/Framing font)
+    public short FrOfX;         // OCAD 6/7: Horizontal offset
+                                // OCAD 8: Not used
+    public short FrOfY;         // OCAD 6/7: Vertical offset
+                                // OCAD 8: Not used
 }
 
-file struct RectSym : IOcdObj
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_RectSym : IOcdObj
 {
     /*
       TRectSym = record
@@ -919,17 +1340,51 @@ file struct RectSym : IOcdObj
       end;
      */
 
-    public short LineColor;
-    public short LineWidth;
-    public short Radius;
-    public ushort GridFlags;
-    public short CellWidth;
-    public short CellHeight;
+    public short Size;          // Size of the symbol in bytes.
+                                // This depends on the type and the number of subsymbols
+    public short Sym;           // Symbol number.
+                                // This is 10 times the value that appears on screen (1010 for 101.0)
+    public short Otp;           // Object type:
+                                //  1: Point symbol
+                                //  2: Line symbol or Line text symbol
+                                //  3: Area symbol
+                                //  4: Text symbol
+                                //  5: Rectangle symbol
+    public byte SymTp;          // Symbol type:
+                                //  1: Line text and text symbols
+                                //  0: All other symbols
+    public byte Flags;          // OCAD 6/7: must be 0
+                                // OCAD 8:
+                                //  1: not oriented to north (inverted for better compatibility)
+                                //  2: Icon is compressed
+    public short Extent;        // Extent how much the rendered symbols can reach outside the coordinates of an object with this symbol
+    public bool Selected;       // Symbol is selected in the symbol box
+    public byte Status;         // Status of the symbol:
+                                //  0: Normal
+                                //  1: Protected
+                                //  2: Hidden
+    public short Res2;
+    public short Res3;
+    public int FilePos;         // File position, not used in the file, only when loaded in memory. Value in the file is not defined
+    public byte[] Cols;         // (256) Set of the colors used in this symbol.
+    public string Description;  // The description of the symbol
+    public byte[] IconBits;     // (264) The icon can be uncompressed (16-bit colors) or compresed (256 color palette)
+                                // depending on the Flags field. In OCAD 6/7 it is always uncompressed
+    public short LineColor;     // Line color
+    public short LineWidth;     // Line width
+    public short Radius;        // Corner radius
+    public ushort GridFlags;    // Flags:
+                                //  1: Grid on
+                                //  2: Numbered from the bottom
+    public short CellWidth;     // Cell width
+    public short CellHeight;    // Cell height
     public short ResGridLineColor;
     public short ResGridLineWidth;
-    public short UnnumCells;
-    public string UnnumText;
+    public short UnnumCells;    // Unnumbered cells
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 3)]
+    public string UnnumText;    // Text in unnumbered Cells
     public short GridRes2;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
     public string ResFontName;
     public short ResFontColor;
     public short ResFontSize;
@@ -939,21 +1394,136 @@ file struct RectSym : IOcdObj
     public short ResOfsY;
 }
 
-file struct Cord
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_Cord
 {
     public int X, Y;
 }
 
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_IndexBlock : IOcdObj
+{
+    /*
+    Each Index block contains the file position of 256 objects. In
+    addition it contains the symbol number and the extent (where on
+    the map the object is located) of each object.
+
+      TIndexBlock = record
+        NextBlock: longint;        {file position of the next block
+                                   0 if this is the last block}
+        IndexArr: array[0..255] of TIndex;
+                                   {TIndex as defined below}
+      end;
+     */
+
+    public int NextBlock;   // File position of the next block. 0 if this is the last block
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public Index IndexArr;  // (256)
+}
+
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_Index : IOcdObj
+{
+    public v6_Cord LowerLeft;   // Lower left corner of a rectangle covering the entire object. All flag bits are set to 0
+    public v6_Cord UpperRight;  // Upper right corner of a rectangle covering the entire object. All flag bits are set to 0
+    public int Pos;             // File position of the object
+    public ushort Len;          // OCAD 6/7: Size of the object in the file in bytes
+                                // OCAD 8: Number of coordinate pairs, the size of the object in the file is then calculated by:
+                                //         32 + 8 * Len
+                                // Note this is reserved space in the file, the actual length may be shorter
+    public short Sym;           // 10 times the symbol number. Deleted objects are marked with sym = 0
+}
+
+[StructLayout(LayoutKind.Sequential)]
+file struct v6_Element : IOcdObj
+{
+    public short Sym;       // 10 times the symbol number
+    public byte Otp;        // Object Type:
+                            //  1: Point Object
+                            //  2: Line or Line Text Object
+                            //  3: Area Object
+                            //  4: Unformatted Text Object
+                            //  5: Formatted Text Object or Rectangle Object
+    public byte Unicode;    // OCAD 6/7: Must be 0
+                            // OCAD 8: 1 if the text is Unicode
+    public short nItem;     // Number of coordinates in the Poly array
+    public short nText;     // Number of coordinates in the Poly array used for storing text
+                            // nText is >0 for:
+                            //  - Line text objects
+                            //  - Unformatted text objects
+                            //  - Formatted text objects
+                            // For all other objects it is 0
+    public short Ang;       // Angle, unit is .1 degrees
+                            // Used for:
+                            //  - Point object
+                            //  - Area objects with structure
+                            //  - Unformatted & formatted text objects
+                            //  - Rectangle objects
+    public short Res1;
+    public int ResHeight;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
+    public string ResId;    // (16)
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32768)]
+    public v6_Cord[] Poly; // 6/7: 2000, 8: 32768 ? Not all used
+}
+
 #endregion
 
-internal static class _Read
+internal static class v6_Read
 {
     public static void H()
     {
-        FileStream fs = new("D:\\Orienteering\\Maps\\Badlands.ocd", FileMode.Open, FileAccess.Read);
-        BinaryReader br = new(fs);
-        byte[] outpu = br.ReadBytes((int)fs.Length);
+        FileStream fs = new(@"D:\Orienteering\Maps\UK\North\West\WCOC\Marron Leys - Oct 13.ocd", FileMode.Open, FileAccess.Read);
+        BinaryReader reader = new(fs);
+
+        v6_FileHeader fz   H = reader.ReadBytes<v6_FileHeader>();
+        v6_SymHeader sH = reader.ReadBytes<v6_SymHeader>();
+
+        Console.WriteLine(Marshal.SizeOf<v6_BaseSym>());
+        Console.WriteLine(Marshal.SizeOf<v6_PointSym>());
+        Console.WriteLine(Marshal.SizeOf<v6_LineSym>());
+        Console.WriteLine(Marshal.SizeOf<v6_LTextSym>());
+        Console.WriteLine(Marshal.SizeOf<v6_AreaSym>());
+        Console.WriteLine(Marshal.SizeOf<v6_TextSym>());
+        Console.WriteLine(Marshal.SizeOf<v6_RectSym>());
+
         Console.ReadLine();
+    }
+
+    public static T? ByteToType<T>(byte[] bytes)
+    {
+        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        T? rObj = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+        handle.Free();
+
+        return rObj;
+    }
+    public static T? ByteToType<T>(BinaryReader reader)
+    {
+        byte[] bytes = reader.ReadBytes(Marshal.SizeOf(typeof(T)));
+
+        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        T? rObj = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+        handle.Free();
+
+        return rObj;
+    }
+
+    public static T? ReadBytes<T>(this BinaryReader reader)
+    {
+        byte[] bytes = reader.ReadBytes(Marshal.SizeOf<T>());
+
+        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        T? ret = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+        handle.Free();
+
+        return ret;
+    }
+
+    private static class ByteUtils
+    {
+        public static byte[] Seek(byte[] arr, int startPoint, int length) 
+            => arr.Skip(startPoint).Take(length).ToArray();
     }
 }
 
