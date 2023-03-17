@@ -1414,7 +1414,11 @@ file struct v6_IndexBlock : IOcdObj
         IndexArr: array[0..255] of TIndex;
                                    {TIndex as defined below}
       end;
-     */
+
+    
+    The position of the first index block is in the field FirstIdxBlk
+    of the file header.
+    */
 
     public int NextBlock;   // File position of the next block. 0 if this is the last block
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
@@ -1424,6 +1428,35 @@ file struct v6_IndexBlock : IOcdObj
 [StructLayout(LayoutKind.Sequential)]
 file struct v6_Index : IOcdObj
 {
+
+    /*
+      TIndex = record
+        LowerLeft: TCord;          {lower left corner of
+                                   a rectangle covering the
+                                   entire object. All flag bits
+                                   are set to 0}
+        UpperRight: TCord;         {upper right corner of
+                                   a rectangle covering the
+                                   entire object. All flag bits
+                                   are set to 0}
+        Pos: longint;              {file position of the object}
+        Len: word;                 {OCAD 6 and 7: size of the object in the file
+                                      in bytes
+                                   OCAD 8: number of coordinate pairs, the size of
+                                     the object in the file is then calculated by:
+                                        32 + 8*Len
+                                   Note: this is reserved space in the file, the
+                                     effective length of the object may be shorter}
+        Sym: SmallInt;             {10 times the symbol number
+                                   Deleted objects are marked with Sym=0}
+      end;
+
+    For calculating LowerLeft and UpperRight the value Extent from
+    the corresponding symbol is added/subtracted to the outermost
+    coordinates of the object. The rectangle covers everything
+    which appears from the object.
+     */
+
     public v6_Cord LowerLeft;   // Lower left corner of a rectangle covering the entire object. All flag bits are set to 0
     public v6_Cord UpperRight;  // Upper right corner of a rectangle covering the entire object. All flag bits are set to 0
     public int Pos;             // File position of the object
@@ -1437,6 +1470,62 @@ file struct v6_Index : IOcdObj
 [StructLayout(LayoutKind.Sequential)]
 file struct v6_Element : IOcdObj
 {
+
+    /*
+    Objects are stored as a TElement structure.
+
+      TElement = record
+        Sym: SmallInt;             {10 times the symbol number}
+        Otp: byte;                 {object type
+                                     1: point object
+                                     2: line or line text object
+                                     3: area object
+                                     4: unformatted text object
+                                     5: formatted text object
+                                        or rectangle object}
+        Unicode: byte;             {OCAD 6/7: must be 0
+                                    OCAD 8: 1 if the text is Unicode}
+        nItem: SmallInt;           {number of coordinates in the
+                                   Poly array}
+        nText: SmallInt;           {number of coordinates in the
+                                   Poly array used for storing text
+                                   nText is > 0 for
+                                     - line text objects
+                                     - unformatted text objects
+                                     - formatted text objects
+                                   for all other objects it is 0}
+        Ang: SmallInt;             {Angle, unit is 0.1 degrees
+                                   used for
+                                     - point object
+                                     - area objects with structure
+                                     - unformatted and formatted
+                                       text objects
+                                     - rectangle objects}
+        Res1: SmallInt;
+        ResHeight: longint;        {reserved for future use to
+                                   store a height information}
+        ResId: string[15];         {reserved}
+        Poly: array[0..1999] of TCord; {OCAD 8: array[0..32767]    
+                                   coordinates of the object
+                                   followed by a zero-terminated
+                                   string if nText > 0
+                                   TCord is explained at the beginning
+                                   of this description}
+      end;
+
+    Limits for nItem and nText in OCAD 6 and 7:
+      nItem + nText <= 2000
+      nText <= 1024 (8191 characters + terminating zero)
+      The number of bytes of an object (as used in the TIndex
+      structure) can be calculated as
+        Index.Len := 32 + 8 * nItem + 8 * nText;
+
+    Limits for nItem and nText in OCAD 8:
+      nItem + nText <= 32768
+      nText <= 1024 (8191 characters + terminating zero)
+      Index.Len := nItem+nText
+     */
+
     public short Sym;       // 10 times the symbol number
     public byte Otp;        // Object Type:
                             //  1: Point Object
@@ -1467,6 +1556,228 @@ file struct v6_Element : IOcdObj
     public v6_Cord[] Poly; // 6/7: 2000, 8: 32768 ? Not all used
 }
 
+file struct v6_Setup : IOcdObj
+{
+    /*
+    The Setup structure contains miscellanous information about
+    the map. The file position of the Setup structure is given
+    in the field SetupPos in the file header. SetupSize gives
+    the size of the Setup structure in the file. SetupSize is
+    provided because additional fields may be added to this structure.
+    You may encounter files (created with a beta version) that
+    have a smaller size than defined below. Therefore when reading
+    the Setup structure
+      - set the entire structure in memory to 0
+      - read SetupSize bytes (but not more than sizeof(TSetup))
+        from the file to the structure
+    If you want to save a Setup structure which is larger than
+    SetupSize in the FileHeader you have to append it at the end
+    of the file and adjust SetupPos and SetupSize.
+
+      TStp = record
+        Offset: TCord;             {Coordinate of the center
+                                   of the screen when the file was
+                                   last saved. All flag bits
+                                   are set to 0}
+        rGridDist: double;         {Grid distance for paper
+                                   paper coordinates in mm}
+        WorkMode: SmallInt;        {Mode when last the file was
+                                   last saved
+                                     5: freehand
+                                     6: straight
+                                     7: rectangular
+                                     8: circle
+                                     9: ellipse
+                                     10: curve
+                                     11: edit point
+                                     12: edit object}
+        LineMode: SmallInt;        {drawing mode when the file was
+                                   last saved
+                                     5: freehand
+                                     6: straight
+                                     7: rectangular
+                                     8: circle
+                                     9: ellipse
+                                     10: curve}
+        EditMode: SmallInt;        {edit mode when the file was
+                                   last saved
+                                     11: edit point
+                                     12: edit object}
+        ActSym: SmallInt;          {selected symbol the file was
+                                   last saved}
+        MapScale: double;          {Map scale}
+        RealWorldOfsX: double;     {Horizontal offset of real
+                                   world coordinates in meters}
+        RealWorldOfsY: double;     {Vertical offset of real
+                                   world coordinates in meters}
+        RealWorldAngle: double;    {Angle of real world coordinates
+                                   in degrees}
+        RealWorldGrid: double;     {Grid distance of real world
+                                   coordinates in meters}
+        GpsAngle: double;          {Angle of the GPS adjustment as
+                                   displayed in the Adjust GPS
+                                   dialog box}
+        aGpsAdjust: array[0..11] of TGpsAdjPoint;
+                                   {GPS adjustment points, this
+                                   structure is defined below}
+        nGpsAdjust: longint;       {number of GPS adjustment points}
+        DraftScaleX: double;       {Horizontal draft scale, not used in OCAD 8}
+        DraftScaleY: double;       {Vertical draft scale, not uses in OCAD 8}
+        TempOffset: TCord;         {Template offset. This defines
+                                   the coordinates where the center
+                                   of the template is displayed, not used in OCAD 8}
+        TemplateFileName: string[255];
+                                   {file name of the template, not used in OCAD 8}
+        TemplateEnabled: wordbool; {true if a template is opened, not used in OCAD 8}
+        TempResol: SmallInt;       {resolution of the template file
+                                   in DPI, not used in OCAD 8}
+        rTempAng: double;          {Angle of the adjusted template, 
+                                   not used in OCAD 8}
+        Reserved: TCord;
+        Reserved: double;
+        PrLowerLeft: TCord;        {lower left corner of the print
+                                   window. All Flag bits are set
+                                   to 0}
+        PrUpperRight: TCord;       {upper right corner of the print
+                                   window. All Flag bits are set
+                                   to 0}
+        PrGrid: wordbool;          {true if Print grid is activated
+                                   in the Print dialog box}
+        PrGridColor: SmallInt;     {Grid color selected in the
+                                   Print dialog box}
+        PrOverlapX: SmallInt;      {Horizontal overlap as defined
+                                   in the Print Window dialog box
+                                   unit is 0.01 mm}
+        PrOverlapY: SmallInt;      {Vertical overlap as defined
+                                   in the Print Window dialog box
+                                   unit is 0.01 mm}
+        PrintScale: double;        {Print scale}
+        PrIntensity: SmallInt;     {Intensity as defined in the
+                                   Printing Options dialog box}
+        PrLineWidth: SmallInt;     {Line Width as defined in the
+                                   Printing Options dialog box}
+        PrReserved: wordbool;
+        PrStdFonts: wordbool;      {OCAD 6: true if Standard fonts as
+                                      PostScript fonts is activated
+                                      in the EPS Properties dialog box
+                                    OCAD7/8: not used}
+        PrReserved2: wordbool;
+        PrReserved3: wordbool;
+        PartialLowerLeft: TCord;   {lower left corner of Export
+                                   Partial map window. All flag bits
+                                   are set to 0}
+        PartialUpperRight: TCord;  {upper right corner of the Export
+                                   Partial map window. All flag bits
+                                   are set to 0}
+        Zoom: double;              {Zoom magnification as it appears
+                                   in the View menu and in the
+                                   status bar}
+        ZoomHist: array[0..8] of TZoomRec;
+                                   {Last 8 Zoom magnification for use
+                                   in the Zoom out command. TZoomRec
+                                   is explained below.}
+        nZoomHist: longint;        {number of magnificiations in
+                                   ZoomHist}
+
+                                   {OCAD 6: the setup ends here
+                                   the following fields exist
+                                   in OCAD 7 only}
+
+        RealWorldCord: wordbool;   {true if real world coordinates
+                                   are to be displayed}
+        FileName: ShortString;     {used internally in temporary files.
+                                   The name of the original file
+                                   is stored here}
+        HatchAreas: wordbool;      {true if Hatch areas is active}
+        DimTemp: wordbool;         {true if Dim template is active}
+        HideTemp: wordbool;        {true if Hide template is active}
+        TempMode: SmallInt;        {template mode
+                                     0: in the background
+                                     1: above a color}
+        TempColor: SmallInt;       {the color if template mode is 1}
+      end;
+
+     */
+
+    public v6_Cord Offset;              // Coordinate of the center of the screen when the file was last saved. All flag bits are set to 0
+    public double rGridDis;             // Grid distance for paper coordinates in mm
+    public short WorkMode;              // Mode when the file was last saved:
+                                        //  5: freehand
+                                        //  6: straight
+                                        //  7: rectangular
+                                        //  8: circle
+                                        //  9: ellipse
+                                        // 10: curve
+                                        // 11: edit point
+                                        // 12: edit object
+    public short LineMode;              // Drawing mode when the file was last saved:
+                                        //  5: freehand
+                                        //  6: straight
+                                        //  7: rectangular
+                                        //  8: circle
+                                        //  9: ellipse
+                                        // 10: curve
+    public short EditMode;              // Edit mode when the file was last saved:
+                                        // 11: edit point
+                                        // 12: edit object
+    public short ActSym;                // Selected symbol when the file was last saved
+    public double MapScale;             // Map scale
+    public double RealWorldOfsX;        // Horizontal offset of real world coordinates in meters
+    public double RealWorldOfsY;        // Vertical offset of real world coordinates in meters
+    public double RealWorldAngle;
+    public double RealWorldGrid;
+    public double GpsAngle;
+    public v6_GpsAdjPoint[] aGpsAdjust; //
+    public int nGpsAdjust;
+    public double DraftScaleX;
+    public double DraftScaleY;
+    public v6_Cord TempOffset;
+    public string TemplateFileName;
+    public ushort TemplateEnabled;
+    public short TempResol;
+    public double rTempAng;
+    public v6_Cord Res1;
+    public double Res2;
+    public v6_Cord PrLowerLeft;
+    public v6_Cord PrUpperRight;
+    public ushort PrGrid;
+    public short PrGridColor;
+    public short PrOverlapX;
+    public short PrOverlapY;
+    public double PrintScale;
+    public short PrIntensity;
+    public short PrLineWidth;
+    public ushort PrRes1;
+    public ushort PrStdFonts;
+    public ushort PrRes2, PrRes3;
+    public v6_Cord PartialLowerLeft;
+    public v6_Cord PartialUpperRight;   //
+    public double Zoom;
+    public v6_ZoomRec[] ZoomHist;
+    public int nZoomHist;
+    public ushort RealWorldCord;
+    public string FileName;
+    public ushort HatchAreas;
+    public ushort DimTemp;
+    public ushort HideTemp;
+    public short TempMode;
+    public short TempColor;
+}
+
+file struct v6_GpsAdjPoint : IOcdObj
+{
+    public v6_Cord lpMap;
+    public double Lat;
+    public double Long;
+    public string Name;
+}
+
+file struct v6_ZoomRec : IOcdObj
+{
+    public double Zoom;
+    public v6_Cord Offset;
+}
+
 #endregion
 
 internal static class v6_Read
@@ -1476,7 +1787,7 @@ internal static class v6_Read
         FileStream fs = new(@"D:\Orienteering\Maps\UK\North\West\WCOC\Marron Leys - Oct 13.ocd", FileMode.Open, FileAccess.Read);
         BinaryReader reader = new(fs);
 
-        v6_FileHeader fz   H = reader.ReadBytes<v6_FileHeader>();
+        v6_FileHeader fz = reader.ReadBytes<v6_FileHeader>();
         v6_SymHeader sH = reader.ReadBytes<v6_SymHeader>();
 
         Console.WriteLine(Marshal.SizeOf<v6_BaseSym>());
