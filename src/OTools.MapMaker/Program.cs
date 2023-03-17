@@ -1,7 +1,10 @@
+﻿global using Sunley.Mathematics;
+global using static System.Diagnostics.Debug;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Converters;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
+
 
 namespace OTools.MapMaker
 {

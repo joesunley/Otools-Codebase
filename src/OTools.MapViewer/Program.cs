@@ -1,6 +1,4 @@
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia;
 using System;
 
 namespace OTools.MapViewer
