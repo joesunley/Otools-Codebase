@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="OneOf" Version="3.0.243" />
     <PackageReference Include="SharpHook" Version="4.0.0" />
     <PackageReference Include="Sunley.Mathematics-net6" Version="1.2.2" />
   </ItemGroup>

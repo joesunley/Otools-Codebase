@@ -114,6 +114,16 @@ public interface PathInstance : Instance
     public float PatternRotation { get; set; }
 
     new IPathSymbol Symbol { get; set; }
+
+    public PathInstance Clone()
+    {
+        return Symbol switch
+        {
+            LineSymbol l => new LineInstance(Layer, l, Segments, IsClosed, PatternRotation, Holes),
+            AreaSymbol a => new AreaInstance(Layer, a, Segments, IsClosed, PatternRotation, Holes),
+            _ => throw new InvalidOperationException()
+        };
+    }
 }
 
 public sealed class PathCollection : List<IPathSegment>

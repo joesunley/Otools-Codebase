@@ -2,6 +2,7 @@
 using Sunley.Mathematics;
 using static System.Diagnostics.Debug;
 using System.Diagnostics;
+using System.Data;
 
 namespace OTools.ObjectRenderer2D;
 
@@ -68,8 +69,7 @@ public class MapRender : IMapRender
     }
     public IEnumerable<IShape> RenderPointObject(PointObject obj)
     {
-        float sum = obj.InnerRadius + obj.OuterRadius;
-        float diameter = 2 * sum;
+        float diameter = 2 * (obj.InnerRadius + obj.OuterRadius);
 
         Ellipse innerEllipse = new()
         {
@@ -100,7 +100,6 @@ public class MapRender : IMapRender
         if (obj.InnerRadius == Colour.Transparent)
             return new IShape[] { outerEllipse };
         return new IShape[] { innerEllipse, outerEllipse };
-
     }
     public IEnumerable<IShape> RenderLineObject(LineObject obj)
     {
@@ -257,7 +256,7 @@ public class MapRender : IMapRender
     public IEnumerable<IShape> RenderPointSymbol(PointSymbol sym)
     {
         int hash = sym.GetHashCode();
-        if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape> value))
+        if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape>? value))
             return value;
 
         var shapes = RenderMapObjects(sym.MapObjects);
@@ -310,6 +309,8 @@ public class MapRender : IMapRender
     {
         foreach (IShape el in RenderPointSymbol(inst.Symbol))
         {
+            el.Opacity = inst.Opacity;
+
             if (el is Ellipse ellipse)
             {
                 vec2 transform = new(
@@ -318,6 +319,8 @@ public class MapRender : IMapRender
                     );
 
                 el.TopLeft = transform;
+
+                yield return el;
             }
             else
             {
@@ -386,8 +389,6 @@ public class MapRender : IMapRender
             renders.Add(border);
         }
 
-
-
         if (inst.Symbol is AreaSymbol aSym)
         {
             var poly = inst.Segments.Linearise();
@@ -397,7 +398,7 @@ public class MapRender : IMapRender
 
             var fillObjs = aSym.Fill switch
             {
-                SolidFill sFill => RenderSolidFill(sFill, rect, true),
+                SolidFill sFill => Enumerable.Empty<IShape>(),
                 PatternFill pFill => RenderPatternFill(pFill, poly, rect, inst.PatternRotation),
                 ObjectFill oFill => RenderObjectFill(oFill, poly, rect, true),
                 CombinedFill cFill => RenderCombinedFill(cFill, poly, rect, inst.PatternRotation, true),
@@ -414,10 +415,9 @@ public class MapRender : IMapRender
 
                 IsClosed = inst.IsClosed,
 
-                Fill = visFill,
+                Fill = aSym.Fill is SolidFill s ? s.Colour.HexValue : visFill,
 
-                DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle,
-                                                   inst.Symbol.BorderWidth),
+                DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.BorderWidth),
             };
 
             renders.Add(area);
@@ -438,7 +438,7 @@ public class MapRender : IMapRender
                 renders.AddRange(LiveMapObjects(inst.Symbol.MidStyle.MapObjects, p));
         }
 
-        return renders;
+        return renders.Select(x => { x.Opacity = inst.Opacity; return x; });
     }
     public IEnumerable<IShape> RenderTextInstance(TextInstance inst)
     {
@@ -457,7 +457,6 @@ public class MapRender : IMapRender
         return new IShape[] { text };
 
     }
-
 
     private VisualFill VisualFill(IEnumerable<IShape> shapes, vec4 aabb)
     {
@@ -612,7 +611,7 @@ public class WireframeMapRender : IMapRender
 
     private Map _activeMap;
 
-    // Need to add way to update for changed symbols
+    // Need to add way to update for changed symbols.
     // Could just redo the calculation for every symbol every time there is
     // an update but is inefficient
     private readonly Dictionary<Guid, Colour> _cachedPrimaryColours;
@@ -1053,6 +1052,9 @@ internal static class _Utils
 
     public static IEnumerable<vec2> CalculateMidPoints(IList<vec2> points, MidStyle midStyle)
     {
+        if (points.Count <= 1)
+            return Enumerable.Empty<vec2>();
+
         float spacing = midStyle.GapLength;
 
         float modInitOff = midStyle.InitialOffset + midStyle.GapLength / 2; // HalfLength on all
@@ -1075,6 +1077,9 @@ internal static class _Utils
             {
                 points.RemoveAt(0);
                 modInitOff -= firstSegLine;
+
+                if (points.Count <= 1)
+                    return Enumerable.Empty<vec2>();
             }
         }
 
@@ -1106,7 +1111,8 @@ internal static class _Utils
         float usableSpacing = len / count;
 
         if (spacing * 0.8f > usableSpacing || spacing * 1.2f < usableSpacing)
-            throw new Exception(); // Doesn't Work?
+            return Enumerable.Empty<vec2>();
+            //throw new Exception(); // Doesn't Work?
 
         List<vec2> mids = new();
         float currDistance = 0f;
@@ -1338,6 +1344,7 @@ internal static class _PolygonTools
     public static IEnumerable<vec2> Difference(IEnumerable<vec2> poly1, IEnumerable<vec2> poly2) => throw new NotImplementedException();
     public static IEnumerable<vec2> Xor(IEnumerable<vec2> poly1, IEnumerable<vec2> poly2) => throw new NotImplementedException();
 
+    // Needs a lot of optimising / needs rewriting
     public static IEnumerable<vec2> PoissonDiscSampling(IEnumerable<vec2> poly, float spacing, IEnumerable<IEnumerable<vec2>>? holes = null)
     {
         IList<vec2> polyArr = poly.ToArray();

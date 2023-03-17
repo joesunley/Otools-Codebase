@@ -2,6 +2,7 @@
 using OTools.Maps;
 using Sunley.Mathematics;
 using System.Numerics;
+using OneOf;
 
 namespace OTools.ObjectRenderer2D;
 
@@ -126,7 +127,7 @@ public struct Path : IShape
     public List<IPathSegment> Segments { get; set; }
     public List<IPathSegment[]> Holes { get; set; }
 
-    public VisualFill? Fill { get; set; }
+    public OneOf<VisualFill, uint>? Fill { get; set; }
 
     public bool IsClosed { get; set; }
     public float BorderWidth { get; set; }
@@ -147,7 +148,7 @@ public struct Path : IShape
 
         Fill = null;
 
-        IsClosed = true;
+        IsClosed = false;
         BorderWidth = 0f;
         BorderColour = Colour.Transparent;
 
