@@ -6,8 +6,9 @@ using OTools.Maps;
 using Sunley.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-
+using System.Text;
 using Ava = Avalonia.Controls.Shapes;
 using OT = OTools.ObjectRenderer2D;
 
@@ -131,13 +132,20 @@ internal static class Convert
 
             Data = geom,
 
-
-			Fill = path.Fill is not null ? ConvVisualFill(path.Fill.Value!) : null,
-
             Stroke = ColourToBrush(path.BorderColour),
             StrokeThickness = path.BorderWidth,
             StrokeDashArray = new(path.DashArray),
         };
+
+        if (path.Fill.HasValue)
+        {
+            output.Fill = path.Fill.Value.IsT0 ?
+                ConvVisualFill(path.Fill.Value.AsT0) :
+                ColourToBrush(path.Fill.Value.AsT1);
+        }
+
+
+        Debug.WriteLine(path.TopLeft);
 
         output.SetTopLeft(path.TopLeft);
 
@@ -242,31 +250,23 @@ internal static class Convert
         
         Canvas c = new() { Width = v2.X, Height = v2.Y};
 
-        // Rectangle rectangle = new() { Height = 1000, Width = 1000, Fill = Brushes.Red };
-        // c.Children.Add(rectangle);
+        Rectangle rectangle = new() { Height = 1000, Width = 1000, Fill = Brushes.Red };
+        c.Children.Add(rectangle);
 
-        //List<OT.IShape> shapes = new();
-        //foreach (var shape in fill.Shapes)
-        //{
-        //    if (shape is Rectangle)
-        //    {
-        //        shapes.Add(shape);
-        //        continue;
-        //    }
+        List<OT.IShape> shapes = new();
+        foreach (var shape in fill.Shapes)
+        {
+            var s = shape;
+            //s.TopLeft += fill.Viewport.XY;
 
-        //    var s = shape;
-        //    s.TopLeft += fill.Viewport.XY;
+            Debug.WriteLine(s.TopLeft);
 
-        //    shapes.Add(s);
-        //}
+            shapes.Add(s);
+        }
 
-        //c.Children.AddRange(ConvertCollection(shapes));
-
-        c.Children.AddRange(ConvertCollection(fill.Shapes));
+        c.Children.AddRange(ConvertCollection(shapes));
 
         output.Visual = c;
-
-        //output.Visual = new Rectangle { Width = v2.X, Height = v2.Y, Fill = Brushes.Red };
 
         return output;
     }
@@ -286,6 +286,8 @@ internal static class Convert
 
 	private static void SetTopLeft(this Shape shape, vec2 v2)
     {
+        //Debug.WriteLine(v2.ToString());
+
         shape.SetValue(Canvas.LeftProperty, v2.X);
         shape.SetValue(Canvas.TopProperty, v2.Y);
     }
