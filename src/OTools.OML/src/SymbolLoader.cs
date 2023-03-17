@@ -215,8 +215,9 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 		l.Add(border);
 		l.Add(SaveDashStyle(sym.DashStyle));
 		l.Add(SaveMidStyle(sym.MidStyle));
-		
-		return new("LineSymbol", l);
+		l.Add(SaveLineStyle(sym.LineStyle));
+
+        return new("LineSymbol", l);
 	}
 
 	public OMLNode SaveAreaSymbol(AreaSymbol sym)
@@ -236,6 +237,7 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 
 		l.Add(SaveDashStyle(sym.DashStyle));
 		l.Add(SaveMidStyle(sym.MidStyle));
+		l.Add(SaveLineStyle(sym.LineStyle));
 		l.Add(new("RotatablePattern", sym.RotatablePattern.ToString()));
 
 		return new("AreaSymbol", l);
@@ -307,6 +309,15 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 			new("InitialOffset", mid.InitialOffset.ToString()),
 			new("EndOffset", mid.EndOffset.ToString()),
 			SaveMapObjects(mid.MapObjects),
+		});
+	}
+
+	public OMLNode SaveLineStyle(LineStyle lin)
+	{
+		return new("LineStyle", new OMLNodeList
+		{
+			new("Join", lin.Join.ToString()),
+			new("Cap", lin.Cap.ToString())
 		});
 	}
 
@@ -609,8 +620,9 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 
 		DashStyle d = LoadDashStyle(l["DashStyle"]);
 		MidStyle m = LoadMidStyle(l["MidStyle"]);
+		LineStyle lS = LoadLineStyle(l["LineStyle"]);
 		
-		return new(bas.name, bas.desc, bas.num, bas.uncr, bas.help, col, wid, d, m);
+		return new(bas.name, bas.desc, bas.num, bas.uncr, bas.help, col, wid, d, m, lS);
 	}
 
 	public AreaSymbol LoadAreaSymbol(OMLNode node)
@@ -626,10 +638,11 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 		
 		DashStyle d = LoadDashStyle(l["DashStyle"]);
 		MidStyle m = LoadMidStyle(l["MidStyle"]);
+		LineStyle lS = LoadLineStyle(l["LineStyle"]);
 		
 		bool rotPattern = bool.Parse(l["RotatablePattern"]);
 
-		return new(bas.name, bas.desc, bas.num, bas.uncr, bas.help, fill, col, wid, d, m, rotPattern);
+		return new(bas.name, bas.desc, bas.num, bas.uncr, bas.help, fill, col, wid, d, m, lS, rotPattern);
 	}
 
 	public TextSymbol LoadTextSymbol(OMLNode node)
@@ -689,12 +702,19 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 
 	public MidStyle LoadMidStyle(OMLNode node)
 	{
-		if (node.Value! is OMLString s && s == "None")
+		if (node.Value is OMLString s && s == "None")
 			return MidStyle.None;
 		
 		OMLNodeList l = (OMLNodeList)node.Value!;
 		
 		return new(LoadMapObjects(l["MapObjects"]), float.Parse(l["GapLength"]), bool.Parse(l["RequireMid"]), float.Parse(l["InitialOffset"]), float.Parse(l["EndOffset"]));
+	}
+
+	public LineStyle LoadLineStyle(OMLNode node)
+	{
+		OMLNodeList l = (OMLNodeList)node.Value!;
+
+		return new(int.Parse(l["Join"]), int.Parse(l["Cap"]));
 	}
 
 	public IEnumerable<MapObject> LoadMapObjects(OMLNode node)

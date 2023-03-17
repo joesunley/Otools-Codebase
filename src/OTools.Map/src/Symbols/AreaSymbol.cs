@@ -12,9 +12,11 @@ public sealed class AreaSymbol : Symbol, IPathSymbol
 
     public MidStyle MidStyle { get; set; }
 
+    public LineStyle LineStyle { get; set; }
+
     public bool RotatablePattern { get; set; }
 
-    public AreaSymbol(string name, string description, SymbolNumber number, bool isUncrossable, bool isHelperSymbol, IFill fill, Colour borderColour, float width, DashStyle dashStyle, MidStyle midStyle, bool rotatablePattern)
+    public AreaSymbol(string name, string description, SymbolNumber number, bool isUncrossable, bool isHelperSymbol, IFill fill, Colour borderColour, float width, DashStyle dashStyle, MidStyle midStyle, LineStyle lineStyle, bool rotatablePattern)
         : base(name, description, number, isUncrossable, isHelperSymbol)
     {
         Fill = fill;
@@ -22,10 +24,11 @@ public sealed class AreaSymbol : Symbol, IPathSymbol
         BorderWidth = width;
         DashStyle = dashStyle;
         MidStyle = midStyle;
+        LineStyle = lineStyle;
         RotatablePattern = rotatablePattern;
     }
 
-    public AreaSymbol(Guid id, string name, string description, SymbolNumber number, bool isUncrossable, bool isHelperSymbol, IFill fill, Colour borderColour, float width, DashStyle dashStyle, MidStyle midStyle, bool rotatablePattern)
+    public AreaSymbol(Guid id, string name, string description, SymbolNumber number, bool isUncrossable, bool isHelperSymbol, IFill fill, Colour borderColour, float width, DashStyle dashStyle, MidStyle midStyle, LineStyle lineStyle, bool rotatablePattern)
         : base(id, name, description, number, isUncrossable, isHelperSymbol)
     {
         Fill = fill;
@@ -33,6 +36,7 @@ public sealed class AreaSymbol : Symbol, IPathSymbol
         BorderWidth = width;
         DashStyle = dashStyle;
         MidStyle = midStyle;
+        LineStyle = lineStyle;
         RotatablePattern = rotatablePattern;
     }
 }

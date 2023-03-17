@@ -1098,7 +1098,7 @@ file static class _MarshallLoad
                                 false, s.is_helper_symbol,
                                 Colour(s.color), s.line_width / 1000,
                                 DashStyle(s.dashed, s.dash_length, s.break_length, s.dashes_in_group, s.in_group_break_length),
-                                MidStyle(s.start_offset, s.end_offset, s.mid_symbol_distance, s.mid_symbol));
+                                MidStyle(s.start_offset, s.end_offset, s.mid_symbol_distance, s.mid_symbol), LineStyle.Default);
 
         return op;
     }
@@ -1110,7 +1110,7 @@ file static class _MarshallLoad
                                 false, s.is_helper_symbol,
                                 Fill(s.patterns, s.color),
                                 _.Colour.Transparent, 0f,
-                                _.DashStyle.None, _.MidStyle.None,
+                                _.DashStyle.None, _.MidStyle.None, LineStyle.Default,
                                 true); // Think all symbols are rotatable
 
         return op;
@@ -1137,7 +1137,7 @@ file static class _MarshallLoad
                                     Fill(area.patterns, area.color),
                                     Colour(line.color), line.line_width / 1000,
                                     DashStyle(line.dashed, line.dash_length, line.break_length, line.dashes_in_group, line.in_group_break_length),
-                                    MidStyle(line.start_offset, line.end_offset, line.mid_symbol_distance, line.mid_symbol),
+                                    MidStyle(line.start_offset, line.end_offset, line.mid_symbol_distance, line.mid_symbol), LineStyle.Default,
                                     true);
 
             return op;

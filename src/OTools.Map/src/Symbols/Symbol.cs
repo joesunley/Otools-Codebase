@@ -85,6 +85,8 @@ public interface IPathSymbol
 
     MidStyle MidStyle { get; set; }
 
+    LineStyle LineStyle { get; set; }
+
     float BorderWidth { get; set; }
     Colour BorderColour { get; set; }
 }
@@ -167,4 +169,28 @@ public struct MidStyle
     }
 
     public static MidStyle None => new();
+}
+
+[DebuggerDisplay("Line Style {Join} - {Cap}")]
+public struct LineStyle
+{
+    public JoinStyle Join { get; set; }
+    public CapStyle Cap { get; set; }
+
+    public LineStyle(JoinStyle join, CapStyle cap)
+    {
+        Join = join;
+        Cap = cap;
+    }
+
+    public LineStyle(int join, int cap)
+    {
+        Join = (JoinStyle)join;
+        Cap = (CapStyle)cap;
+    }
+
+    public static LineStyle Default => new(0, 0);
+
+    public enum JoinStyle { Flat, Round, Square }
+    public enum CapStyle { Bevel, Miter, Round }
 }
