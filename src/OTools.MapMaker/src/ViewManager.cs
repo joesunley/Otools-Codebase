@@ -15,7 +15,7 @@ namespace OTools.MapMaker;
 public static class ViewManager
 {
     private static bool s_isSet = false;
-    private static List<Guid> s_ids = new();
+    private static readonly List<Guid> s_ids = new();
 
     private static PaintBox s_paintBox;
 

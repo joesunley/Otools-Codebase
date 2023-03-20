@@ -3,6 +3,7 @@ using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OTools.MapMaker;
 
@@ -168,6 +169,8 @@ public class SimplePathDraw
     private bool _active;
     private List<vec2> _points;
 
+	private bool _drawGuide;
+
     public SimplePathDraw(IPathSymbol sym)
     {
         _inst = sym switch
@@ -197,7 +200,11 @@ public class SimplePathDraw
         _inst.Opacity = Manager.Settings.Draw_Opacity;
         _inst.IsClosed = false;
 
-        var render = _render.RenderPathInstance(_inst);
+		_drawGuide = _inst is AreaInstance area &&
+					 (area.Symbol.BorderWidth == 0 || area.Symbol.BorderColour == Colour.Transparent);
+
+		var render = _render.RenderPathInstance(_inst).Concat(!_drawGuide ? Enumerable.Empty<IShape>() :
+			new IShape[] { new Line {Colour = 0xffff8a00, Points = _points, Width = 1, ZIndex = 999}});
         ViewManager.Add(_inst.Id, render);
     }
 
@@ -209,7 +216,8 @@ public class SimplePathDraw
 
         _inst.Segments.Reset(_points);
         
-        var render = _render.RenderPathInstance(_inst);
+		var render = _render.RenderPathInstance(_inst).Concat(!_drawGuide ? Enumerable.Empty<IShape>() :
+			new IShape[] { new Area {BorderColour = Manager.Settings.Draw_BorderColour, Points = _points, BorderWidth = Manager.Settings.Draw_BorderWidth, ZIndex = Manager.Settings.Draw_BorderZIndex }});
         ViewManager.Update(_inst.Id, render);
     }
 
@@ -232,6 +240,13 @@ public class SimplePathDraw
 
         _points.Add(ViewManager.MousePosition);
 
+		if (vec2.Mag(_points[0], _points[^1]) < 1)
+		{
+			_active = true;
+			Complete();
+			return;
+		}
+
         if (_points[0] == _points[1])
             _points.RemoveAt(1);
 
@@ -253,8 +268,7 @@ public class SimplePathDraw
 
         _points.Add(ViewManager.MousePosition);
 
-        
-        if (_points[0] == _points[1])
+		if (_points[0] == _points[1])
             _points.RemoveAt(1);
 
         _inst.Segments.Reset(_points);
