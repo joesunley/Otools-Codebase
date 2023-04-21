@@ -81,7 +81,7 @@ public class MapRender : IMapRender
 
             BorderWidth = 0,
 
-            ZIndex = ZIndex(obj.InnerColour),
+            ZIndex = obj.InnerColour.Precedence,
         };
 
         Ellipse outerEllipse = new()
@@ -91,7 +91,7 @@ public class MapRender : IMapRender
             BorderWidth = obj.OuterRadius,
             BorderColour = obj.OuterColour,
 
-            ZIndex = ZIndex(obj.OuterColour),
+            ZIndex = obj.OuterColour.Precedence,
         };
 
         // Prevents unnecessary ellipses
@@ -124,7 +124,7 @@ public class MapRender : IMapRender
             BorderColour = obj.Colour,
             BorderWidth = obj.Width,
 
-            ZIndex = ZIndex(obj.Colour),
+            ZIndex = obj.Colour.Precedence,
         };
 
         return new IShape[] { border };
@@ -155,7 +155,7 @@ public class MapRender : IMapRender
 
             IsClosed = true,
 
-            ZIndex = ZIndex(obj.BorderColour),
+            ZIndex = obj.BorderColour.Precedence,
         };
 
         renders.Add(border);
@@ -222,7 +222,7 @@ public class MapRender : IMapRender
             HorizontalAlignment = obj.HorizontalAlignment,
             Border = (obj.BorderColour, obj.BorderWidth),
             Framing = (obj.FramingColour, obj.FramingWidth),
-            ZIndex = ZIndex(obj.Font.Colour),
+            ZIndex = obj.Font.Colour.Precedence,
         };
 
         return new IShape[] { text };
@@ -278,7 +278,7 @@ public class MapRender : IMapRender
 
             IsClosed = false,
 
-            ZIndex = ZIndex(sym.BorderColour),
+            ZIndex = sym.BorderColour.Precedence,
         };
 
         //TODO: Might not be worth it
@@ -383,7 +383,7 @@ public class MapRender : IMapRender
 
                 DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.BorderWidth),
 
-                ZIndex = ZIndex(inst.Symbol.BorderColour),
+                ZIndex = inst.Symbol.BorderColour.Precedence,
             };
 
             renders.Add(border);
@@ -451,7 +451,7 @@ public class MapRender : IMapRender
             Border = (inst.Symbol.BorderColour, inst.Symbol.BorderWidth),
             Framing = (inst.Symbol.FramingColour, inst.Symbol.FramingWidth),
             Opacity = inst.Opacity,
-            ZIndex = ZIndex(inst.Symbol.Font.Colour),
+            ZIndex = inst.Symbol.Font.Colour.Precedence,
         };
 
         return new IShape[] { text };
@@ -574,7 +574,7 @@ public class MapRender : IMapRender
 
             Fill = sFill.Colour,
 
-            ZIndex = ZIndex(sFill.Colour),
+            ZIndex = sFill.Colour.Precedence,
         };
 
         Debug.WriteLine(rect);
@@ -600,8 +600,6 @@ public class MapRender : IMapRender
             yield return el;
         }
     }
-
-    private int ZIndex(Colour col) => _activeMap?.Colours.GetZIndex(col) ?? 0;
 }
 
 public class WireframeMapRender : IMapRender
@@ -669,7 +667,7 @@ public class WireframeMapRender : IMapRender
 
             BorderWidth = 0,
 
-            ZIndex = ZIndex(col),
+            ZIndex = col.Precedence,
         };
 
         return new IShape[] { output };
@@ -699,7 +697,7 @@ public class WireframeMapRender : IMapRender
 
             IsClosed = false,
 
-            ZIndex = ZIndex(col),
+            ZIndex = col.Precedence,
         };
 
         return new IShape[] { path };
@@ -729,7 +727,7 @@ public class WireframeMapRender : IMapRender
 
             IsClosed = true,
 
-            ZIndex = ZIndex(col),
+            ZIndex = col.Precedence,
         };
 
         return new IShape[] { path };
@@ -770,7 +768,7 @@ public class WireframeMapRender : IMapRender
 
             BorderWidth = 0,
             
-            ZIndex = ZIndex(col),
+            ZIndex = col.Precedence,
         };
 
         return new IShape[] { output };
@@ -786,7 +784,7 @@ public class WireframeMapRender : IMapRender
 
             IsClosed = false,
 
-            ZIndex = ZIndex(col),
+            ZIndex = col.Precedence,
         };
 
         return new IShape[] { path };
@@ -873,8 +871,6 @@ public class WireframeMapRender : IMapRender
 
         // Display bounding box -> not sure how to yet
     }
-
-    private int ZIndex(Colour col) => _activeMap?.Colours.GetZIndex(col) ?? 0;
 
     public static IEnumerable<(Guid, Colour)> CalculatePrimaryColours(IEnumerable<Symbol> syms)
     {

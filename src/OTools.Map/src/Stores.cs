@@ -17,16 +17,10 @@ public sealed class ColourStore : Store<Colour>
         set => _items[_items.IndexOf(this.First(x => x.Name == name))] = value;
     }
 
-    public int GetZIndex(Colour col)
+    public void UpdatePrecendences()
     {
-        if (col.Name == "Transparent") return 0;
-
-        int currLoc = _items.IndexOf(col);
-        if (currLoc == -1) throw new ArgumentOutOfRangeException(nameof(col), "Colour not found");
-
-        int max = _items.Count - 1;
-
-        return max - currLoc;
+        for (ushort i = 0; i < _items.Count; i++)
+            _items[i].Precedence = i;
     }
 }
 

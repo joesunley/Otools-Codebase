@@ -12,6 +12,8 @@ public sealed class Colour : IStorable, IEquatable<Colour?>
     public string Name { get; set; }
     public uint HexValue { get; set; }
 
+    public ushort Precedence { get; internal set; }
+
     public Colour(string name, uint hexValue)
     {
         Id = Guid.NewGuid();
@@ -126,7 +128,7 @@ public sealed class Colour : IStorable, IEquatable<Colour?>
 
     private static readonly Guid s_id = Guid.NewGuid();
     public static Colour Transparent
-        => new(s_id, "Transparent", 0x0);
+        => new(s_id, "Transparent", 0x0) { Precedence = 0 };
 
 
 }
