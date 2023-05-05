@@ -4,7 +4,7 @@ using S = SharpHook.Native;
 
 namespace OTools.Common;
 
-public static class Input
+internal static class Input
 {
 	public static void Start()
 	{
@@ -361,7 +361,7 @@ internal static class _Input
 
 #region Keys
 
-public enum KeyCode : short
+internal enum KeyCode : short
 {
     // From github.com/TheCherno/Hazel
     
@@ -502,7 +502,7 @@ public enum KeyCode : short
 }
 
 [Flags]
-public enum KeyModifiers : byte
+internal enum KeyModifiers : byte
 {
     LeftShift       = 0b00000001,
     LeftControl     = 0b00000010,
@@ -518,7 +518,7 @@ public enum KeyModifiers : byte
 
 #region Mouse
 
-public enum MouseButton : byte
+internal enum MouseButton : byte
 {
     NoButton    = 0,
     Left        = 1,
@@ -528,7 +528,7 @@ public enum MouseButton : byte
     XButton2    = 5,
 }
 
-public enum MouseWheelDirection : sbyte
+internal enum MouseWheelDirection : sbyte
 {
     Up      = -1,
     Down    = 1,
@@ -540,7 +540,7 @@ public enum MouseWheelDirection : sbyte
 
 public interface IInputEventArgs { }
 
-public sealed class MouseEventArgs : IInputEventArgs
+internal sealed class MouseEventArgs : IInputEventArgs
 {
 	public readonly vec2 Position;
 
@@ -567,7 +567,7 @@ public sealed class MouseEventArgs : IInputEventArgs
 	}
 }
 
-public sealed class MouseWheelEventArgs : IInputEventArgs
+internal sealed class MouseWheelEventArgs : IInputEventArgs
 {
 	public readonly vec2 Position;
 
@@ -591,7 +591,7 @@ public sealed class MouseWheelEventArgs : IInputEventArgs
 	}
 }
 
-public sealed class KeyEventArgs : IInputEventArgs
+internal sealed class KeyEventArgs : IInputEventArgs
 {
 	public readonly KeyCode KeyCode;
 	public readonly KeyModifiers Modifiers;

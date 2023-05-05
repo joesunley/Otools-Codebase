@@ -1,8 +1,6 @@
 ﻿global using Sunley.Mathematics;
 global using static System.Diagnostics.Debug;
 using Avalonia;
-using Avalonia.Data.Converters;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 
 

@@ -9,18 +9,14 @@ public static class MapLoader
     public static Map Load(string filePath)
     {
         XMLDocument doc = XMLDocument.Deserialize(File.ReadAllText(filePath));
-        return Load(doc);
-    }
-    public static Map Load(XMLDocument doc)
-    {
-
+        
         if (!doc.Root.Attributes.Exists("version"))
             throw new IOException("Did not find map version.");
 
         return doc.Root.Attributes["version"] switch
         {
             "1" => new MapLoaderV1().LoadMap(doc.Root),
-            "2" => new MapLoaderV2().LoadMap(doc.Root),
+            "2" => new MapLoaderV2().LoadMap(doc.Root, filePath),
             _ => throw new IOException("Version not supported."),
         };
     }
@@ -397,7 +393,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         XMLNode border = new("Border");
 
-        if (sym.BorderWidth == 0 && sym.BorderColour == OTools.Maps.Colour.Transparent) border.InnerText = "None";
+        if (sym.BorderWidth == 0 && sym.BorderColour == Colour.Transparent) border.InnerText = "None";
         else
         {
             XMLNode borderCol = SaveColourId(sym.BorderColour);
@@ -409,7 +405,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         XMLNode framing = new("Framing");
 
-        if (sym.FramingWidth == 0 && sym.BorderColour == OTools.Maps.Colour.Transparent) framing.InnerText = "None";
+        if (sym.FramingWidth == 0 && sym.BorderColour == Colour.Transparent) framing.InnerText = "None";
         else
         {
             XMLNode framingCol = SaveColourId(sym.FramingColour);
@@ -588,7 +584,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         XMLNode border = new("Border");
 
-        if (obj.BorderWidth == 0 && obj.BorderColour == OTools.Maps.Colour.Transparent) border.InnerText = "None";
+        if (obj.BorderWidth == 0 && obj.BorderColour == Colour.Transparent) border.InnerText = "None";
         else
         {
             XMLNode borderCol = SaveColourId(obj.BorderColour);
@@ -600,7 +596,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         XMLNode framing = new("Border");
 
-        if (obj.FramingWidth == 0 && obj.FramingColour == OTools.Maps.Colour.Transparent) framing.InnerText = "None";
+        if (obj.FramingWidth == 0 && obj.FramingColour == Colour.Transparent) framing.InnerText = "None";
         else
         {
             XMLNode framingCol = SaveColourId(obj.FramingColour);
@@ -834,7 +830,9 @@ public class MapLoaderV1 : IMapLoaderV1
         _map.Symbols = new(LoadSymbols(node.Children["Symbols"]));
         _map.Instances = new(LoadInstances(node.Children["Instances"]));
 
-        return _map;        
+        _map.Colours.UpdatePrecendences(0);
+
+        return _map;
     }
 
     #region Colours
@@ -858,7 +856,7 @@ public class MapLoaderV1 : IMapLoaderV1
     public Colour ColourId(XMLNode node)
     {
         return node.InnerText == "Transparent" ?
-            OTools.Maps.Colour.Transparent : _map.Colours[Guid.Parse(node.InnerText)];
+            Colour.Transparent : _map.Colours[Guid.Parse(node.InnerText)];
     }
 
     #endregion
@@ -1478,80 +1476,21 @@ public class MapLoaderV1 : IMapLoaderV1
 /*
  * Changes:
  *  - Added support for Join/Cap Styles -> LineStyle
+ *  - Added new layer model
  */
 
-public interface IMapLoaderV2
+public interface IMapLoaderV2 : IMapLoaderV1
 {
-    XMLNode SaveMap(Map map);
-    Map LoadMap(XMLNode node);
+    XMLNode SaveMapInfo(MapInfo mapInfo);
+    XMLNode SaveLayerInfo(LayerInfo layerInfo);
 
-    XMLNode SaveColours(IEnumerable<Colour> colours);
-    XMLNode SaveColour(Colour colour);
+    [Obsolete("Use LoadMap(XMLNode, string) instead of this method", true)]
+    Map IMapLoaderV1.LoadMap(XMLNode node) { throw new Exception(); }
 
-    XMLNode SaveFill(IFill fill);
-    XMLNode SaveSolidFill(SolidFill fill);
-    XMLNode SaveRandomObjectFill(RandomObjectFill fill);
-    XMLNode SaveSpacedObjectFill(SpacedObjectFill fill);
-    XMLNode SavePatternFill(PatternFill fill);
-    XMLNode SaveCombinedFill(CombinedFill fill);
+    Map LoadMap(XMLNode node, string filePath);
 
-    XMLNode SaveSymbols(IEnumerable<Symbol> symbols);
-    XMLNode SaveSymbol(Symbol symbol);
-    XMLNode SavePointSymbol(PointSymbol sym);
-    XMLNode SaveLineSymbol(LineSymbol sym);
-    XMLNode SaveAreaSymbol(AreaSymbol sym);
-    XMLNode SaveTextSymbol(TextSymbol sym);
-    XMLNode SaveDashStyle(DashStyle dash);
-    XMLNode SaveMidStyle(MidStyle mid);
-
-    XMLNode SaveMapObjects(IEnumerable<MapObject> mapObjects);
-    XMLNode SaveMapObject(MapObject mapObject);
-    XMLNode SavePointObject(PointObject obj);
-    XMLNode SaveLineObject(LineObject obj);
-    XMLNode SaveAreaObject(AreaObject obj);
-    XMLNode SaveTextObject(TextObject obj);
-
-    XMLNode SaveInstances(IEnumerable<Instance> instances);
-    XMLNode SaveInstance(Instance instance);
-    XMLNode SavePointInstance(PointInstance inst);
-    XMLNode SavePathInstance(PathInstance inst);
-    XMLNode SaveTextInstance(TextInstance inst);
-
-    XMLNode SavePathCollection(PathCollection pathCollection);
-    XMLNode SaveLinearPath(LinearPath line);
-    XMLNode SaveBezierPath(BezierPath bez);
-    XMLNode SaveHoles(IEnumerable<PathCollection> holes);
-
-
-    IEnumerable<Colour> LoadColours(XMLNode node);
-    Colour LoadColour(XMLNode node);
-
-    IFill LoadFill(XMLNode node);
-    SolidFill LoadSolidFill(XMLNode node);
-    RandomObjectFill LoadRandomObjectFill(XMLNode node);
-    SpacedObjectFill LoadSpacedObjectFill(XMLNode node);
-    PatternFill LoadPatternFill(XMLNode node);
-    CombinedFill LoadCombinedFill(XMLNode node);
-
-    IEnumerable<Symbol> LoadSymbols(XMLNode node);
-    Symbol LoadSymbol(XMLNode node);
-    PointSymbol LoadPointSymbol(XMLNode node);
-    LineSymbol LoadLineSymbol(XMLNode node);
-    AreaSymbol LoadAreaSymbol(XMLNode node);
-    TextSymbol LoadTextSymbol(XMLNode node);
-
-    IEnumerable<MapObject> LoadMapObjects(XMLNode node);
-    MapObject LoadMapObject(XMLNode node);
-    PointObject LoadPointObject(XMLNode node);
-    LineObject LoadLineObject(XMLNode node);
-    AreaObject LoadAreaObject(XMLNode node);
-    TextObject LoadTextObject(XMLNode node);
-
-    IEnumerable<Instance> LoadInstances(XMLNode node);
-    Instance LoadInstance(XMLNode node);
-    PointInstance LoadPointInstance(XMLNode node);
-    PathInstance LoadPathInstance(XMLNode node);
-    TextInstance LoadTextInstance(XMLNode node);
+    MapInfo LoadMapInfo(XMLNode node);
+    LayerInfo LoadLayerInfo(XMLNode node);
 }
 
 public class MapLoaderV2 : IMapLoaderV2
@@ -1563,6 +1502,8 @@ public class MapLoaderV2 : IMapLoaderV2
         XMLNode node = new("Map");
 
         node.AddAttribute("title", map.Title);
+
+        node.AddChild(SaveMapInfo(map.MapInfo));
 
         node.AddChild(SaveColours(map.Colours));
         node.AddChild(SaveSymbols(map.Symbols));
@@ -1837,7 +1778,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode border = new("Border");
 
-        if (sym.BorderWidth == 0 && sym.BorderColour == OTools.Maps.Colour.Transparent) border.InnerText = "None";
+        if (sym.BorderWidth == 0 && sym.BorderColour == Colour.Transparent) border.InnerText = "None";
         else
         {
             XMLNode borderCol = SaveColourId(sym.BorderColour);
@@ -1849,7 +1790,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode framing = new("Framing");
 
-        if (sym.FramingWidth == 0 && sym.BorderColour == OTools.Maps.Colour.Transparent) framing.InnerText = "None";
+        if (sym.FramingWidth == 0 && sym.BorderColour == Colour.Transparent) framing.InnerText = "None";
         else
         {
             XMLNode framingCol = SaveColourId(sym.FramingColour);
@@ -2037,7 +1978,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode border = new("Border");
 
-        if (obj.BorderWidth == 0 && obj.BorderColour == OTools.Maps.Colour.Transparent) border.InnerText = "None";
+        if (obj.BorderWidth == 0 && obj.BorderColour == Colour.Transparent) border.InnerText = "None";
         else
         {
             XMLNode borderCol = SaveColourId(obj.BorderColour);
@@ -2049,7 +1990,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode framing = new("Border");
 
-        if (obj.FramingWidth == 0 && obj.FramingColour == OTools.Maps.Colour.Transparent) framing.InnerText = "None";
+        if (obj.FramingWidth == 0 && obj.FramingColour == Colour.Transparent) framing.InnerText = "None";
         else
         {
             XMLNode framingCol = SaveColourId(obj.FramingColour);
@@ -2259,6 +2200,36 @@ public class MapLoaderV2 : IMapLoaderV2
 
     #endregion
 
+    #region MapInfo
+
+    public XMLNode SaveMapInfo(MapInfo mapInfo)
+    {
+        XMLNode node = new("MapInfo");
+
+        node.AddChild(SaveLayerInfo(mapInfo.LayerInfo));
+
+        return node;
+    }
+
+    public XMLNode SaveLayerInfo(LayerInfo layerInfo)
+    {
+        XMLNode node = new("LayerInfo");
+
+        foreach (var layer in layerInfo)
+        {
+            XMLNode l = new("Layer");
+
+            l.AddAttribute("name", layer.name);
+            l.AddAttribute("visible", layer.visible.ToString());
+
+            node.AddChild(l);
+        }
+
+        return node;
+    }
+
+    #endregion
+
     private XMLNode SaveVec2(vec2 v2)
     {
         XMLNode node = new("Point");
@@ -2275,9 +2246,26 @@ public class MapLoaderV2 : IMapLoaderV2
 
     private Map _map = new();
 
+    [Obsolete("Use LoadMap (XMLNode, string) instead", true)]
     public Map LoadMap(XMLNode node)
     {
         _map = new(node.Attributes["title"]);
+
+        _map.MapInfo = LoadMapInfo(node.Children["MapInfo"]);
+
+        _map.Colours = new(LoadColours(node.Children["Colours"]));
+        _map.Symbols = new(LoadSymbols(node.Children["Symbols"]));
+        _map.Instances = new(LoadInstances(node.Children["Instances"]));
+
+        return _map;
+    }
+    
+    public Map LoadMap(XMLNode node, string filePath)
+    {
+        _map = new(node.Attributes["title"]);
+
+        _map.MapInfo = LoadMapInfo(node.Children["MapInfo"]);
+        _map.MapInfo.FilePath = filePath;
 
         _map.Colours = new(LoadColours(node.Children["Colours"]));
         _map.Symbols = new(LoadSymbols(node.Children["Symbols"]));
@@ -2307,7 +2295,7 @@ public class MapLoaderV2 : IMapLoaderV2
     public Colour ColourId(XMLNode node)
     {
         return node.InnerText == "Transparent" ?
-            OTools.Maps.Colour.Transparent : _map.Colours[Guid.Parse(node.InnerText)];
+            Colour.Transparent : _map.Colours[Guid.Parse(node.InnerText)];
     }
 
     #endregion
@@ -2919,6 +2907,27 @@ public class MapLoaderV2 : IMapLoaderV2
         string text = node.Children["Text"].InnerText;
 
         return new(bas.id, bas.layer, (TextSymbol)bas.sym, text, topLeft, alignment, rotation);
+    }
+
+    #endregion
+
+    #region Map Info
+
+    public MapInfo LoadMapInfo(XMLNode node)
+    {
+        LayerInfo layerInfo = LoadLayerInfo(node.Children["LayerInfo"]);
+
+        return new(layerInfo, string.Empty);
+    }
+
+    public LayerInfo LoadLayerInfo(XMLNode node)
+    {
+        LayerInfo info = new();
+
+        foreach (XMLNode child in node.Children)
+            info.Add((child.Attributes["name"], bool.Parse(child.Attributes["visible"])));
+
+        return info;
     }
 
     #endregion

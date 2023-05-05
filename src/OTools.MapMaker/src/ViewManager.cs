@@ -3,9 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
-using Microsoft.CodeAnalysis.CSharp;
 using OTools.ObjectRenderer2D;
-using SharpHook.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +17,12 @@ public static class ViewManager
 
     private static PaintBox s_paintBox;
 
-    public static void Set(PaintBox box)
+    public static void Set(PaintBox box, MainWindow mainWindow)
     {
         s_paintBox = box;
         s_isSet = true;
 
-        SetEvents();
+        SetEvents(mainWindow);
 
         s_paintBox.canvas.PointerMoved += (_, args) =>
         {
@@ -32,18 +30,15 @@ public static class ViewManager
             MousePosition = (point.X, point.Y);
             MouseMove?.Invoke(MousePosition);
         };
-
-
     }
 
-    private static void SetEvents()
+    private static void SetEvents(MainWindow mainWindow)
     {
-        s_paintBox.canvas.PointerPressed += (_, args) => MouseDown?.Invoke(args);
-        s_paintBox.canvas.PointerReleased += (_, args) => MouseUp?.Invoke(args);
+        mainWindow.PointerPressed += (_, e) => MouseDown?.Invoke(e);
+        mainWindow.PointerReleased += (_, e) => MouseUp?.Invoke(e);
 
-        s_paintBox.canvas.KeyDown += (_, args) => KeyDown?.Invoke(args);
-        s_paintBox.canvas.KeyUp += (_, args) => WriteLine("Key UP");
-
+        mainWindow.KeyDown += (_, e) => KeyDown?.Invoke(e);
+        mainWindow.KeyUp += (_, e) => KeyUp?.Invoke(e);
     }
 
     public static void Add(Guid id, IEnumerable<IShape> objects)

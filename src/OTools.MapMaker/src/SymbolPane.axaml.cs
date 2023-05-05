@@ -20,7 +20,7 @@ namespace OTools.MapMaker
         {
             Button btn = new Button() { Content = sym.Name };
 
-            btn.Click += (s, e) => Manager.ActiveSymbol = sym;
+            btn.Click += (s, e) => Manager.Symbol = sym;
 
             return btn;
         }

@@ -7,11 +7,11 @@ namespace OTools.MapMaker;
 
 public static class Manager
 {
-    public static Map? ActiveMap { get; set; }
-    public static int ActiveLayer { get; set; } = 0;
+    public static Map? Map { get; set; }
+    public static int Layer { get; set; } = 0;
 
     private static Symbol? _activeSymbol;
-    public static Symbol? ActiveSymbol
+    public static Symbol? Symbol
     {
         get => _activeSymbol;
 
@@ -22,9 +22,24 @@ public static class Manager
         }
     }
 
+    private static Tool _activeTool;
+    public static Tool Tool
+    {
+        get => _activeTool;
+
+        set
+        {
+            _activeTool = value;
+            ActiveToolChanged?.Invoke(_activeTool);
+        }
+    }
+
     public static IMapRender? MapRender { get; set; }
 
     public static event Action<Symbol>? ActiveSymbolChanged;
+    public static event Action<Tool>? ActiveToolChanged;
 
     public static MapMakerSettings Settings { get; set; } = MapMakerSettings.Default;
 }
+
+public enum Tool { Edit, Point, Path, Rectangle, Fill, Text, Ellipse, Freehand }

@@ -11,8 +11,4 @@
     <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.10.18" />
-  </ItemGroup>
-
 </Project>

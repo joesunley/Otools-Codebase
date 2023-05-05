@@ -17,10 +17,10 @@ public sealed class ColourStore : Store<Colour>
         set => _items[_items.IndexOf(this.First(x => x.Name == name))] = value;
     }
 
-    public void UpdatePrecendences()
+    public void UpdatePrecendences(byte offset)
     {
-        for (ushort i = 0; i < _items.Count; i++)
-            _items[i].Precedence = i;
+        for (int i = 0; i < _items.Count; i++)
+            _items[i].Precedence = (ushort)(i + offset);
     }
 }
 
@@ -76,4 +76,11 @@ public sealed class InstanceStore : Store<Instance>
 
     public void SetLayerOpacity(string layer, float opacity)
         => SetLayerOpacity(Layers[layer], opacity);
+}
+
+public class TemplateStore : Store<Template>
+{
+    public TemplateStore()  { }
+    
+    public TemplateStore(IEnumerable<Template> items) : base(items) { }
 }

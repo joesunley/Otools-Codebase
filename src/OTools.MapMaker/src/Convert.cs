@@ -162,8 +162,6 @@ internal static class Convert
 
     private static PathFigure ConvPathFigure(IList<OT.IPathSegment> segments, bool isClosed)
     {
-        Assert(!isClosed);
-
         PathFigure fig = new() { IsClosed = isClosed };
         PathSegments segs = new();
 
@@ -291,7 +289,7 @@ internal static class Convert
 		=> new(v2.X, v2.Y);
 
 
-	private static void SetTopLeft(this Shape shape, vec2 v2)
+	public static void SetTopLeft(this AvaloniaObject shape, vec2 v2)
     {
         //WriteLine(v2.ToString());
 

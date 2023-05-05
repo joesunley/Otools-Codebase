@@ -11,11 +11,13 @@ public class MapDraw
 {
     private (PointDraw point, SimplePathDraw sPath) draws;
 
+    private bool isActive;
     private Active active;
 
     public MapDraw()
     {
         Manager.ActiveSymbolChanged += SymbolChanged;
+        Manager.ActiveToolChanged += args => isActive = (args != Tool.Edit);
 
         //ViewManager.MouseDown += args => MouseDown(args.)
 
@@ -27,6 +29,7 @@ public class MapDraw
     
     public void SymbolChanged(Symbol sym)
     {
+
         switch (sym)
         {
             case PointSymbol point:
@@ -108,10 +111,10 @@ public class PointDraw
 
     public PointDraw(PointSymbol sym)
     {
-        _inst = new(Manager.ActiveLayer, sym, vec2.Zero, 0f);
+        _inst = new(Manager.Layer, sym, vec2.Zero, 0f);
 
         if (Manager.MapRender is null)
-            Manager.MapRender = new MapRender(Manager.ActiveMap!);
+            Manager.MapRender = new MapRender(Manager.Map!);
         _render = Manager.MapRender;
 
         _active = false;
@@ -151,7 +154,7 @@ public class PointDraw
         _inst.Centre = ViewManager.MousePosition;
         _inst.Opacity = 1f;
 
-        Manager.ActiveMap!.Instances.Add(_inst);
+        Manager.Map!.Instances.Add(_inst);
 
         var render = _render.RenderPointInstance(_inst);
         ViewManager.Update(_inst.Id, render);
@@ -175,13 +178,13 @@ public class SimplePathDraw
     {
         _inst = sym switch
         {
-            LineSymbol l => new LineInstance(Manager.ActiveLayer, l, new(), false, 0f),
-            AreaSymbol a => new AreaInstance(Manager.ActiveLayer, a, new(), false, 0f),
+            LineSymbol l => new LineInstance(Manager.Layer, l, new(), false, 0f),
+            AreaSymbol a => new AreaInstance(Manager.Layer, a, new(), false, 0f),
             _ => throw new InvalidOperationException(),
         };
 
         if (Manager.MapRender is null)
-            Manager.MapRender = new MapRender(Manager.ActiveMap!);
+            Manager.MapRender = new MapRender(Manager.Map!);
         _render = Manager.MapRender;
 
         _active = false;
@@ -253,7 +256,7 @@ public class SimplePathDraw
         _inst.Segments.Reset(_points);
         _inst.Opacity = 1f;
 
-        Manager.ActiveMap!.Instances.Add(_inst);
+        Manager.Map!.Instances.Add(_inst);
 
         var render = _render.RenderPathInstance(_inst);
         ViewManager.Update(_inst.Id, render);
@@ -266,7 +269,8 @@ public class SimplePathDraw
         if (!_active) return;
         _active = false;
 
-        _points.Add(ViewManager.MousePosition);
+        _points.Remove(_points[^1]);
+        //_points.Add(ViewManager.MousePosition);
 
 		if (_points[0] == _points[1])
             _points.RemoveAt(1);
@@ -275,7 +279,7 @@ public class SimplePathDraw
         _inst.Opacity = 1f;
         _inst.IsClosed = true;
 
-        Manager.ActiveMap!.Instances.Add(_inst);
+        Manager.Map!.Instances.Add(_inst);
 
         var render = _render.RenderPathInstance(_inst);
         ViewManager.Update(_inst.Id, render);
@@ -298,16 +302,6 @@ public class SimplePathDraw
 
         ViewManager.Remove(_inst.Id);
     }
-}
-
-public class MapSelect
-{
-
-}
-
-public class PointSelect
-{
-
 }
 
 file static class Extension
