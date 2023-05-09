@@ -11,4 +11,8 @@
     <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="IOF.XML.V3" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>
