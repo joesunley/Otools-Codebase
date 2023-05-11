@@ -54,6 +54,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.MapViewer", "src\OTo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.MapMaker", "src\OTools.MapMaker\OTools.MapMaker.csproj", "{AFF320B0-9FA5-4CD9-A1BB-186CC2970FDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.CoursePlanner", "src\OTools.CoursePlanner\OTools.CoursePlanner.csproj", "{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,10 @@ Global
 		{AFF320B0-9FA5-4CD9-A1BB-186CC2970FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFF320B0-9FA5-4CD9-A1BB-186CC2970FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFF320B0-9FA5-4CD9-A1BB-186CC2970FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
