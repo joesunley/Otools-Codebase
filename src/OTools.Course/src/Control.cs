@@ -1,7 +1,7 @@
 ﻿using OTools.Common;
 using Sunley.Mathematics;
 
-namespace OTools.Course;
+namespace OTools.Courses;
 
 public sealed class Control : IStorable
 {

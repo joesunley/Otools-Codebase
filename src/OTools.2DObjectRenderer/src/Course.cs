@@ -1,4 +1,4 @@
-﻿using OTools.Course;
+﻿using OTools.Courses;
 using OTools.Maps;
 using Sunley.Mathematics;
 

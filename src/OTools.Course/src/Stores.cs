@@ -1,7 +1,7 @@
 ﻿using OTools.Maps;
 using OTools.Common;
 
-namespace OTools.Course;
+namespace OTools.Courses;
 
 public sealed class ControlStore : Store<Control>
 {

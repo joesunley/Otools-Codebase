@@ -1,7 +1,7 @@
 ﻿using OTools.Common;
 using OTools.Maps;
 
-namespace OTools.Course;
+namespace OTools.Courses;
 
 public abstract class Course : IStorable
 {

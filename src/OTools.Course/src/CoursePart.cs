@@ -3,7 +3,7 @@ using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace OTools.Course;
+namespace OTools.Courses;
 
 public interface ICoursePart
 {

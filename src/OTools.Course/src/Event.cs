@@ -1,8 +1,12 @@
-﻿namespace OTools.Course;
+﻿using OTools.Common;
+
+namespace OTools.Courses;
 
 public sealed class Event
 {
     public string Title { get; set; }
+    
+    public Metadata Metadata { get; set; }
 
     public ControlStore Controls { get; set; }
     public CourseStore Courses { get; set; }
@@ -13,6 +17,8 @@ public sealed class Event
     public Event(string title = "")
     {
         Title = title;
+
+        Metadata = new();
 
         Controls = new();
         Courses = new();
@@ -25,10 +31,12 @@ public sealed class Event
     {
         Title = title;
 
+        Metadata = new();
+
         Controls = controls;
         Courses = courses;
         Items = items;
-		
-		Settings = settings is null ? settings : EventSettings.Default;
-	}
+
+        Settings = settings ?? EventSettings.Default;
+    }
 }

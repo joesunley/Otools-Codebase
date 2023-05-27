@@ -1,6 +1,6 @@
 using OTools.Maps;
 
-namespace OTools.Course;
+namespace OTools.Courses;
 
 public class EventSettings
 {

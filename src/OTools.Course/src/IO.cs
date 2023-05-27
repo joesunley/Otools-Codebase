@@ -4,9 +4,9 @@ using Sunley.Mathematics;
 using System.Diagnostics;
 using System.Transactions;
 
-namespace OTools.Course;
+namespace OTools.Courses;
 
-#region Version 1 - 2
+#region Version 1
 
 public interface ICourseLoaderV1
 {
@@ -30,6 +30,8 @@ public interface ICourseLoaderV1
 
     XMLNode SaveItems(IEnumerable<Item> items);
 
+    XMLNode SaveMetadata(Metadata metadata);
+
     IEnumerable<Control> LoadControls(XMLNode node);
     Control LoadControl(XMLNode node);
     Description LoadDescription(XMLNode node);
@@ -46,6 +48,8 @@ public interface ICourseLoaderV1
     PhiLoopCoursePart LoadPhiLoopCoursePart(XMLNode node);
 
     IEnumerable<Item> LoadItems(XMLNode node);
+    
+    Metadata LoadMetadata(XMLNode node);
 }
 
 public partial class CourseLoader : ICourseLoaderV1
@@ -55,6 +59,8 @@ public partial class CourseLoader : ICourseLoaderV1
     {
         XMLNode node = new("Event");
         node.AddAttribute("title", ev.Title);
+        
+        node.AddChild(SaveMetadata(ev.Metadata));
 
         node.AddChild(SaveControls(ev.Controls));
         node.AddChild(SaveCourses(ev.Courses));
@@ -277,10 +283,10 @@ public partial class CourseLoader : ICourseLoaderV1
                     foreach (MapObject obj in pSym.MapObjects)
                         colours.AddRange(ObjCols(obj));
                 } break;
-                case LineSymbol lSym: { colours.Add(lSym.BorderColour); } break;
+                case LineSymbol lSym: { colours.Add(lSym.Colour); } break;
                 case AreaSymbol aSym:
                 {
-                    colours.Add(aSym.BorderColour);
+                    colours.Add(aSym.Colour);
                     colours.AddRange(FillCols(aSym.Fill));
                 } break;
                 case TextSymbol tSym:
@@ -301,6 +307,16 @@ public partial class CourseLoader : ICourseLoaderV1
         XMLNode node = new MapLoaderV1().SaveMap(m);
         node.Name = "Items";
         node.Attributes.RemoveAll(x => true);
+
+        return node;
+    }
+
+    public XMLNode SaveMetadata(Metadata metadata)
+    {
+        XMLNode node = new("Metadata");
+        
+        foreach (KeyValuePair<string, string> kvp in metadata)
+            node.AddAttribute(kvp.Key, kvp.Value);
 
         return node;
     }
@@ -360,6 +376,8 @@ public partial class CourseLoader : ICourseLoaderV1
     public Event LoadEvent(XMLNode node)
     {
         _event = new(node.Attributes["title"]);
+        
+        _event.Metadata = LoadMetadata(node.Children["Metadata"]);
 
         _event.Controls = new(LoadControls(node.Children["Controls"]));
         _event.Courses = new(LoadCourses(node.Children["Courses"]));
@@ -532,6 +550,16 @@ public partial class CourseLoader : ICourseLoaderV1
         Map map = new MapLoaderV1().LoadMap(node);
 
         return map.Instances.Select(i => new Item(i));
+    }
+
+    public Metadata LoadMetadata(XMLNode node)
+    {
+        Metadata metadata = new();
+        
+        foreach (XMLAttribute attr in node.Attributes)
+            metadata.Add(attr.Name, attr.Value);
+
+        return metadata;
     }
 
     private XMLNode SaveVec2(vec2 v2)

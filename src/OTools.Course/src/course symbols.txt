@@ -1,0 +1,97 @@
+PointSymbol:
+    Name: Start
+    Description: The place where the orienteering starts. The centre of the triangle shows the precise position where the orienteering course starts. The start must be on a clearly identifiable point on the map. The triangle points in the direction of the first control
+    Number: 701
+    IsUncrossable: False
+    IsHelper: False
+    IsRotatable: True
+    MapObjects:
+    
+PointSymbol:
+    Name: Map Issue Point
+    Description: If there is a marked route to the start point, the map issue point is marked using this symbol.
+    Number: 702
+    IsUncrossable: False
+    IsHelper: False
+    IsRotatable: True
+    MapObjects:
+    
+PointSymbol:
+    Name: Control Point
+    Description: For point features, the centre of the circle shall be the centre of the symbol. For line and area features, the centre of the circle shows the precise position of the control marker. Controls shall only be placed on points that are clearly identifiable on the map. Sections of the circle should be omitted to leave important detail showing.
+    Number: 703
+    IsUncrossable: False
+    IsHelper: False
+    IsRotatable: False
+    MapObjects:
+    
+TextSymbol:
+    Name: Control Number
+    Description: The number of the control is placed close to the cotrol point circle in such a way that it does not obscure important detail. The numbers are orientated to north.
+    Number: 704
+    IsUncrossable: False
+    IsHelper: False
+    Font:
+        Family: Arial
+        Colour: Lower purple for course overprint
+        Size: 4
+        LineSpacing:
+        ParagraphSpacing:
+        CharacterSpacing:
+        FontStyle:
+            Bold: False
+            Underline: False
+            Strikeout: False
+            Italics: None
+    Border: None
+    Framing: None
+    IsRotatable: False
+
+LineSymbol:
+    Name: Course Line
+    Description: Where controls are to be visited in order, the sequence is shown using straight lines from the start to the first control and then from each control to the next one. Sections of lines should be omitted to leave important detail showing. The line should be drawn via mandatory crossing points. There should be gaps between the line and the control circle in order to increase the readability of the underlying detail close to the control.
+    Number: 705
+    IsUncrossable: False
+    IsHelper: False
+    Border:
+        Colour: Lower purple for course overprint
+        Width: 0.35,
+    DashStyle: None
+    MidStyle: None
+    
+PointSymbol:
+    Name: Finish
+    Description: The end of the course.
+    Number: 706
+    IsUncrossable: False
+    IsHelper: False
+    IsRotatable: False
+    MapObjects:
+   
+LineSymbol:
+    Name: Marked Route
+    Description: A marked route that is a part of the course. It is mandator to follow the marked route
+    Number: 707
+    IsUncrossable: False
+    IsHelper: False
+    Border:
+        Colour: Lower purple for course overprint
+        Width: 0.35,
+    DashStyle:
+        DashLength: 2
+        GapLength: 0.5
+        GroupSize: 0
+        GroupGapLength: 0
+    MidStyle: None
+    
+LineSymbol:
+    Name: Out-of-bounds Boundary
+    Description: A boundary which is not permitted to cross.
+    Number: 708
+    IsUncrossable: True
+    IsHelper: False
+    Border:
+        Colour: Lower purple for course overprint
+        Width: 0.7,
+    DashStyle: None
+    MidStyle: None
