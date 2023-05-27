@@ -1,4 +1,5 @@
 ﻿global using static System.Diagnostics.Debug;
+using OTools.Common;
 
 namespace OTools.Maps;
 
@@ -6,6 +7,7 @@ public sealed class Map
 {
     public string Title { get; set; }
 
+    public Metadata Metadata { get; set; }
     public MapInfo MapInfo { get; set; }
 
     public ColourStore Colours { get; set; }
@@ -16,6 +18,8 @@ public sealed class Map
     {
         Title = title;
 
+        Metadata = new();
+
         Colours = new();
         Symbols = new();
         Instances = new();
@@ -25,8 +29,11 @@ public sealed class Map
     {
         Title = title;
 
+        Metadata = new();
+        
         Colours = colours;
         Symbols = symbols;
         Instances = instances;
+
     }
 }

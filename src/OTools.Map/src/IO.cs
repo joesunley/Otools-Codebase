@@ -319,8 +319,8 @@ public class MapLoaderV1 : IMapLoaderV1
         node.Name = "LineSymbol";
 
         XMLNode style = new("Style");
-        XMLNode colour = SaveColourId(sym.BorderColour);
-        XMLNode width = new("Width") { InnerText = sym.BorderWidth.ToString() };
+        XMLNode colour = SaveColourId(sym.Colour);
+        XMLNode width = new("Width") { InnerText = sym.Width.ToString() };
 
         style.AddChild(colour);
         style.AddChild(width);
@@ -343,11 +343,11 @@ public class MapLoaderV1 : IMapLoaderV1
         XMLNode style = new("Style");
 
         XMLNode border = new("Border");
-        XMLNode borderCol = SaveColourId(sym.BorderColour);
+        XMLNode borderCol = SaveColourId(sym.Colour);
         XMLNode width = new("Width");
         XMLNode fill = SaveFill(sym.Fill);
 
-        width.InnerText = sym.BorderWidth.ToString();
+        width.InnerText = sym.Width.ToString();
 
         border.AddChild(borderCol);
         border.AddChild(width);
@@ -1030,7 +1030,7 @@ public class MapLoaderV1 : IMapLoaderV1
                 );
         }
 
-        return new LineSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, col, width, dash, mid, LineStyle.Default);
+        return new LineSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, col, width, dash, mid, LineStyle.Default, BorderStyle.None);
     }
 
     public AreaSymbol LoadAreaSymbol(XMLNode node)
@@ -1079,7 +1079,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         bool isRotatable = style.Attributes.Exists("isRotatable") && bool.Parse(style.Attributes["isRotatable"]);
 
-        return new AreaSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, fill, colour, width, dash, mid, LineStyle.Default, isRotatable);
+        return new AreaSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, fill, colour, width, dash, mid, LineStyle.Default, BorderStyle.None,  isRotatable);
     }
 
     public TextSymbol LoadTextSymbol(XMLNode node)
@@ -1484,6 +1484,8 @@ public interface IMapLoaderV2 : IMapLoaderV1
     XMLNode SaveMapInfo(MapInfo mapInfo);
     XMLNode SaveLayerInfo(LayerInfo layerInfo);
 
+    XMLNode SaveBorderStyle(BorderStyle borderStyle);
+
     [Obsolete("Use LoadMap(XMLNode, string) instead of this method", true)]
     Map IMapLoaderV1.LoadMap(XMLNode node) { throw new Exception(); }
 
@@ -1491,6 +1493,10 @@ public interface IMapLoaderV2 : IMapLoaderV1
 
     MapInfo LoadMapInfo(XMLNode node);
     LayerInfo LoadLayerInfo(XMLNode node);
+    
+    DashStyle LoadDashStyle(XMLNode node);
+    MidStyle LoadMidStyle(XMLNode node);
+    BorderStyle LoadBorderStyle(XMLNode node);
 }
 
 public class MapLoaderV2 : IMapLoaderV2
@@ -1702,8 +1708,8 @@ public class MapLoaderV2 : IMapLoaderV2
         node.Name = "LineSymbol";
 
         XMLNode style = new("Style");
-        XMLNode colour = SaveColourId(sym.BorderColour);
-        XMLNode width = new("Width") { InnerText = sym.BorderWidth.ToString() };
+        XMLNode colour = SaveColourId(sym.Colour);
+        XMLNode width = new("Width") { InnerText = sym.Width.ToString() };
 
         style.AddChild(colour);
         style.AddChild(width);
@@ -1713,6 +1719,8 @@ public class MapLoaderV2 : IMapLoaderV2
             style.AddChild(SaveDashStyle(sym.DashStyle));
         if (sym.MidStyle.HasMid)
             style.AddChild(SaveMidStyle(sym.MidStyle));
+        if (sym.BorderStyle.HasBorder)
+            style.AddChild(SaveBorderStyle(sym.BorderStyle));
 
         node.AddChild(style);
 
@@ -1726,24 +1734,26 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode style = new("Style");
 
-        XMLNode border = new("Border");
-        XMLNode borderCol = SaveColourId(sym.BorderColour);
+        XMLNode outline = new("Outline");
+        XMLNode outlineCol = SaveColourId(sym.Colour);
         XMLNode width = new("Width");
         XMLNode fill = SaveFill(sym.Fill);
 
-        width.InnerText = sym.BorderWidth.ToString();
+        width.InnerText = sym.Width.ToString();
 
-        border.AddChild(borderCol);
-        border.AddChild(width);
+        outline.AddChild(outlineCol);
+        outline.AddChild(width);
 
         style.AddChild(fill);
-        style.AddChild(border);
+        style.AddChild(outline);
         style.AddChild(SaveLineStyle(sym.LineStyle));
 
         if (sym.DashStyle.HasDash)
             style.AddChild(SaveDashStyle(sym.DashStyle));
         if (sym.MidStyle.HasMid)
             style.AddChild(SaveMidStyle(sym.MidStyle));
+        if (sym.BorderStyle.HasBorder)
+            style.AddChild(SaveBorderStyle(sym.BorderStyle));
 
         if (sym.RotatablePattern) style.AddAttribute("rotatablePattern", "True");
 
@@ -1842,6 +1852,24 @@ public class MapLoaderV2 : IMapLoaderV2
         XMLNode node = new("LineStyle");
         node.AddAttribute("Join", ((int)line.Join).ToString());
         node.AddAttribute("Cap", ((int)line.Cap).ToString());
+
+        return node;
+    }
+
+    public XMLNode SaveBorderStyle(BorderStyle border)
+    {
+        XMLNode node = new("BorderStyle");
+        
+        // Poor but works and easier than rewriting
+        node.AddAttribute("colour", SaveColourId(border.Colour).InnerText);
+        
+        node.AddAttribute("width", border.Width.ToString());
+        node.AddAttribute("offset", border.Offset.ToString());
+        
+        if (border.DashStyle.HasDash)
+            node.AddChild(SaveDashStyle(border.DashStyle));
+        if (border.MidStyle.HasMid)
+            node.AddChild(SaveMidStyle(border.MidStyle));
 
         return node;
     }
@@ -2441,38 +2469,11 @@ public class MapLoaderV2 : IMapLoaderV2
         LineStyle lineStyle = new(int.Parse(style.Children["LineStyle"].Attributes["Join"]),
                                   int.Parse(style.Children["LineStyle"].Attributes["Cap"]));
 
-        DashStyle dash = DashStyle.None;
+        DashStyle dashStyle = style.Children.Exists("DashStyle") ? LoadDashStyle(style.Children["DashStyle"]) : DashStyle.None;
+        MidStyle midStyle = style.Children.Exists("MidStyle") ? LoadMidStyle(style.Children["MidStyle"]) : MidStyle.None;
+        BorderStyle borderStyle = style.Children.Exists("BorderStyle") ? LoadBorderStyle(style.Children["BorderStyle"]) : BorderStyle.None;
 
-        if (style.Children.Exists("DashStyle"))
-        {
-            XMLAttributeCollection d = style.Children["DashStyle"].Attributes;
-
-            dash = new(
-                float.Parse(d["dashLength"]),
-                float.Parse(d["gapLength"]),
-                int.Parse(d["groupSize"]),
-                float.Parse(d["groupGapLength"])
-                );
-        }
-
-        MidStyle mid = MidStyle.None;
-
-        if (style.Children.Exists("MidStyle"))
-        {
-            XMLNode midStyle = style.Children["MidStyle"];
-
-            IEnumerable<MapObject> objs = LoadMapObjects(midStyle);
-
-            mid = new(
-                objs,
-                float.Parse(midStyle.Attributes["gapLength"]),
-                bool.Parse(midStyle.Attributes["requireMid"]),
-                float.Parse(midStyle.Attributes["initialOffset"]),
-                float.Parse(midStyle.Attributes["endOffset"])
-                );
-        }
-
-        return new LineSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, col, width, dash, mid, lineStyle);
+        return new LineSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, col, width, dashStyle, midStyle, lineStyle, borderStyle);
     }
 
     public AreaSymbol LoadAreaSymbol(XMLNode node)
@@ -2483,48 +2484,21 @@ public class MapLoaderV2 : IMapLoaderV2
 
         IFill fill = LoadFill(style.Children[0]);
 
-        XMLNode border = style.Children["Border"];
+        XMLNode outline = style.Children["Outline"];
 
-        Colour colour = ColourId(border.Children["Colour"]);
-        float width = float.Parse(border.Children["Width"].InnerText);
+        Colour colour = ColourId(outline.Children["Colour"]);
+        float width = float.Parse(outline.Children["Width"].InnerText);
 
         LineStyle lineStyle = new(int.Parse(style.Children["LineStyle"].Attributes["Join"]),
                           int.Parse(style.Children["LineStyle"].Attributes["Cap"]));
 
-        DashStyle dashStyle = DashStyle.None;
-
-        if (style.Children.Exists("DashStyle"))
-        {
-            XMLAttributeCollection d = style.Children["DashStyle"].Attributes;
-
-            dashStyle = new(
-                float.Parse(d["dashLength"]),
-                float.Parse(d["gapLength"]),
-                int.Parse(d["groupSize"]),
-                float.Parse(d["groupGapLength"])
-                );
-        }
-
-        MidStyle midStyle = MidStyle.None;
-
-        if (style.Children.Exists("MidStyle"))
-        {
-            XMLNode mid = style.Children["MidStyle"];
-
-            IEnumerable<MapObject> objs = LoadMapObjects(mid);
-
-            midStyle = new(
-                objs,
-                float.Parse(mid.Attributes["gapLength"]),
-                bool.Parse(mid.Attributes["requireMid"]),
-                float.Parse(mid.Attributes["initialOffset"]),
-                float.Parse(mid.Attributes["endOffset"])
-                );
-        }
+        DashStyle dashStyle = style.Children.Exists("DashStyle") ? LoadDashStyle(style.Children["DashStyle"]) : DashStyle.None;
+        MidStyle midStyle = style.Children.Exists("MidStyle") ? LoadMidStyle(style.Children["MidStyle"]) : MidStyle.None;
+        BorderStyle borderStyle = style.Children.Exists("BorderStyle") ? LoadBorderStyle(style.Children["BorderStyle"]) : BorderStyle.None;
 
         bool isRotatable = style.Attributes.Exists("isRotatable") && bool.Parse(style.Attributes["isRotatable"]);
 
-        return new AreaSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, fill, colour, width, dashStyle, midStyle, lineStyle, isRotatable);
+        return new AreaSymbol(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, fill, colour, width, dashStyle, midStyle, lineStyle, borderStyle, isRotatable);
     }
 
     public TextSymbol LoadTextSymbol(XMLNode node)
@@ -2590,6 +2564,46 @@ public class MapLoaderV2 : IMapLoaderV2
         bool isRotatable = style.Attributes.Exists("isRotatable") && bool.Parse(style.Attributes["isRotatable"]);
 
         return new(bas.id, bas.name, bas.desc, bas.num, bas.uncr, bas.help, font_, isRotatable, border_, framing_);
+    }
+
+    public DashStyle LoadDashStyle(XMLNode node)
+    {
+        XMLAttributeCollection d = node.Attributes;
+
+        return new(
+            float.Parse(d["dashLength"]),
+            float.Parse(d["gapLength"]),
+            int.Parse(d["groupSize"]),
+            float.Parse(d["groupGapLength"])
+        );
+    }
+
+    public MidStyle LoadMidStyle(XMLNode node)
+    {
+        IEnumerable<MapObject> objs = LoadMapObjects(node);
+
+        return new(
+            objs,
+            float.Parse(node.Attributes["gapLength"]),
+            bool.Parse(node.Attributes["requireMid"]),
+            float.Parse(node.Attributes["initialOffset"]),
+            float.Parse(node.Attributes["endOffset"])
+        );
+    }
+
+    public BorderStyle LoadBorderStyle(XMLNode node)
+    {
+        XMLAttributeCollection b = node.Attributes;
+
+        Colour col = b["colour"] == "Transparent" ? Colour.Transparent : _map.Colours[b["colour"].Parse<Guid>()];
+
+        float width = b["width"].Parse<float>(),
+            offset = b["offset"].Parse<float>();
+        
+        DashStyle dashStyle = node.Children.Exists("DashStyle") ? LoadDashStyle(node.Children["DashStyle"]) : DashStyle.None;
+        MidStyle midStyle = node.Children.Exists("MidStyle") ? LoadMidStyle(node.Children["MidStyle"]) : MidStyle.None;
+
+        return new(col, width, offset, dashStyle, midStyle);
     }
 
     #endregion

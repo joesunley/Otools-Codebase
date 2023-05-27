@@ -84,11 +84,13 @@ public interface IPathSymbol
     DashStyle DashStyle { get; set; }
 
     MidStyle MidStyle { get; set; }
-
+    
     LineStyle LineStyle { get; set; }
 
-    float BorderWidth { get; set; }
-    Colour BorderColour { get; set; }
+    BorderStyle BorderStyle { get; set; }
+
+    float Width { get; set; }
+    Colour Colour { get; set; }
 }
 
 [DebuggerDisplay("Dash Style {HasDash} - {DashLength}, {GapLength}")]
@@ -108,10 +110,10 @@ public struct DashStyle
     {
         HasDash = false;
 
-        DashLength = 0;
-        GapLength = 0;
+        DashLength = 0f;
+        GapLength = 0f;
         GroupSize = 0;
-        GroupGapLength = 0;
+        GroupGapLength = 0f;
     }
 
     public DashStyle(float dashLength, float gapLength, int groupSize = 0, float groupGapLength = 0)
@@ -193,4 +195,45 @@ public struct LineStyle
 
     public enum JoinStyle { Flat, Round, Square }
     public enum CapStyle { Bevel, Miter, Round }
+}
+
+public struct BorderStyle
+{
+    public bool HasBorder { get; set; }
+    
+    public Colour Colour { get; set; }
+    
+    public float Width { get; set; }
+    
+    public float Offset { get; set; }
+    
+    public DashStyle DashStyle { get; set; }
+    
+    public MidStyle MidStyle { get; set; }
+
+    public BorderStyle()
+    {
+        HasBorder = false;
+
+        Colour = Colour.Transparent;
+        Width = 0f;
+        Offset = 0f;
+        
+        DashStyle = DashStyle.None;
+        MidStyle = MidStyle.None;
+    }
+
+    public BorderStyle(Colour colour, float width, float offset, DashStyle? dashStyle = null, MidStyle? midStyle = null)
+    {
+        HasBorder = true;
+
+        Colour = colour;
+        Width = width;
+        Offset = offset;
+
+        DashStyle = dashStyle is null ? DashStyle.None : (DashStyle)dashStyle!;
+        MidStyle = midStyle is null ? MidStyle.None : (MidStyle)midStyle!;
+    }
+
+    public static BorderStyle None => new();
 }

@@ -1,7 +1,5 @@
-﻿using System.Drawing;
-using OTools.Maps;
+﻿using OTools.Maps;
 using Sunley.Mathematics;
-using System.Numerics;
 using OneOf;
 
 namespace OTools.ObjectRenderer2D;

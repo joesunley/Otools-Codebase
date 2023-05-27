@@ -273,12 +273,12 @@ public class MapRender : IMapRender
 
         Path path = new()
         {
-            BorderWidth = sym.BorderWidth,
-            BorderColour = sym.BorderColour,
+            BorderWidth = sym.Width,
+            BorderColour = sym.Colour,
 
             IsClosed = false,
 
-            ZIndex = sym.BorderColour.Precedence,
+            ZIndex = sym.Colour.Precedence,
         };
 
         //TODO: Might not be worth it
@@ -369,21 +369,21 @@ public class MapRender : IMapRender
 
         List<IShape> renders = new();
 
-        if (inst.Symbol.BorderColour != Colour.Transparent)
+        if (inst.Symbol.Colour != Colour.Transparent)
         {
             Path border = new()
             {
                 Segments = segments,
                 Holes = holes,
 
-                BorderWidth = inst.Symbol.BorderWidth,
-                BorderColour = inst.Symbol.BorderColour,
+                BorderWidth = inst.Symbol.Width,
+                BorderColour = inst.Symbol.Colour,
 
                 IsClosed = inst.IsClosed,
 
-                DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.BorderWidth),
+                DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.Width),
 
-                ZIndex = inst.Symbol.BorderColour.Precedence,
+                ZIndex = inst.Symbol.Colour.Precedence,
             };
 
             renders.Add(border);
@@ -417,7 +417,7 @@ public class MapRender : IMapRender
 
                 Fill = aSym.Fill is SolidFill s ? s.Colour.HexValue : visFill,
 
-                DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.BorderWidth),
+                DashArray = _Utils.CreateDashArray(_Utils.CalculateLengthOfPath(inst.Segments), inst.Symbol.DashStyle, inst.Symbol.Width),
             };
 
             renders.Add(area);
@@ -881,10 +881,10 @@ public class WireframeMapRender : IMapRender
                 case PointSymbol p:
                     break;
                 case LineSymbol l:
-                    yield return (l.Id, l.BorderColour); break;
+                    yield return (l.Id, l.Colour); break;
                 case AreaSymbol a:
-                    if (a.BorderColour != Colour.Transparent)
-                        yield return (a.Id, a.BorderColour); break;
+                    if (a.Colour != Colour.Transparent)
+                        yield return (a.Id, a.Colour); break;
                     // Lot of work needs doing
             }
         }

@@ -208,8 +208,8 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 
 		OMLNode border = new("Border", new OMLNodeList
 		{
-			new("Colour", sym.BorderColour.Name),
-			new("Width", sym.BorderWidth.ToString()),
+			new("Colour", sym.Colour.Name),
+			new("Width", sym.Width.ToString()),
 		});
 
 		l.Add(border);
@@ -226,8 +226,8 @@ public class SymbolLoaderV1 : ISymbolLoaderV1
 
 		OMLNode border = new("Border", new OMLNodeList
 		{
-			new("Colour", sym.BorderColour.Name),
-			new("Width", sym.BorderWidth.ToString()),
+			new("Colour", sym.Colour.Name),
+			new("Width", sym.Width.ToString()),
 		});
 
 		OMLNode fill = SaveFill(sym.Fill);
