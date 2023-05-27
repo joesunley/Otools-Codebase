@@ -1,0 +1,34 @@
+﻿using OTools.Common;
+
+namespace OTools.Event;
+
+public sealed class EntryStore : Store<Entry>
+{
+    public Entry this[Name name] => this.First(e => e.Name == name);
+    
+    public Entry this[string name]
+    {
+        get
+        {
+            Name search;
+            var s = name.Split(' ');
+            if (s.Length > 2)
+            {
+                string last = string.Concat(s[1..]);
+                search = new(s[0], last);
+            }
+            else if (s.Length == 2)
+                search = new(s[0], s[1]);
+            else search = new(s[0], "");
+
+            return this[search];
+        }
+    }
+}
+
+public sealed class ResultStore : Store<Result>
+{
+    public Result this[Entry entry] => this.First(r => r.Entry == entry);
+
+    public Result this[Name name] => this.First(r => r.Entry.Name == name);
+}   
