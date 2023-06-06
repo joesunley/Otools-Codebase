@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:paz="using:Avalonia.Controls.PanAndZoom"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="OTools.MapMaker.PaintBox">
+             x:Class="OTools.AvaCommon.PaintBox">
 	<ScrollViewer x:Name="scrollViewer"
 				  VerticalScrollBarVisibility="Hidden"
 				  HorizontalScrollBarVisibility="Hidden">
@@ -13,7 +13,8 @@
 						HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
 						Stretch="None" ClipToBounds="True" Focusable="True">
 			<Canvas x:Name="canvas" Background="LightGray"
-					Width="1000000" Height="1000000" />
+					Width="1000000" Height="1000000" 
+					x:FieldModifier="protected"/>
 		</paz:ZoomBorder>
 	</ScrollViewer>
 </UserControl>

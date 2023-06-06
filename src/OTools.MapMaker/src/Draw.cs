@@ -204,7 +204,7 @@ public class SimplePathDraw
         _inst.IsClosed = false;
 
 		_drawGuide = _inst is AreaInstance area &&
-					 (area.Symbol.BorderWidth == 0 || area.Symbol.BorderColour == Colour.Transparent);
+					 (area.Symbol.Width == 0 || area.Symbol.Colour == Colour.Transparent);
 
 		var render = _render.RenderPathInstance(_inst).Concat(!_drawGuide ? Enumerable.Empty<IShape>() :
 			new IShape[] { new Line {Colour = 0xffff8a00, Points = _points, Width = 1, ZIndex = 999}});

@@ -25,6 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OTools.2DObjectRenderer\OTools.2DObjectRenderer.csproj" />
+    <ProjectReference Include="..\OTools.AvaCommon\OTools.AvaCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="src\SymbolPane.axaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

@@ -1,15 +1,16 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:common="clr-namespace:OTools.AvaCommon;assembly=OTools.AvaCommon"
 		xmlns:local="clr-namespace:OTools.MapMaker;assembly=OTools.MapMaker"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="OTools.MapMaker.MainWindow"
-        Title="OTools.MapMaker">
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Class="OTools.MapMaker.MainWindow"
+		Title="OTools.MapMaker">
 	<Grid RowDefinitions="50,*,20">
 
 		<Grid ColumnDefinitions="50,*,150" Grid.Row="1">
-			<local:PaintBox x:Name="paintBox" Grid.Column="1"/>
+			<common:PaintBox x:Name="paintBox" Grid.Column="1"/>
 			
 			<local:SymbolPane x:Name="symbolPane" Grid.Column="2" />
 		</Grid>
