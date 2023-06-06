@@ -52,9 +52,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console", "test\Console\Con
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.MapViewer", "src\OTools.MapViewer\OTools.MapViewer.csproj", "{F2D0A36E-BC6F-40A0-9944-1A0AFBA49AB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.MapMaker", "src\OTools.MapMaker\OTools.MapMaker.csproj", "{AFF320B0-9FA5-4CD9-A1BB-186CC2970FDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.MapMaker", "src\OTools.MapMaker\OTools.MapMaker.csproj", "{AFF320B0-9FA5-4CD9-A1BB-186CC2970FDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.CoursePlanner", "src\OTools.CoursePlanner\OTools.CoursePlanner.csproj", "{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.Routechoice", "src\OTools.Routechoice\OTools.Routechoice.csproj", "{93FA353E-9412-4CBD-A273-3C6509D1543B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.AvaCommon", "src\OTools.AvaCommon\OTools.AvaCommon.csproj", "{F063C9F6-0544-4E0D-9613-F8A482D2A932}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -130,6 +134,14 @@ Global
 		{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93FA353E-9412-4CBD-A273-3C6509D1543B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93FA353E-9412-4CBD-A273-3C6509D1543B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93FA353E-9412-4CBD-A273-3C6509D1543B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93FA353E-9412-4CBD-A273-3C6509D1543B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F063C9F6-0544-4E0D-9613-F8A482D2A932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F063C9F6-0544-4E0D-9613-F8A482D2A932}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F063C9F6-0544-4E0D-9613-F8A482D2A932}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F063C9F6-0544-4E0D-9613-F8A482D2A932}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
