@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿global using Sunley.Mathematics;
+global using static System.Diagnostics.Debug;
+using Avalonia;
 using System;
 
 namespace OTools.CoursePlanner;

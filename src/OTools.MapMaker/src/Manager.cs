@@ -1,4 +1,5 @@
-﻿using OTools.Maps;
+﻿using OTools.AvaCommon;
+using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using System;
 using System.Diagnostics.Tracing;
@@ -7,6 +8,7 @@ namespace OTools.MapMaker;
 
 public static class Manager
 {
+    public static PaintBox? PaintBox { get; set; }
     public static Map? Map { get; set; }
     public static int Layer { get; set; } = 0;
 
@@ -34,7 +36,7 @@ public static class Manager
         }
     }
 
-    public static IMapRender? MapRender { get; set; }
+    public static IMapRenderer2D? MapRenderer { get; set; }
 
     public static event Action<Symbol>? ActiveSymbolChanged;
     public static event Action<Tool>? ActiveToolChanged;

@@ -14,7 +14,10 @@
 			
 			<local:SymbolPane x:Name="symbolPane" Grid.Column="2" />
 		</Grid>
-		
-		<TextBlock x:Name="statusBar" Grid.Row="2" Text="Hello World"/>
+
+		<StackPanel Orientation="Horizontal" Grid.Row="2">
+			<Button x:Name="btnDebug" Content="Show Debug" Click="OnDebugClicked" Padding="2"/>
+			<TextBlock x:Name="statusBar" Text="Hello World" VerticalAlignment="Center" Padding="10 0 0 0"/>
+		</StackPanel>
 	</Grid>
 </Window>

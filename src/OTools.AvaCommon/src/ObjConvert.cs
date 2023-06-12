@@ -3,13 +3,14 @@ using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using OTools.Maps;
+using ownsmtp.logging;
 using OT = OTools.ObjectRenderer2D;
 
 namespace OTools.AvaCommon;
 
 public static class ObjConvert
 {
-	public static IEnumerable<Shape> ConvertCollection(IEnumerable<OT.IShape> shapes)
+	public static IEnumerable<Shape> ConvertCollection(this IEnumerable<OT.IShape> shapes)
 	{
 		return shapes.Select(el => (Shape)(el switch
 		{
@@ -18,11 +19,17 @@ public static class ObjConvert
 			OT.Line l => ConvLine(l),
 			OT.Area a => ConvArea(a),
 			OT.Path p => ConvPath(p),
+			OT.Text t => ConvText(t),
 			_ => throw new NotImplementedException(),
 		}));
 	}
 
-	private static Rectangle ConvRectange(OT.Rectangle rect)
+    private static Avalonia.Controls.Shapes.Path ConvText(OT.Text t)
+    {
+		return new();
+    }
+
+    private static Rectangle ConvRectange(OT.Rectangle rect)
 	{
 		Rectangle output = new()
 		{
@@ -259,7 +266,7 @@ public static class ObjConvert
 			var s = shape;
 			//s.TopLeft += fill.Viewport.XY;
 
-			WriteLine(s.TopLeft);
+			Debugger.Debug(s.TopLeft.ToString() ?? "");
 
 			shapes.Add(s);
 		}
@@ -271,7 +278,7 @@ public static class ObjConvert
 		return output;
 	}
 
-	private static IBrush ColourToBrush(uint colour)
+	public static IBrush ColourToBrush(uint colour)
 	{
 		var (r, g, b, a) = ((Colour)colour).ToRGBA();
 
@@ -280,7 +287,7 @@ public static class ObjConvert
 		return new SolidColorBrush(col);
 	}
 
-	private static Point ToPoint(this vec2 v2) 
+	public static Point ToPoint(this vec2 v2) 
 		=> new(v2.X, v2.Y);
 
 

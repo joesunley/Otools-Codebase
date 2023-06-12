@@ -21,8 +21,5 @@
 
   <ItemGroup>
     <Using Include="Sunley.Mathematics" />
-    <Using Include="System.Diagnostics.Debug">
-      <Static>True</Static>
-    </Using>
   </ItemGroup>
 </Project>

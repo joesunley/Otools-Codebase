@@ -6,7 +6,15 @@
 		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 		x:Class="OTools.Routechoice.MainWindow"
 		Title="OTools.Routechoice">
-	<Grid ColumnDefinitions="*,200">
-		<common:PaintBox x:Name="PaintBox" Grid.Column="0" />
+	<Grid RowDefinitions="*,25">
+		<Grid ColumnDefinitions="*, 200" Grid.Row="0">
+			<common:PaintBox x:Name="PaintBox" Grid.Column="0" />
+		</Grid>
+
+
+		<StackPanel Orientation="Horizontal" Grid.Row="1">
+			<Button x:Name="btnDebug" Content="Show Debug" Click="OnDebugClicked" Padding="2" />
+			<TextBlock x:Name="StatusBar" Text="Hello World" VerticalAlignment="Center" Padding="10 0 0 0" />
+		</StackPanel>	
 	</Grid>
 </Window>

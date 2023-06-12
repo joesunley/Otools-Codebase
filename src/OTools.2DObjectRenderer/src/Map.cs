@@ -1,12 +1,13 @@
-﻿using OTools.Maps;
+﻿using ComputeSharp;
+using OTools.Maps;
 using Sunley.Mathematics;
-using static System.Diagnostics.Debug;
-using System.Diagnostics;
 using System.Data;
+using System.Diagnostics;
+using static System.Diagnostics.Debug;
 
 namespace OTools.ObjectRenderer2D;
 
-public interface IMapRender
+public interface IMapRenderer2D
 {
     IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs);
     IEnumerable<IShape> RenderMapObject(MapObject obj);
@@ -29,13 +30,13 @@ public interface IMapRender
     IEnumerable<(Symbol, IEnumerable<IShape>)> Render();
 }
 
-public class MapRender : IMapRender
+public class MapRenderer2D : IMapRenderer2D
 {
     private Map _activeMap;
 
     private readonly Dictionary<int, IEnumerable<IShape>> _symbolCache;
 
-    public MapRender(Map map)
+    public MapRenderer2D(Map map)
     {
         _activeMap = map;
         _symbolCache = new();
@@ -602,7 +603,7 @@ public class MapRender : IMapRender
     }
 }
 
-public class WireframeMapRender : IMapRender
+public class WireframeMapRenderer2D : IMapRenderer2D
 {
     public static float LineWidth { get; set; }
     public static float PointRadius { get; set; }
@@ -614,7 +615,7 @@ public class WireframeMapRender : IMapRender
     // an update but is inefficient
     private readonly Dictionary<Guid, Colour> _cachedPrimaryColours;
 
-    public WireframeMapRender(Map map)
+    public WireframeMapRenderer2D(Map map)
     {
         _activeMap = map;
 
@@ -1033,6 +1034,9 @@ internal static class _Utils
                     break;
                 default: throw new InvalidOperationException("Unknown Path Type");
             }
+
+            paths.Add(points);
+            points = new();
         }
 
         if (paths.Count == 0)
@@ -1120,7 +1124,7 @@ internal static class _Utils
             currDistance += usableSpacing;
         }
 
-        if (DoesPointExceedSegment((points[^1], points[^2]), mids[^1]))
+        if (points.Count > 2 && mids.Count >= 1 && DoesPointExceedSegment((points[^1], points[^2]), mids[^1]))
             mids.RemoveAt(mids.Count - 1);
 
         return mids;
@@ -1629,3 +1633,7 @@ internal static class _PolygonTools
         return tLen;
     }
 }
+
+#region GPU Based Sampling
+
+#endregion

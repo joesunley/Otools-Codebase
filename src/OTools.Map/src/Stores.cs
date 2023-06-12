@@ -16,8 +16,12 @@ public sealed class ColourStore : Store<Colour>
 
     public void UpdatePrecendences(byte offset)
     {
-        for (int i = 0; i < _items.Count; i++)
-            _items[i].Precedence = (ushort)(i + offset);
+        int count = 0;
+        for (int i = _items.Count - 1; i >= 0; i--)
+        {
+            _items[i].Precedence = (ushort)(count + offset); 
+            count++;
+        }
     }
 }
 

@@ -15,8 +15,6 @@ public abstract class MapObject : IStorable
     {
         Id = id;
     }
-
-    public virtual vec4 GetBoundingBox() => vec4.Zero;
 }
 
 public sealed class PointObject : MapObject
@@ -42,16 +40,6 @@ public sealed class PointObject : MapObject
         InnerRadius = innerRadius;
         OuterRadius = outerRadius;
     }
-
-    public override vec4 GetBoundingBox()
-    {
-        float radius = InnerRadius + OuterRadius;
-
-        vec2 topLeft = (-radius, -radius);
-        vec2 bottomRight = (radius, radius);
-
-        return (topLeft, bottomRight);
-    }
 }
 
 public sealed class LineObject : MapObject
@@ -73,22 +61,6 @@ public sealed class LineObject : MapObject
         Segments = segments;
         Width = width;
         Colour = colour;
-    }
-
-    public override vec4 GetBoundingBox()
-    {
-        vec2 topLeft = vec2.MaxValue,
-             bottomRight = vec2.MinValue;
-
-        IList<vec2> poly = Segments.Linearise();
-
-        foreach (vec2 p in poly)
-        {
-            topLeft = vec2.Min(topLeft, p);
-            bottomRight = vec2.Max(bottomRight, p);
-        }
-
-        return (topLeft, bottomRight);
     }
 }
 
@@ -115,22 +87,6 @@ public sealed class AreaObject : MapObject
         BorderWidth = borderWidth;
         BorderColour = borderColour;
         Fill = fill;
-    }
-
-    public override vec4 GetBoundingBox()
-    {
-        vec2 topLeft = vec2.MaxValue,
-             bottomRight = vec2.MinValue;
-
-        IList<vec2> poly = Segments.Linearise();
-
-        foreach (vec2 p in poly)
-        {
-            topLeft = vec2.Min(topLeft, p);
-            bottomRight = vec2.Max(bottomRight, p);
-        }
-
-        return (topLeft, bottomRight);
     }
 }
 

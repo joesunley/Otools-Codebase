@@ -11,7 +11,7 @@ namespace OTools.FileFormatConverter;
 
 #region Types
 
-file interface IOcdObj { }
+file interface v6_IOcdObj { }
 
 /*
 OCAD is written in 32-bit Delphi and this description uses the
@@ -123,7 +123,7 @@ beginning of the file.
 //}
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_FileHeader : IOcdObj
+file struct v6_FileHeader : v6_IOcdObj
 {
     /*
       TFileHeader = record
@@ -249,7 +249,7 @@ file struct v6_FileHeader : IOcdObj
 //}
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_SymHeader : IOcdObj
+file struct v6_SymHeader : v6_IOcdObj
 {
     /*
       TSymHeader = record
@@ -306,7 +306,7 @@ file struct v6_SymHeader : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_ColorInfo : IOcdObj
+file struct v6_ColorInfo : v6_IOcdObj
 {
     /*
      TColorInfo = record
@@ -342,7 +342,7 @@ file struct v6_ColorInfo : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_Cmyk : IOcdObj
+file struct v6_Cmyk : v6_IOcdObj
 {
     /*
      TCmyk = record
@@ -362,7 +362,7 @@ file struct v6_Cmyk : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_ColorSep : IOcdObj
+file struct v6_ColorSep : v6_IOcdObj
 {
     /*
      TColorSep = record
@@ -390,7 +390,7 @@ file struct v6_ColorSep : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_SymbolBlock : IOcdObj
+file struct v6_SymbolBlock : v6_IOcdObj
 {
     /*
       TSymbolBlock = record
@@ -412,7 +412,7 @@ file struct v6_SymbolBlock : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_BaseSym : IOcdObj
+file struct v6_BaseSym : v6_IOcdObj
 {
     /*
       TBaseSym = record
@@ -511,7 +511,7 @@ file struct v6_BaseSym : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_PointSym : IOcdObj
+file struct v6_PointSym : v6_IOcdObj
 {
     /*
       TPointSym = record
@@ -583,7 +583,7 @@ file struct v6_PointSym : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_SymElt : IOcdObj
+file struct v6_SymElt : v6_IOcdObj
 {
     /*
       TSymElt = record
@@ -627,7 +627,7 @@ file struct v6_SymElt : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_LineSym : IOcdObj
+file struct v6_LineSym : v6_IOcdObj
 {
     /*
       TLineSym = record
@@ -836,7 +836,7 @@ file struct v6_LineSym : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_LTextSym : IOcdObj
+file struct v6_LTextSym : v6_IOcdObj
 {
     /*
       TLTextSym = record
@@ -997,7 +997,7 @@ file struct v6_LTextSym : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_AreaSym : IOcdObj
+file struct v6_AreaSym : v6_IOcdObj
 {
     /*
       TAreaSym = record
@@ -1127,7 +1127,7 @@ file struct v6_AreaSym : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_TextSym : IOcdObj
+file struct v6_TextSym : v6_IOcdObj
 {
     /*
       TTextSym = record
@@ -1294,7 +1294,7 @@ file struct v6_TextSym : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_RectSym : IOcdObj
+file struct v6_RectSym : v6_IOcdObj
 {
     /*
       TRectSym = record
@@ -1401,7 +1401,7 @@ file struct v6_Cord
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_IndexBlock : IOcdObj
+file struct v6_IndexBlock : v6_IOcdObj
 {
     /*
     Each Index block contains the file position of 256 objects. In
@@ -1426,7 +1426,7 @@ file struct v6_IndexBlock : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_Index : IOcdObj
+file struct v6_Index : v6_IOcdObj
 {
 
     /*
@@ -1468,7 +1468,7 @@ file struct v6_Index : IOcdObj
 }
 
 [StructLayout(LayoutKind.Sequential)]
-file struct v6_Element : IOcdObj
+file struct v6_Element : v6_IOcdObj
 {
 
     /*
@@ -1556,7 +1556,7 @@ file struct v6_Element : IOcdObj
     public v6_Cord[] Poly; // 6/7: 2000, 8: 32768 ? Not all used
 }
 
-file struct v6_Setup : IOcdObj
+file struct v6_Setup : v6_IOcdObj
 {
     /*
     The Setup structure contains miscellanous information about
@@ -1764,7 +1764,7 @@ file struct v6_Setup : IOcdObj
     public short TempColor;
 }
 
-file struct v6_GpsAdjPoint : IOcdObj
+file struct v6_GpsAdjPoint : v6_IOcdObj
 {
     public v6_Cord lpMap;
     public double Lat;
@@ -1772,7 +1772,7 @@ file struct v6_GpsAdjPoint : IOcdObj
     public string Name;
 }
 
-file struct v6_ZoomRec : IOcdObj
+file struct v6_ZoomRec : v6_IOcdObj
 {
     public double Zoom;
     public v6_Cord Offset;
@@ -1836,6 +1836,175 @@ internal static class v6_Read
         public static byte[] Seek(byte[] arr, int startPoint, int length) 
             => arr.Skip(startPoint).Take(length).ToArray();
     }
+}
+
+#endregion
+
+#region Version 9
+
+/*
+Data types used
+---------------
+OCAD is written in 32-bit Delphi and this description uses the names for the data types as
+they appear in Delphi. However the same data types are available in other development systems
+like C++.
+
+Integer       32-bit signed integer
+SmallInt      16-bit signed integer
+Word          16-bit unsigned integer
+WordBool      16-bit boolean
+String[x]     Pascal-style string. The first byte contains the number of characters followed
+              by the characters. The string is not zero-terminated. The maximum number of
+              characters is x. It occupies x + 1 bytes in the file.
+Double        64-bit floating point number
+TDPoly        A special data type (64-bit) used for all coordinates and text.
+              It is defined as
+
+              TDPoly = record x, y: integer; end;
+
+              The lowest 8 Bits are used to mark special points:
+              Marks for the x-coordinate:
+                1: this point is the first bezier curve point
+                2: this point is the second bezier curve point
+                4: for double lines: there is no left line
+                   between this point and the next point
+                8: this point is a area border line gap
+              Marks for y-coordinate:
+                1: this point is a corner point
+                2: this point is the first point of a hole in an area
+                4: for double lines: there is no right line
+                   between this point and the next point
+                8: this point is a dash point
+              The upper 24 bits contain the coordinate value measured in units of 0.01 mm.
+
+Note: all file positions are in bytes starting from the beginning of the file.
+ */
+
+file struct v9_FileHeader
+{
+	/*
+	File header
+	=============================================================================================
+	OCAD files start with a file header:
+
+	  TFileHeader = record         // Size = 48 Byte
+	    OCADMark: SmallInt;        // 3245 (hex 0cad)
+	    FileType: Byte;            // File type
+	                               //   0: normal map
+	                               //   1: course setting project
+	                               //   3: OCAD 8 course setting project
+	    FileStatus: Byte;          // Not used
+	    Version: SmallInt;         // 9
+	    Subversion: SmallInt;      // number of subversion (0 for 9.00, 1 for 9.1 etc.)
+	    FirstSymbolIndexBlk: integer;   // file position of the first symbol index block
+	    ObjectIndexBlk: integer;   // file position of object index block -> TObjectIndexBlock    // max 65536 * 256 objects
+	    Res0: integer;             // Not used
+	    Res1: integer;             // Not used
+	    Res2: longint;             // Not used
+	    InfoSize: longint;         // Not used
+	    StringIndexBlk: longint;   // file position of string index block -> TStringIndexBlock    // max 256 strings
+	    FileNamePos: integer;      // file position of file name, used for temporary files and
+    							   // to recovery the file
+	    FileNameSize: integer;     // size of the file name, used for temporary files only
+	    Res4: integer;             // Not used
+	  end;
+	 */
+	
+    public short OCADMark;			// 3245 (hex 0cad)
+    public byte FileType;			// File type:
+									//	0 - Normal Map
+									//	1 - Course Setting Project
+									//	3 - OCAD 8 Course Setting Project
+    public byte FileStatus;			// Not used
+    public short Version;			// 9
+    public short Subversion;		// Number of subversion (0 for 9.00, 1 for 9.1 etc)
+    public int FirstSymbolIndexBlk;	// File position of first symbol index block
+    public int ObjectIndexBlk;		// File position of object index block -> TObjectIndexBlock, max 65536 * 256 objects
+    public int Res0, Res1;			// Not used
+    public long Res2;				// Not used
+    public long InfoSize;			// Not used
+    public long StringIndexBlk;		// File position of string index block -> TStringIndexBlock, max 256 strings
+    public int FileNamePos;			// File position of file name, used for temp files & recovery
+    public int FileNameSize;		// Size of file name
+    public int Res4;				// Not used
+}
+
+file struct v9_TBaseSym
+{
+	/*
+	Symbols - Base symbols
+	----------------------
+	  TBaseSym = packed record
+	    Size: integer;             // Size of the symbol in bytes. This depends on the type.
+	                               // Coordinates following the symbol are included.
+	    SymNum: integer;           // Symbol number. This is 1000 times the integer part of
+	                               // the number + the fractional part "right adjusted"
+	                               // examples:
+	                               //   101.5 is stored as 101005
+	                               //   203.45 is stored as 203045
+	                               //   203.145 is stored as 203145
+	    Otp: byte;                 // Object type
+	                               //   1: Point symbol
+	                               //   2: Line symbol
+	                               //   3: Area symbol
+	                               //   4: Text symbol
+	                               //   6: Line text symbol
+	                               //   7: Rectangle symbol
+	    Flags: byte;               // 1: rotatable symbol (not oriented to north)
+	                               // 4: belongs to favorites
+	    Selected: boolean;         // Symbol is selected in the symbol box
+	    Status: byte;              // Status of the symbol
+	                               //   0: Normal
+	                               //   1: Protected
+	                               //   2: Hidden
+	    DrawingTool: byte;         // Preferred drawing tool
+	                               //   0: off
+	                               //   1: Curve mode
+	                               //   2: Ellipse mode
+	                               //   3: Circle mode
+	                               //   4: Rectangular line mode
+	                               //   5: Rectangular area mode
+	                               //   6: Straight line mode
+	                               //   7: Freehand mode
+	    CsMode: byte;              // Course setting mode
+	                               //   0: Not used for course setting
+	                               //   1: course symbol
+	                               //   2: control description symbol
+	    CsObjType: byte;           // Course setting object type
+	                               //   0: Start symbol (Point symbol)
+	                               //   1: Control symbol (Point symbol)
+	                               //   2: Finish symbol (Point symbol)
+	                               //   3: Marked route (Line symbol)
+	                               //   4: Control description symbol (Point symbol)
+	                               //   5: Course Titel (Text symbol)
+	                               //   6: Start Number (Text symbol)
+	                               //   7: Variant (Text symbol)
+	                               //   8: Text block (Text symbol)
+	    CsCdFlags: byte;           // Course setting control description flags
+	                               //   a combination of the flags
+	                               //   32: available in column C
+	                               //   16: available in column D
+	                               //   8: available in column E
+	                               //   4: available in column F
+	                               //   2: available in column G
+	                               //   1: available in column H
+	    Extent: integer;           // Extent how much the rendered symbols can reach outside the
+	                               // coordinates of an object with this symbol. For a point
+	                               // object it tells how far away from the coordinates of the
+	                               // object anything of the point symbol can appear.
+	    FilePos: integer;          // Used internally. Value in the file is not defined.
+	    Group: SmallInt;           // Group ID in the symbol tree. Lower and higher 8 bit are
+	                               // used for 2 different symbol trees.
+	    nColors: SmallInt;         // Number of colors of the symbol max. 14
+	                               //   -1: the number of colors is > 14
+	    Colors: array[0..13] of SmallInt; // number of colors of the symbol
+	    Description: string[31];          // Description text
+	    IconBits: array[0..483] of byte;  // Each byte represents a pixel of the icon in a
+	                                      // 256 color palette (icon 22x22 pixels)
+	  end;
+	 */
+	
+	
 }
 
 #endregion

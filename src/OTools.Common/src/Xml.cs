@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Xml.Linq;
+using Sys = System.Xml;
 
 namespace OTools.Common;
-using Sys = System.Xml;
 
 public sealed class XMLDocument
 {

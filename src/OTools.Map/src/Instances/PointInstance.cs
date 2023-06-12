@@ -22,20 +22,4 @@ public sealed class PointInstance : Instance<PointSymbol>
         Centre = centre;
         Rotation = rotation;
     }
-
-    public override vec4 GetBoundingBox()
-    {
-        vec2 topLeft = vec2.MaxValue,
-             bottomRight = vec2.MinValue;
-
-        foreach (MapObject mapObject in Symbol.MapObjects)
-        {
-            vec4 bBox = mapObject.GetBoundingBox() + (Centre, Centre);
-
-            topLeft = vec2.Min(topLeft, bBox.XY);
-            bottomRight = vec2.Max(bottomRight, bBox.ZW);
-        }
-
-        return (topLeft, bottomRight);
-    }
 }

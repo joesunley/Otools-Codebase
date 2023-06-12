@@ -20,7 +20,7 @@ public class Entry : IStorable
         Id = Guid.NewGuid();
 
         CardNo = string.Empty;
-        Name = string.Empty;
+        Name = new();
         DateOfBirth = new DateOnly(1900, 1, 1);
         Club = string.Empty;
         Notes = string.Empty;
