@@ -19,7 +19,7 @@ namespace OTools.Routechoice
         {
             InitializeComponent();
 
-            LoadMap(@"C:\Users\Joe\Downloads\pol-2.png");
+            LoadMap(@"C:\Users\joe\Downloads\4.png");
 
             Manager.PaintBox = PaintBox;
             Manager.Tool = Tool.Routechoice;
@@ -28,20 +28,22 @@ namespace OTools.Routechoice
             PaintBox.ZoomChanged += _ => SetStatusText();
 
             _inputMonitor = new(PaintBox);
-            
-            Draw draw = new();
-        }
+
+			Draw.Start();
+		}
+		
         public void LoadMap(string filePath)
         {
             if (!File.Exists(filePath)) 
                 throw new FileNotFoundException("Map file not found", filePath);
 
-            Image img = new();
-            img.Source = new Bitmap(filePath);
+            Image img = new()
+			{
+				Source = new Bitmap(filePath),
+				RenderTransform = new ScaleTransform(0.25, 0.25),
+			};
 
-            img.SetTopLeft((1000, 1000));
-
-            img.RenderTransform = new ScaleTransform(0.25, 0.25);
+			img.SetTopLeft((1000, 1000));
 
             _imageId = Guid.NewGuid();
 

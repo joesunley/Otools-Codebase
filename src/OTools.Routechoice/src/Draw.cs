@@ -69,6 +69,8 @@ public class Draw
                 break;
         }
     }
+
+	public static Draw Start() => new();
 }
 
 public class CourseDraw

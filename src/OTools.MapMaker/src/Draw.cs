@@ -104,6 +104,8 @@ public class MapDraw
 		}
 	}
 
+	public static MapDraw Start() => new();
+	
 	private enum Active { None, Point, SimplePath, ComplexPath }
 }
 

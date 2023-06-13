@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.PanAndZoom;
 using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using OTools.Common;
@@ -41,6 +42,13 @@ namespace OTools.AvaCommon
             zoomBorder.Pan(newCentre.X, newCentre.Y);
         }
         public void PanTo(float x, float y) => PanTo((x, y));
+
+		public void Rotate(vec2 centre, float angle)
+		{
+			canvas.RenderTransform = new RotateTransform(angle, centre.X, centre.Y);
+		}
+
+		public void Rotate() => Rotate(vec2.Zero, 0f);
 
         public vec2 Zoom => new(zoomBorder.ZoomX, zoomBorder.ZoomY);
         public vec2 Offset => new(zoomBorder.OffsetX, zoomBorder.OffsetY);

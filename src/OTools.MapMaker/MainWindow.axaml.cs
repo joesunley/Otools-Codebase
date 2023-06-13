@@ -38,7 +38,9 @@ namespace OTools.MapMaker
             map.Colours.UpdatePrecendences(0);
             paintBox.Load(map);
 
-            MapDraw draw = new();
+			// paintBox.Rotate(vec2.Zero, 90f);
+
+			MapDraw.Start();
 
             
             Manager.Map = map;

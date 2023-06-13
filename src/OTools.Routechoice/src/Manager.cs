@@ -5,6 +5,7 @@ namespace OTools.Routechoice;
 public static class Manager
 {
     public static PaintBox? PaintBox { get; set; }
+	public static Course? Course { get; set; }
 
     private static Tool _activeTool;
 

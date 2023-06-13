@@ -479,13 +479,13 @@ public class MapRenderer2D : IMapRenderer2D
 
         IEnumerable<vec2> points = oFill switch
         {
-            RandomObjectFill roFill => _PolygonTools.RandomlySampledRect(bBox, roFill.Spacing),
-            SpacedObjectFill soFill => _PolygonTools.SpacedSampleRects(poly, (-10, -10, 10, 10), soFill.Spacing, soFill.Rotation),
+            RandomObjectFill roFill => PolygonTools.RandomlySampledRect(bBox, roFill.Spacing),
+            SpacedObjectFill soFill => PolygonTools.SpacedSampleRects(poly, (-10, -10, 10, 10), soFill.Spacing, soFill.Rotation),
             _ => throw new InvalidOperationException(), // Can't happen
         };
 
         if (!oFill.IsClipped)
-            points = points.Where(p => _PolygonTools.IsPointInPoly(poly, p, rect.XY - (5, 5.0001)));
+            points = points.Where(p => PolygonTools.IsPointInPoly(poly, p, rect.XY - (5, 5.0001)));
 
         List<IShape> renders = new();
         foreach (vec2 p in points)
@@ -500,18 +500,18 @@ public class MapRenderer2D : IMapRenderer2D
         List<(vec4, bool)> lines = new();
 
         if (rotation == 0f)
-            lines = _PolygonTools.UnrotatedLines(rect, pFill.ForeSpacing, pFill.BackSpacing).ToList();
+            lines = PolygonTools.UnrotatedLines(rect, pFill.ForeSpacing, pFill.BackSpacing).ToList();
         else
         {
-            IEnumerable<vec2> rPoly = _PolygonTools.Rotate(poly, -rotation, rect.XY);
+            IEnumerable<vec2> rPoly = PolygonTools.Rotate(poly, -rotation, rect.XY);
             vec4 rRect = rPoly.AABB();
 
-            IEnumerable<(vec4, bool)> rLines = _PolygonTools.UnrotatedLines(rRect, pFill.ForeSpacing, pFill.BackSpacing);
+            IEnumerable<(vec4, bool)> rLines = PolygonTools.UnrotatedLines(rRect, pFill.ForeSpacing, pFill.BackSpacing);
 
             foreach ((vec4, bool) rL in rLines)
             {
                 vec2[] points = { rL.Item1.XY, rL.Item1.ZW };
-                vec2[] rPoints = _PolygonTools.Rotate(points, rotation, rect.XY).ToArray();
+                vec2[] rPoints = PolygonTools.Rotate(points, rotation, rect.XY).ToArray();
 
                 lines.Add((new(rPoints[0], rPoints[1]), rL.Item2));
             }
@@ -1312,7 +1312,7 @@ internal static class _Utils
         {
             newSegments.Add(seg switch
             {
-                PolyLineSegment pls => new PolyLineSegment() { Points = _PolygonTools.Rotate(pls.Points, rotation, rotationCentre).ToList() },
+                PolyLineSegment pls => new PolyLineSegment() { Points = PolygonTools.Rotate(pls.Points, rotation, rotationCentre).ToList() },
                 PolyBezierSegment pbs => RotateBezier(pbs, rotation, rotationCentre),
                 _ => throw new Exception(), // Can't happen
             });
@@ -1328,7 +1328,7 @@ internal static class _Utils
         foreach (var point in bez.Points)
         {
             vec2[] ps = { point.Anchor, point.EarlyControl, point.LateControl };
-            vec2[] rotated = _PolygonTools.Rotate(ps, rotation, rotationCentre).ToArray();
+            vec2[] rotated = PolygonTools.Rotate(ps, rotation, rotationCentre).ToArray();
 
             newBez.Points.Add(new BezierPoint(rotated[0], rotated[1], rotated[2]));
         }
@@ -1337,7 +1337,7 @@ internal static class _Utils
     }
 }
 
-internal static class _PolygonTools
+public static class PolygonTools
 {
     public static IEnumerable<vec2> Intersect(IEnumerable<vec2> poly1, IEnumerable<vec2> poly2) => throw new NotImplementedException();
     public static IEnumerable<vec2> Union(IEnumerable<vec2> poly1, IEnumerable<vec2> poly2) => throw new NotImplementedException();
