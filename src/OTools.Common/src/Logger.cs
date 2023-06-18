@@ -110,11 +110,11 @@ public class ConsoleLogger : ServerLogger
     }
 }
 
-public static class Debugger
+public static class ODebugger
 {
     private static ServerLogger _logger;
 
-    static Debugger()
+    static ODebugger()
     {
         _logger = new ConsoleLogger(ServerLogLevel.Info);
     }

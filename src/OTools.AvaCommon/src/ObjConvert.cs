@@ -11,7 +11,7 @@ namespace OTools.AvaCommon;
 public static class ObjConvert
 {
 	public static IEnumerable<Shape> ConvertCollection(this IEnumerable<OT.IShape> shapes)
-	{
+	{ 
 		return shapes.Select(el => (Shape)(el switch
 		{
 			OT.Rectangle r => ConvRectange(r),
@@ -266,7 +266,7 @@ public static class ObjConvert
 			var s = shape;
 			//s.TopLeft += fill.Viewport.XY;
 
-			Debugger.Debug(s.TopLeft.ToString() ?? "");
+			ODebugger.Debug(s.TopLeft.ToString() ?? "");
 
 			shapes.Add(s);
 		}

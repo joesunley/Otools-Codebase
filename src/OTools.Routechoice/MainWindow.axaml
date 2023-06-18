@@ -6,13 +6,25 @@
 		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 		x:Class="OTools.Routechoice.MainWindow"
 		Title="OTools.Routechoice">
-	<Grid RowDefinitions="*,25">
-		<Grid ColumnDefinitions="*, 200" Grid.Row="0">
+	<Grid RowDefinitions="25,*,25">
+
+		<Menu>
+			<MenuItem Header="File">
+				<MenuItem Header="New" />
+				<MenuItem Header="Open" />
+				<MenuItem Header="Save" />
+			</MenuItem>
+			<MenuItem Header="Debug">
+				<MenuItem Header="Debug Action" Click="DebugAction" />
+				<MenuItem Header="Show Debug" Click="OnDebugClicked" />
+			</MenuItem>
+		</Menu>
+		
+		<Grid ColumnDefinitions="*, 200" Grid.Row="1">
 			<common:PaintBox x:Name="PaintBox" Grid.Column="0" />
 		</Grid>
 
-
-		<StackPanel Orientation="Horizontal" Grid.Row="1">
+		<StackPanel Orientation="Horizontal" Grid.Row="2">
 			<Button x:Name="btnDebug" Content="Show Debug" Click="OnDebugClicked" Padding="2" />
 			<TextBlock x:Name="StatusBar" Text="Hello World" VerticalAlignment="Center" Padding="10 0 0 0" />
 		</StackPanel>	

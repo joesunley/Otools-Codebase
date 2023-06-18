@@ -1369,7 +1369,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         return node.Name switch
         {
-            "LineInstance" => new LineInstance(bas.Item1, bas.Item2, (LineSymbol)bas.Item3, segments, isClosed, patternRotation, holes),
+            "LineInstance" => new LineInstance(bas.Item1, bas.Item2, (LineSymbol)bas.Item3, segments, isClosed),
             "AreaInstance" => new AreaInstance(bas.Item1, bas.Item2, (AreaSymbol)bas.Item3, segments, isClosed, patternRotation, holes),
             _ => throw new InvalidOperationException()
         };
@@ -2828,7 +2828,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         return node.Name switch
         {
-            "LineInstance" => new LineInstance(bas.Item1, bas.Item2, (LineSymbol)bas.Item3, segments, isClosed, patternRotation, holes),
+            "LineInstance" => new LineInstance(bas.Item1, bas.Item2, (LineSymbol)bas.Item3, segments, isClosed),
             "AreaInstance" => new AreaInstance(bas.Item1, bas.Item2, (AreaSymbol)bas.Item3, segments, isClosed, patternRotation, holes),
             _ => throw new InvalidOperationException()
         };

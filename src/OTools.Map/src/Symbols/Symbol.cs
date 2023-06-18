@@ -49,11 +49,11 @@ public abstract class Symbol : IStorable
 [DebuggerDisplay("{First}-{Second}-{Third}")]
 public struct SymbolNumber
 {
-    public byte First { get; set; }
-    public byte Second { get; set; }
-    public byte Third { get; set; }
+    public ushort First { get; set; }
+    public ushort Second { get; set; }
+    public ushort Third { get; set; }
 
-    public SymbolNumber(byte first, byte second, byte third)
+    public SymbolNumber(ushort first, ushort second, ushort third)
     {
         First = first;
         Second = second;
@@ -64,16 +64,16 @@ public struct SymbolNumber
     {
         string[] split = str.Split('-');
 
-        byte.TryParse(split[0], out byte first);
-        byte.TryParse(split[1], out byte second);
-        byte.TryParse(split[2], out byte third);
+        ushort.TryParse(split[0], out ushort first);
+        ushort.TryParse(split[1], out ushort second);
+        ushort.TryParse(split[2], out ushort third);
 
         First = first;
         Second = second;
         Third = third;
     }
 
-    public static implicit operator SymbolNumber((byte, byte, byte) tup)
+    public static implicit operator SymbolNumber((ushort, ushort, ushort) tup)
         => new(tup.Item1, tup.Item2, tup.Item3);
 }
 

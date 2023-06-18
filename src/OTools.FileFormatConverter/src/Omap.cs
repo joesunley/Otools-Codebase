@@ -1398,7 +1398,7 @@ file static class v9_MarshallLoad
 		return obj.symbol switch
 		{
 			v9_LineSymbol => new LineInstance(part, (LineSymbol)s_map.Symbols[obj.symbol.name], pC.path,
-													 pC.isClosed, (float)(MathF.PI - obj.rotation), pC.holes),
+													 pC.isClosed),
 			v9_AreaSymbol => new AreaInstance(part, (AreaSymbol)s_map.Symbols[obj.symbol.name], pC.path,
 													 pC.isClosed, (float)(MathF.PI - obj.rotation), pC.holes),
 			v9_CombinedSymbol => ConvertCombinedInstance(pC, obj, part),
@@ -1431,8 +1431,7 @@ file static class v9_MarshallLoad
 	{
 		return s_map.Symbols[obj.symbol.name] switch
 		{
-			LineSymbol line => new LineInstance(part, line, inp.path, inp.isClosed,
-														(float)(MathF.PI - obj.rotation)),
+			LineSymbol line => new LineInstance(part, line, inp.path, inp.isClosed),
 			AreaSymbol area => new AreaInstance(part, area, inp.path, inp.isClosed,
 														(float)(MathF.PI - obj.rotation), inp.holes),
 			_ => throw new ArgumentException(),

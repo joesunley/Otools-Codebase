@@ -16,11 +16,11 @@ public class InputMonitor
 
     void Events()
     {
-        _paintBox.PointerPressed += (s, args) => Debugger.Info($"Pointer Pressed");
-        _paintBox.PointerReleased += (s, args) => Debugger.Info($"Pointer Released: {args.InitialPressMouseButton}");
-        _paintBox.PointerWheelChanged += (s, args) => Debugger.Info("Pointer Wheel Changed");
-        _paintBox.KeyDown += (s, args) => Debugger.Info($"Key Down: {args.Key}");
-        _paintBox.KeyUp += (s, args) => Debugger.Info($"Key Up: {args.Key}");
+        _paintBox.PointerPressed += (s, args) => ODebugger.Info($"Pointer Pressed");
+        _paintBox.PointerReleased += (s, args) => ODebugger.Info($"Pointer Released: {args.InitialPressMouseButton}");
+        _paintBox.PointerWheelChanged += (s, args) => ODebugger.Info("Pointer Wheel Changed");
+        _paintBox.KeyDown += (s, args) => ODebugger.Info($"Key Down: {args.Key}");
+        _paintBox.KeyUp += (s, args) => ODebugger.Info($"Key Up: {args.Key}");
     }
 
 }

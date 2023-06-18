@@ -3,7 +3,9 @@ using OTools.Maps;
 using Sunley.Mathematics;
 using System.Data;
 using System.Diagnostics;
+using OTools.Common;
 using static System.Diagnostics.Debug;
+using ownsmtp.logging;
 
 namespace OTools.ObjectRenderer2D;
 
@@ -269,8 +271,8 @@ public class MapRenderer2D : IMapRenderer2D
         //Note: Majority is implemented in RenderPathInstance(..)
 
         int hash = sym.GetHashCode();
-        if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape> value))
-            return value;
+        if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape>? value))
+            return value!;
 
         Path path = new()
         {

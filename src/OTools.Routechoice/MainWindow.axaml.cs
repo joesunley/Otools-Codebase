@@ -12,6 +12,7 @@ namespace OTools.Routechoice
 {
     public partial class MainWindow : Window
     {
+
         private Guid _imageId; 
         private readonly InputMonitor _inputMonitor;
 
@@ -19,10 +20,10 @@ namespace OTools.Routechoice
         {
             InitializeComponent();
 
-            LoadMap(@"C:\Users\joe\Downloads\4.png");
+            // LoadMap(@"C:\Users\Joe\Downloads\55.jpg");
 
             Manager.PaintBox = PaintBox;
-            Manager.Tool = Tool.Routechoice;
+            Manager.Tool = Tool.Course;
 
             PaintBox.MouseMoved += _ => SetStatusText();
             PaintBox.ZoomChanged += _ => SetStatusText();
@@ -72,6 +73,11 @@ namespace OTools.Routechoice
                 DebugTools.FreeConsole();
                 btnDebug.Content = "Show Debug";
             }
+        }
+
+        private void DebugAction(object? sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

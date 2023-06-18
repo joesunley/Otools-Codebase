@@ -77,7 +77,7 @@ namespace OTools.AvaCommon
         
         public void Add(Guid id, IEnumerable<Control> objects)
         {
-            Debugger.Info($"Added {id}");
+            ODebugger.Info($"Added {id}");
 
             objects = objects.Select(x =>
             {
@@ -91,8 +91,8 @@ namespace OTools.AvaCommon
 
         public void Update(Guid id, IEnumerable<Control> objects)
         {
-            Debugger.Assert(_ids.Contains(id));
-            Debugger.Info($"Updated {id}");
+            ODebugger.Assert(_ids.Contains(id));
+            ODebugger.Info($"Updated {id}");
             
             objects = objects.Select(x =>
             {
@@ -116,8 +116,8 @@ namespace OTools.AvaCommon
 
         public void Remove(Guid id)
         {
-            Debugger.Assert(_ids.Contains(id));
-            Debugger.Info($"Removed {id}");
+            ODebugger.Assert(_ids.Contains(id));
+            ODebugger.Info($"Removed {id}");
             
             var els = canvas.Children.Select(x => (Control)x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
             canvas.Children.RemoveAll(els);
@@ -127,7 +127,7 @@ namespace OTools.AvaCommon
         
         public void Clear()
         {
-            Debugger.Info("Cleared");
+            ODebugger.Info("Cleared");
 
             foreach (Guid id in _ids)
             {
@@ -137,7 +137,7 @@ namespace OTools.AvaCommon
                 _ids.Remove(id);
             }
             
-            Debugger.Assert(!_ids.Any());
+            ODebugger.Assert(!_ids.Any());
         }
 
         #endregion

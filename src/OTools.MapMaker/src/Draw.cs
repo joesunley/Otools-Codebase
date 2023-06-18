@@ -190,7 +190,7 @@ public class SimplePathDraw
 	{
 		_inst = sym switch
 		{
-			LineSymbol l => new LineInstance(Manager.Layer, l, new(), false, 0f),
+			LineSymbol l => new LineInstance(Manager.Layer, l, new(), false),
 			AreaSymbol a => new AreaInstance(Manager.Layer, a, new(), false, 0f),
 			_ => throw new InvalidOperationException(),
 		};

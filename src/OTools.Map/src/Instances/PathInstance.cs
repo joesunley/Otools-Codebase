@@ -39,11 +39,11 @@ public abstract class PathInstance<T> : Instance<T>, PathInstance where T : Symb
 
 public sealed class LineInstance : PathInstance<LineSymbol>
 {
-	public LineInstance(int layer, LineSymbol symbol, PathCollection segments, bool isClosed, float patternRotation, IEnumerable<PathCollection>? holes = null)
-		: base(layer, symbol, segments, isClosed, patternRotation, holes) { }
+	public LineInstance(int layer, LineSymbol symbol, PathCollection segments, bool isClosed)
+		: base(layer, symbol, segments, isClosed, 0f, null) { }
 
-	public LineInstance(Guid id, int layer, LineSymbol symbol, PathCollection segments, bool isClosed, float patternRotation, IEnumerable<PathCollection>? holes = null)
-		: base(id, layer, symbol, segments, isClosed, patternRotation, holes) { }
+	public LineInstance(Guid id, int layer, LineSymbol symbol, PathCollection segments, bool isClosed)
+		: base(id, layer, symbol, segments, isClosed, 0f, null) { }
 }
 
 public sealed class AreaInstance : PathInstance<AreaSymbol>
@@ -71,7 +71,7 @@ public interface PathInstance : Instance
 	{
 		return Symbol switch
 		{
-			LineSymbol l => new LineInstance(Layer, l, Segments, IsClosed, PatternRotation, Holes),
+			LineSymbol l => new LineInstance(Layer, l, Segments, IsClosed),
 			AreaSymbol a => new AreaInstance(Layer, a, Segments, IsClosed, PatternRotation, Holes),
 			_ => throw new InvalidOperationException()
 		};
@@ -80,6 +80,12 @@ public interface PathInstance : Instance
 
 public sealed class PathCollection : List<IPathSegment>
 {
+	public PathCollection() { }
+	public PathCollection(IEnumerable<vec2> points)
+	{
+		Add(new LinearPath(points));
+	}
+
 	public IEnumerable<vec2> GetAllPoints()
 	{
 		List<vec2> points = new();
