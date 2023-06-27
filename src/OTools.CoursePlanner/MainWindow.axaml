@@ -2,9 +2,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:common="clr-namespace:OTools.AvaCommon;assembly=OTools.AvaCommon"
         xmlns:local="clr-namespace:OTools.CoursePlanner;assembly=OTools.CoursePlanner"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="OTools.CoursePlanner.MainWindow"
         Title="OTools.CoursePlanner">
-    Welcome to Avalonia!
+    <Grid RowDefinitions="Auto,*,20">
+        
+        <Menu x:Name="menu" Grid.Row="0" Margin="30 0 0 0">
+            <MenuItem Header="File">
+                <MenuItem Header="New"/>
+            </MenuItem>
+        </Menu>
+        
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
+            
+            <StackPanel x:Name="toolPanel" Grid.Column="0"/>
+            
+            <common:PaintBox x:Name="paintBox" Grid.Column="1" Margin="0" Background="LightGray"/>
+            
+            <local:DescriptionBox x:Name="descriptionBox" Grid.Column="2" Margin="5"/>
+            
+        </Grid>
+        
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <TextBlock x:Name="txtDebug" Margin="35 0 0 0" Text="Hello World"/>
+        </StackPanel>
+    </Grid>
 </Window>

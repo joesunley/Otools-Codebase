@@ -24,10 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="src\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\OTools.AvaCommon\OTools.AvaCommon.csproj" />
     </ItemGroup>
 </Project>
