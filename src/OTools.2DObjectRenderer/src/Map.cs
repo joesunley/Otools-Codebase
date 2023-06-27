@@ -9,7 +9,7 @@ using ownsmtp.logging;
 
 namespace OTools.ObjectRenderer2D;
 
-public interface IMapRenderer2D
+public interface IMapRenderer2D : IVisualRenderer
 {
     IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs);
     IEnumerable<IShape> RenderMapObject(MapObject obj);
@@ -29,7 +29,7 @@ public interface IMapRenderer2D
     IEnumerable<IShape> RenderPathInstance(PathInstance inst);
     IEnumerable<IShape> RenderTextInstance(TextInstance inst);
 
-    IEnumerable<(Symbol, IEnumerable<IShape>)> Render();
+    IEnumerable<(Symbol, IEnumerable<IShape>)> RenderMap();
 }
 
 public class MapRenderer2D : IMapRenderer2D
@@ -44,7 +44,7 @@ public class MapRenderer2D : IMapRenderer2D
         _symbolCache = new();
     }
 
-    public IEnumerable<(Symbol, IEnumerable<IShape>)> Render()
+    public IEnumerable<(Symbol, IEnumerable<IShape>)> RenderMap()
     {
         List<(Symbol, IEnumerable<IShape>)> objs = new();
         foreach (Instance inst in _activeMap.Instances)
@@ -52,7 +52,9 @@ public class MapRenderer2D : IMapRenderer2D
         return objs;
     }
 
-    public IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs)
+	public IEnumerable<IShape> Render() => RenderMap().Select(x => x.Item2).SelectMany(x => x);
+
+	public IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs)
     {
         List<IShape> shapes = new();
         foreach (MapObject obj in objs)
@@ -629,13 +631,15 @@ public class WireframeMapRenderer2D : IMapRenderer2D
         // MapObject thingying -> maybe of each point symbol?
     }
 
-    public IEnumerable<(Symbol, IEnumerable<IShape>)> Render()
+    public IEnumerable<(Symbol, IEnumerable<IShape>)> RenderMap()
     {
         List<(Symbol, IEnumerable<IShape>)> objs = new();
         foreach (Instance inst in _activeMap.Instances)
             objs.Add((inst.Symbol, RenderInstance(inst)));
         return objs;
     }
+	
+	public IEnumerable<IShape> Render() => RenderMap().Select(x => x.Item2).SelectMany(x => x);
 
     public IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs)
     {
@@ -1506,10 +1510,10 @@ public static class PolygonTools
 
     public static IEnumerable<vec2> Rotate(IEnumerable<vec2> input, float rotation, vec2? rotationCentre = null)
     {
-        // Rotation in radians
+        // Rotation in radians (or is it degrees?)
         rotation %= MathF.PI * 2;
 
-        Assert(rotation != 0, "rotation != 0");
+        Assert(rotation != 0, "rotation == 0");
 
         rotationCentre ??= input.AABB().Midpoint();
 
