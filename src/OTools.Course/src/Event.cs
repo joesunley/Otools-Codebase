@@ -1,4 +1,5 @@
 ﻿using OTools.Common;
+using OTools.CoursePlanner;
 
 namespace OTools.Courses;
 
@@ -7,6 +8,8 @@ public sealed class Event
     public string Title { get; set; }
     
     public Metadata Metadata { get; set; }
+	
+	public CourseMap Map { get; set; }
 
     public ControlStore Controls { get; set; }
     public CourseStore Courses { get; set; }

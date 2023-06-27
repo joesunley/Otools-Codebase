@@ -160,61 +160,54 @@ public class CourseDraw
 
 		points.Add(paintBox.MousePosition);
 
-		if (points[0] == points[1])
-            points.RemoveAt(1);
+		points = points.Distinct().ToList();
 
 		// Add to manager
+
+		Manager.Course = new() { Controls = new(points), };
 
 		var changing = CreateChanging();
 		paintBox.Update(_changingId, changing);
 
 		points.Clear();
+
+		RcGame g = new();
+
+		g.Start();
 	}
 
 	private IEnumerable<Shape> CreateChanging()
 	{
-		vec2 start = points[0], finish = points[^1];
+//		vec2 start = points[0], finish = points[^1];
 
-		var controls = points.Distinct().Skip(1).SkipLast(1).ToList();
+//		var controls = points.Distinct().Skip(1).SkipLast(1).ToList();
 		
-		ODebugger.Warn($"{controls.Count}");
+//		ODebugger.Warn($"{controls.Count}");
 
 		LineSymbol symLine = (LineSymbol)Manager.Map.Symbols["Line"];
-		PointSymbol symStart = (PointSymbol)Manager.Map.Symbols["Start"];
-		PointSymbol symControl = (PointSymbol)Manager.Map.Symbols["Control"];
-		PointSymbol symFinish = (PointSymbol)Manager.Map.Symbols["Finish"];
+//		PointSymbol symStart = (PointSymbol)Manager.Map.Symbols["Start"];
+//		PointSymbol symControl = (PointSymbol)Manager.Map.Symbols["Control"];
+//		PointSymbol symFinish = (PointSymbol)Manager.Map.Symbols["Finish"];
 
 		LineInstance l = new(0, symLine, new(points), false);
-		PointInstance s = new(0, symStart, start, 0f); // Change Angle
-		var cs = controls.Select(p => new PointInstance(0, symControl, p, 0f));
+//		PointInstance sk = new(0, symStart, start, 0f); // Change Angle
+//		var cs = controls.Select(p => new PointInstance(0, symControl, p, 0f));
+//		PointInstance f = new(0, symFinish, finish, 0f); 
 
-		if (controls.Count > 3)
-			Console.WriteLine();
-
-		PointInstance f = new(0, symFinish, finish, 0f); 
-
-		var render = _renderer.RenderPathInstance(l)
-			.Concat(_renderer.RenderPointInstance(s))
+		var render = _renderer.RenderPathInstance(l);
+//			.Concat(_renderer.RenderPointInstance(s))
 //			.Concat(_renderer.RenderInstances(cs))
-			.Concat(_renderer.RenderPointInstance(f));
+//			.Concat(_renderer.RenderPointInstance(f));
 
 		//var es = controls.Select(p => new Ellipse { Width = 10, Height = 10, Fill = Brushes.Red, Tag = p});
 		//es.ToList().ForEach(x => x.SetTopLeft((vec2)x.Tag!));
 
-		var es2 = points.Select(p =>
-		{
-			var e = new Ellipse { Width = 10, Height = 10, Fill = Brushes.Red };
-			e.SetTopLeft(p - (5, 5));
-			return e;
-		});
 
-		return ObjConvert.ConvertCollection(render).Concat(es2);
+		return ObjConvert.ConvertCollection(render);
 	}
 
-	private IEnumerable<Shape> CreateStatic(IList<vec2> points)
+	private IEnumerable<Shape> CreateStatic()
     {
-        IEnumerable<r.IShape> render = Enumerable.Empty<r.IShape>();
-
 		if (points.Count <= 1)
 			return Enumerable.Empty<Shape>();
 
@@ -222,7 +215,7 @@ public class CourseDraw
         PointSymbol symStart = (PointSymbol)Manager.Map.Symbols["Start"];
         PointInstance s = new(0, symStart, start, 0f); // Change Angle
 
-        render = _renderer.RenderInstance(s);
+        IEnumerable<r.IShape> render = _renderer.RenderInstance(s);
 
         var controls = points.Skip(1).SkipLast(1).ToList();
 

@@ -63,7 +63,7 @@ namespace OTools.AvaCommon
         {
             canvas.Children.Clear();
 
-            var render = new MapRenderer2D(map).Render();
+            var render = new MapRenderer2D(map).RenderMap();
             var els = render.Select(x => x.Item2).SelectMany(x => x);
             var conv = ObjConvert.ConvertCollection(els);
 
@@ -73,8 +73,10 @@ namespace OTools.AvaCommon
 
         #region ViewManager
 
-        private List<Guid> _ids = new();
+        private readonly List<Guid> _ids = new();
         
+		public IEnumerable<Control> this[Guid id] => canvas.Children.Select(x => (Control)x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
+		
         public void Add(Guid id, IEnumerable<Control> objects)
         {
             ODebugger.Info($"Added {id}");
@@ -134,11 +136,10 @@ namespace OTools.AvaCommon
                 var els = canvas.Children.Select(x => (Control)x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
                 canvas.Children.RemoveAll(els);
 
-                _ids.Remove(id);
             }
-            
-            ODebugger.Assert(!_ids.Any());
-        }
+
+			_ids.Clear();
+		}
 
         #endregion
 

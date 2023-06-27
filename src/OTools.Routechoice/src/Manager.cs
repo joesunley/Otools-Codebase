@@ -1,4 +1,5 @@
-﻿using OTools.AvaCommon;
+﻿using Avalonia.Controls;
+using OTools.AvaCommon;
 using OTools.Maps;
 
 namespace OTools.Routechoice;
@@ -8,6 +9,7 @@ public static class Manager
 
 	public static PaintBox? PaintBox { get; set; }
 	public static Course? Course { get; set; }
+	public static Image? Image { get; set; }
 
 	private static Tool _activeTool;
 

@@ -21,7 +21,7 @@ namespace OTools.MapViewer
 
             canvas.Children.Clear();
 
-            var render = new MapRenderer2D(map).Render();
+            var render = new MapRenderer2D(map).RenderMap();
             var els = render.Select(x => x.Item2).SelectMany(x => x);
             var conv = Convert.ConvertCollection(els);
 

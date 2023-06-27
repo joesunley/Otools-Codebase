@@ -5,6 +5,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using OTools.AvaCommon;
 using OTools.Common;
+using ownsmtp.logging;
 using TerraFX.Interop.DirectX;
 using TerraFX.Interop.Windows;
 
@@ -20,7 +21,7 @@ namespace OTools.Routechoice
         {
             InitializeComponent();
 
-            // LoadMap(@"C:\Users\Joe\Downloads\55.jpg");
+            LoadMap(@"C:\Users\joe\Downloads\4.png");
 
             Manager.PaintBox = PaintBox;
             Manager.Tool = Tool.Course;
@@ -29,8 +30,10 @@ namespace OTools.Routechoice
             PaintBox.ZoomChanged += _ => SetStatusText();
 
             _inputMonitor = new(PaintBox);
+			
+			ODebugger.SetLevel(ServerLogLevel.Info);
 
-			Draw.Start();
+			Draw _ = new();
 		}
 		
         public void LoadMap(string filePath)
@@ -47,6 +50,9 @@ namespace OTools.Routechoice
 			img.SetTopLeft((1000, 1000));
 
             _imageId = Guid.NewGuid();
+			img.Tag = _imageId;
+
+			Manager.Image = img;
 
             PaintBox.Add(_imageId, img.Yield());
 
