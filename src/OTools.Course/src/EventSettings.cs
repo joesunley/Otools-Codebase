@@ -18,8 +18,8 @@ public class EventSettings
 
 	public static EventSettings Default => new()
 	{
-		OverprintColour = new("Overprint Purple", (35, 85, 0, 0)),
-		DescriptionColour = new("Description Black", (0, 0, 0, 100)),
+		OverprintColour = new CmykColour("Overprint Purple", 35, 85, 0, 0),
+		DescriptionColour = new CmykColour("Description Black", 0, 0, 0, 100),
 		
 		Scale = 15000,
 		

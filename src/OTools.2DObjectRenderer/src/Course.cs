@@ -45,7 +45,7 @@ file static class _Render
 			}
 			catch
 			{
-				col = new("Overprint", (35, 85, 0, 0));
+				col = new CmykColour("Overprint", 35, 85, 0, 0);
 			}
 		}
 

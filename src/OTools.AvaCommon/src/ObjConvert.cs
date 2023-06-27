@@ -280,11 +280,14 @@ public static class ObjConvert
 
 	public static IBrush ColourToBrush(uint colour)
 	{
-		var (r, g, b, a) = ((Colour)colour).ToRGBA();
+        byte b = (byte)(colour & 0x0000000ff),
+             g = (byte)((colour & 0x0000ff00) >> 8),
+             r = (byte)((colour & 0x00ff0000) >> 16),
+             a = (byte)((colour & 0xff000000) >> 24);
 
-		Color col = new(a, r, g, b);
+        Color col = new(a, r, g, b);
 
-		return new SolidColorBrush(col);
+        return new SolidColorBrush(col);
 	}
 
 	public static Point ToPoint(this vec2 v2) 

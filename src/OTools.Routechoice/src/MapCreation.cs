@@ -7,7 +7,7 @@ public static class MapCreation
 {
     public static Map Create()
     {
-        Colour purple = new("Purple", (25, 85, 0, 0));
+        Colour purple = new CmykColour("Purple", 25, 85, 0, 0);
 
         Map map = new();
 

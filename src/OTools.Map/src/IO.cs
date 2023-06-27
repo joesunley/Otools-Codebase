@@ -850,7 +850,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         uint colour = uint.Parse(node.Attributes["hex"]);
 
-        return new(id, name, colour);
+        return new RgbColour(id, name, colour);
     }
 
     public Colour ColourId(XMLNode node)
@@ -1477,6 +1477,7 @@ public class MapLoaderV1 : IMapLoaderV1
  * Changes:
  *  - Added support for Join/Cap Styles -> LineStyle
  *  - Added new layer model
+ *  - Added support for new colour system
  */
 
 public interface IMapLoaderV2 : IMapLoaderV1
@@ -1484,16 +1485,23 @@ public interface IMapLoaderV2 : IMapLoaderV1
     XMLNode SaveMapInfo(MapInfo mapInfo);
     XMLNode SaveLayerInfo(LayerInfo layerInfo);
 
+    XMLNode SaveSpotColours(IEnumerable<SpotCol> spotColours);
+    XMLNode SaveSpotColour(SpotCol spotColour);
+
     XMLNode SaveBorderStyle(BorderStyle borderStyle);
 
+
     [Obsolete("Use LoadMap(XMLNode, string) instead of this method", true)]
-    Map IMapLoaderV1.LoadMap(XMLNode node) { throw new Exception(); }
+    Map IMapLoaderV1.LoadMap(XMLNode node) { throw new Exception("Obsolete Method"); }
 
     Map LoadMap(XMLNode node, string filePath);
 
     MapInfo LoadMapInfo(XMLNode node);
     LayerInfo LoadLayerInfo(XMLNode node);
-    
+
+    IEnumerable<SpotCol> LoadSpotColours(XMLNode node);
+    SpotCol LoadSpotColour(XMLNode node);
+
     DashStyle LoadDashStyle(XMLNode node);
     MidStyle LoadMidStyle(XMLNode node);
     BorderStyle LoadBorderStyle(XMLNode node);
@@ -1534,17 +1542,70 @@ public class MapLoaderV2 : IMapLoaderV2
 
         node.AddAttribute("id", colour.Id.ToString());
         node.AddAttribute("name", colour.Name);
-        node.AddAttribute("hex", colour.HexValue.ToString());
+        node.AddAttribute("precedence", colour.Precedence.ToString());
+
+        // Why the fuck can't this be a switch statement?
+
+        if (colour is RgbColour rgb)
+        {
+            XMLNode col = new("Rgb");
+
+            col.AddAttribute("r", rgb.Red.ToString());
+            col.AddAttribute("g", rgb.Green.ToString());
+            col.AddAttribute("b", rgb.Blue.ToString());
+
+            node.Children.Add(col);
+        }
+        else if (colour is CmykColour cmyk)
+        {
+            XMLNode col = new("CMYK");
+
+            col.AddAttribute("c", cmyk.Cyan.ToString());
+            col.AddAttribute("m", cmyk.Magenta.ToString());
+            col.AddAttribute("y", cmyk.Yellow.ToString());
+            col.AddAttribute("k", cmyk.Key.ToString());
+
+            node.Children.Add(col);
+        }
+        else if (colour is SpotColour spot)
+        {
+            foreach (var kvp in spot.SpotColours)
+            {
+                XMLNode col = new("Spot");
+
+                col.AddAttribute("colour", kvp.Key.Id.ToString());
+                col.AddAttribute("factor", kvp.Value.ToString());
+            }
+        }
 
         return node;
     }
 
-    public XMLNode SaveColourId(Colour colour)
+    private XMLNode SaveColourId(Colour colour)
     {
         if (colour.Name == "Transparent")
             return new("Colour") { InnerText = "Transparent" };
 
         return new("Colour") { InnerText = colour.Id.ToString() };
+    }
+
+    public XMLNode SaveSpotColours(IEnumerable<SpotCol> spotColours)
+    {
+        XMLNode node = new("SpotColours");
+        foreach (SpotCol spot in spotColours)
+            node.Children.Add(SaveSpotColour(spot));
+        return node;
+    }
+
+    public XMLNode SaveSpotColour(SpotCol spotColour)
+    {
+        XMLNode node = new("SpotColour");
+
+        node.AddAttribute("id", spotColour.Id.ToString());
+        node.AddAttribute("name", spotColour.Name);
+        node.AddAttribute("colour", spotColour.Colour.Id.ToString());
+
+        return node;
     }
 
     #endregion
@@ -2234,6 +2295,8 @@ public class MapLoaderV2 : IMapLoaderV2
     {
         XMLNode node = new("MapInfo");
 
+        node.AddAttribute("colourFormat", mapInfo.ColourFormat.ToString());
+
         node.AddChild(SaveLayerInfo(mapInfo.LayerInfo));
 
         return node;
@@ -2317,13 +2380,30 @@ public class MapLoaderV2 : IMapLoaderV2
 
         uint colour = uint.Parse(node.Attributes["hex"]);
 
-        return new(id, name, colour);
+        return new RgbColour(id, name, colour);
     }
 
-    public Colour ColourId(XMLNode node)
+    public Colour ColourId(string s)
     {
-        return node.InnerText == "Transparent" ?
-            Colour.Transparent : _map.Colours[Guid.Parse(node.InnerText)];
+        return s == "Transparent" ?
+            Colour.Transparent : _map.Colours[Guid.Parse(s)];
+    }
+
+    public IEnumerable<SpotCol> LoadSpotColours(XMLNode node)
+    {
+        return node.Children.Select(LoadSpotColour);
+    }
+
+    public SpotCol LoadSpotColour(XMLNode node)
+    {
+        Guid id = Guid.Parse(node.Attributes["id"]);
+        string name = node.Attributes["name"];
+        Colour colour = ColourId(node.Attributes["colour"]);
+
+        if (colour is not CmykColour)
+            throw new InvalidOperationException("Spot Colour is not CMYK");
+
+        return new SpotCol(id, name, (CmykColour)colour);
     }
 
     #endregion
@@ -2347,7 +2427,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
     public SolidFill LoadSolidFill(XMLNode node)
     {
-        return new(ColourId(node));
+        return new(ColourId(node.InnerText));
     }
 
     public RandomObjectFill LoadRandomObjectFill(XMLNode node)
@@ -2390,10 +2470,10 @@ public class MapLoaderV2 : IMapLoaderV2
         XMLNode fore = node.Children["Foreground"];
         XMLNode back = node.Children["Background"];
 
-        Colour forCol = ColourId(fore.Children["Colour"]);
+        Colour forCol = ColourId(fore.Children["Colour"].InnerText);
         float forWidth = float.Parse(fore.Children["Width"].InnerText);
 
-        Colour backCol = ColourId(back.Children["Colour"]);
+        Colour backCol = ColourId(back.Children["Colour"].InnerText);
         float backWidth = float.Parse(back.Children["Width"].InnerText);
 
         float rotationInDegrees = node.Attributes.Exists("rotation") ?
@@ -2463,7 +2543,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode style = node.Children["Style"];
 
-        Colour col = ColourId(style.Children["Colour"]);
+        Colour col = ColourId(style.Children["Colour"].InnerText);
         float width = float.Parse(style.Children["Width"].InnerText);
 
         LineStyle lineStyle = new(int.Parse(style.Children["LineStyle"].Attributes["Join"]),
@@ -2486,7 +2566,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode outline = style.Children["Outline"];
 
-        Colour colour = ColourId(outline.Children["Colour"]);
+        Colour colour = ColourId(outline.Children["Colour"].InnerText);
         float width = float.Parse(outline.Children["Width"].InnerText);
 
         LineStyle lineStyle = new(int.Parse(style.Children["LineStyle"].Attributes["Join"]),
@@ -2511,7 +2591,7 @@ public class MapLoaderV2 : IMapLoaderV2
         string family = font.Attributes["family"];
         float size = float.Parse(font.Attributes["size"]);
 
-        Colour colour = ColourId(font.Children["Colour"]);
+        Colour colour = ColourId(font.Children["Colour"].InnerText);
 
         XMLAttributeCollection spacing = font.Children["Spacing"].Attributes;
 
@@ -2544,7 +2624,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         if (border.InnerText != "None")
         {
-            Colour borderColour = ColourId(border.Children["Colour"]);
+            Colour borderColour = ColourId(border.Children["Colour"].InnerText);
             float borderWidth = float.Parse(border.Children["Width"].InnerText);
 
             border_ = (borderColour, borderWidth);
@@ -2555,7 +2635,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         if (framing.InnerText != "None")
         {
-            Colour framingColour = ColourId(framing.Children["Colour"]);
+            Colour framingColour = ColourId(framing.Children["Colour"].InnerText);
             float framingWidth = float.Parse(framing.Children["Width"].InnerText);
 
             framing_ = (framingColour, framingWidth);
@@ -2634,8 +2714,8 @@ public class MapLoaderV2 : IMapLoaderV2
         XMLNode inner = node.Children["Style"].Children["Inner"];
         XMLNode outer = node.Children["Style"].Children["Outer"];
 
-        Colour iCol = ColourId(inner.Children["Colour"]);
-        Colour oCol = ColourId(outer.Children["Colour"]);
+        Colour iCol = ColourId(inner.Children["Colour"].InnerText);
+        Colour oCol = ColourId(outer.Children["Colour"].InnerText);
 
         float iWidth = float.Parse(inner.Children["Width"].InnerText);
         float oWidth = float.Parse(outer.Children["Width"].InnerText);
@@ -2648,7 +2728,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode style = node.Children["Style"];
 
-        Colour col = ColourId(style.Children["Colour"]);
+        Colour col = ColourId(style.Children["Colour"].InnerText);
         float width = float.Parse(style.Children["Width"].InnerText);
 
         PathCollection pC = LoadPathCollection(node.Children["Segments"]);
@@ -2670,7 +2750,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         XMLNode border = style.Children["Border"];
 
-        Colour col = ColourId(border.Children["Colour"]);
+        Colour col = ColourId(border.Children["Colour"].InnerText);
         float width = float.Parse(border.Children["Width"].InnerText);
 
         PathCollection pC = LoadPathCollection(node.Children["Segments"]);
@@ -2686,7 +2766,7 @@ public class MapLoaderV2 : IMapLoaderV2
         string family = font.Attributes["family"];
         float size = float.Parse(font.Attributes["size"]);
 
-        Colour colour = ColourId(font.Children["Colour"]);
+        Colour colour = ColourId(font.Children["Colour"].InnerText);
 
         XMLAttributeCollection spacing = font.Children["Spacing"].Attributes;
 
@@ -2719,7 +2799,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         if (border.InnerText != "None")
         {
-            Colour borderColour = ColourId(border.Children["Colour"]);
+            Colour borderColour = ColourId(border.Children["Colour"].InnerText);
             float borderWidth = float.Parse(border.Children["Width"].InnerText);
 
             border_ = (borderColour, borderWidth);
@@ -2730,7 +2810,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         if (framing.InnerText != "None")
         {
-            Colour framingColour = ColourId(framing.Children["Colour"]);
+            Colour framingColour = ColourId(framing.Children["Colour"].InnerText);
             float framingWidth = float.Parse(framing.Children["Width"].InnerText);
 
             framing_ = (framingColour, framingWidth);
@@ -2930,8 +3010,15 @@ public class MapLoaderV2 : IMapLoaderV2
     public MapInfo LoadMapInfo(XMLNode node)
     {
         LayerInfo layerInfo = LoadLayerInfo(node.Children["LayerInfo"]);
+        ColourFormat colourFormat = node.Attributes["colourFormat"] switch
+        {
+            "RGB" => ColourFormat.RGB,
+            "CMYK" => ColourFormat.CMYK,
+            "Spot" => ColourFormat.Spot,
+            _ => throw new InvalidOperationException(),
+        };
 
-        return new(layerInfo, string.Empty);
+        return new(layerInfo, string.Empty, colourFormat);
     }
 
     public LayerInfo LoadLayerInfo(XMLNode node)

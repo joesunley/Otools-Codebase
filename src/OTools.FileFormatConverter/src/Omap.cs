@@ -1041,11 +1041,7 @@ file static class v9_MarshallLoad
 	{
 		if (s_cachedColours.TryGetValue(c, out Colour? value)) return value!;
 
-		Colour col = new(c.name, ((byte)(c.c * 100),
-									  (byte)(c.m * 100),
-									  (byte)(c.y * 100),
-									  (byte)(c.k * 100)),
-							 (byte)(c.a * 255));
+		Colour col = new CmykColour(c.name, c.c, c.m, c.y, c.k);
 
 		s_cachedColours.Add(c, col);
 		return col;

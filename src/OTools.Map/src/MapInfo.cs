@@ -4,11 +4,13 @@ public class MapInfo
 {
     public LayerInfo LayerInfo { get; set; }
     public string FilePath { get; set; }
+    public ColourFormat ColourFormat { get; set; }
 
-    public MapInfo(LayerInfo layerInfo, string filePath)
+    public MapInfo(LayerInfo layerInfo, string filePath, ColourFormat colourFormat)
     {
         LayerInfo = layerInfo;
         FilePath = filePath;
+        ColourFormat = colourFormat;
     }
 }
 
