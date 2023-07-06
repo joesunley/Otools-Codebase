@@ -15,6 +15,13 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\OTools.Common\OTools.Common.csproj" />
     <ProjectReference Include="..\..\src\OTools.FileFormatConverter\OTools.FileFormatConverter.csproj" />
+    <ProjectReference Include="..\..\src\OTools.SiIntegrator\OTools.SiIntegrator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SPORTident.Communication">
+      <HintPath>..\..\lib\SPORTident.Communication.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
