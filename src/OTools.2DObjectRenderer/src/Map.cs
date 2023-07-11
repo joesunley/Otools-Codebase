@@ -124,7 +124,7 @@ public class MapRenderer2D : IMapRenderer2D
         {
             Segments = segments,
 
-            IsClosed = false,
+            IsClosed = obj.IsClosed,
 
             BorderColour = obj.Colour,
             BorderWidth = obj.Width,
@@ -702,7 +702,7 @@ public class WireframeMapRenderer2D : IMapRenderer2D
             BorderWidth = LineWidth,
             BorderColour = col,
 
-            IsClosed = false,
+            IsClosed = obj.IsClosed,
 
             ZIndex = col.Precedence,
         };

@@ -48,19 +48,22 @@ public sealed class LineObject : MapObject
 
     public float Width { get; set; }
     public Colour Colour { get; set; }
+    public bool IsClosed { get; set; }
 
-    public LineObject(PathCollection segments, float width, Colour colour) : base()
+    public LineObject(PathCollection segments, float width, Colour colour, bool isClosed) : base()
     {
         Segments = segments;
         Width = width;
         Colour = colour;
+        IsClosed = isClosed;
     }
 
-    public LineObject(Guid id, PathCollection segments, float width, Colour colour) : base(id)
+    public LineObject(Guid id, PathCollection segments, float width, Colour colour, bool isClosed) : base(id)
     {
         Segments = segments;
         Width = width;
         Colour = colour;
+        IsClosed = isClosed;
     }
 }
 

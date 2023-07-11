@@ -1194,7 +1194,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         PathCollection pC = LoadPathCollection(node.Children["Segments"]);
 
-        return new LineObject(id, pC, width, col);
+        return new LineObject(id, pC, width, col, false);
     }
     public AreaObject LoadAreaObject(XMLNode node)
     {
@@ -1478,6 +1478,7 @@ public class MapLoaderV1 : IMapLoaderV1
  *  - Added support for Join/Cap Styles -> LineStyle
  *  - Added new layer model
  *  - Added support for new colour system
+ *  - Added support for closed line objects
  */
 
 public interface IMapLoaderV2 : IMapLoaderV1
@@ -1995,6 +1996,7 @@ public class MapLoaderV2 : IMapLoaderV2
     {
         XMLNode node = new("LineObject");
         node.AddAttribute("id", obj.Id.ToString());
+        node.AddAttribute("isClosed", obj.IsClosed.ToString());
 
         XMLNode style = new("Style");
 
@@ -2725,6 +2727,7 @@ public class MapLoaderV2 : IMapLoaderV2
     public LineObject LoadLineObject(XMLNode node)
     {
         Guid id = Guid.Parse(node.Attributes["id"]);
+        bool isClosed = bool.Parse(node.Attributes["isClosed"]);
 
         XMLNode style = node.Children["Style"];
 
@@ -2733,7 +2736,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         PathCollection pC = LoadPathCollection(node.Children["Segments"]);
 
-        return new LineObject(id, pC, width, col);
+        return new LineObject(id, pC, width, col, isClosed);
     }
     public AreaObject LoadAreaObject(XMLNode node)
     {
