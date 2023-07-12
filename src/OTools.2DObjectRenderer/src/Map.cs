@@ -76,11 +76,9 @@ public class MapRenderer2D : IMapRenderer2D
     {
         float diameter = 2 * (obj.InnerRadius + obj.OuterRadius);
 
-        Ellipse innerEllipse = new()
+        Circle innerEllipse = new()
         {
-            Size = new(
-                2 * obj.InnerRadius,
-                2 * obj.InnerRadius),
+            Diameter = 2 * obj.InnerRadius,
 
             Fill = obj.InnerColour,
 
@@ -89,9 +87,9 @@ public class MapRenderer2D : IMapRenderer2D
             ZIndex = obj.InnerColour.Precedence,
         };
 
-        Ellipse outerEllipse = new()
+        Circle outerEllipse = new()
         {
-            Size = new(diameter, diameter),
+            Diameter = diameter,
 
             BorderWidth = obj.OuterRadius,
             BorderColour = obj.OuterColour,
@@ -315,31 +313,14 @@ public class MapRenderer2D : IMapRenderer2D
         foreach (IShape el in RenderPointSymbol(inst.Symbol))
         {
             el.Opacity = inst.Opacity;
+            el.TopLeft = inst.Centre;
 
-            if (el is Ellipse ellipse)
+            if (el is Path path && inst.Rotation != 0)
             {
-                vec2 transform = new(
-                    inst.Centre.X - ellipse.Size.X / 2,
-                    inst.Centre.Y - ellipse.Size.Y / 2
-                    );
+                path.Segments = new(_Utils.RotatePath(path.Segments, inst.Rotation, vec2.Zero)); 
 
-                el.TopLeft = transform;
-
-                yield return el;
-            }
-            else
-            {
-                el.TopLeft = inst.Centre;
-
-                if (el is Path path && inst.Rotation != 0)
-                {
-                    path.Segments = new(_Utils.RotatePath(path.Segments, inst.Rotation, vec2.Zero));
-
-                    yield return path;
-                }
-                else yield return el;
-            }
-
+                yield return path;
+            } else yield return el;
         }
     }
     public IEnumerable<IShape> RenderPathInstance(PathInstance inst)
@@ -591,11 +572,11 @@ public class MapRenderer2D : IMapRenderer2D
     {
         foreach (IShape el in RenderMapObjects(objs))
         {
-            if (el is Ellipse e)
+            if (el is Circle e)
             {
                 vec2 transform = new(
-                    centre.X - e.Size.X / 2,
-                    centre.Y - e.Size.Y / 2
+                    centre.X - e.Diameter / 2,
+                    centre.Y - e.Diameter / 2
                     );
 
                 el.TopLeft = transform;
@@ -666,9 +647,9 @@ public class WireframeMapRenderer2D : IMapRenderer2D
     {
         Colour col = _cachedPrimaryColours[obj.Id];
 
-        Ellipse output = new()
+        Circle output = new()
         {
-            Size = (2 * PointRadius, 2 * PointRadius),
+            Diameter = 2 * PointRadius,
 
             Fill = col,
 
@@ -767,9 +748,9 @@ public class WireframeMapRenderer2D : IMapRenderer2D
     {
         Colour col = _cachedPrimaryColours[sym.Id];
 
-        Ellipse output = new()
+        Circle output = new()
         {
-            Size = (2 * PointRadius, 2 * PointRadius),
+            Diameter = 2 * PointRadius,
 
             Fill = col,
 
@@ -818,16 +799,11 @@ public class WireframeMapRenderer2D : IMapRenderer2D
     public IEnumerable<IShape> RenderPointInstance(PointInstance inst)
     {
         var els = RenderPointSymbol(inst.Symbol).ToArray();
-        Assert(els.Length == 1 && els[0] is Ellipse);
+        Assert(els.Length == 1 && els[0] is Circle);
 
-        Ellipse e = (Ellipse)els[0];
+        Circle e = (Circle)els[0];
 
-        vec2 transform = new(
-            inst.Centre.X - e.Size.X / 2,
-            inst.Centre.Y - e.Size.X / 2
-            );
-
-        e.TopLeft = transform;
+        e.TopLeft = inst.Centre;
 
         return new IShape[] { e };
     }

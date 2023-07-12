@@ -11,13 +11,13 @@ public interface IShape
     int ZIndex { get; set; }
 }
 
-public struct Ellipse : IShape
+public struct Circle : IShape
 {
     public vec2 TopLeft { get; set; }
 
     public float Opacity { get; set; }
 
-    public vec2 Size { get; set; }
+    public float Diameter { get; set; }
 
     public uint Fill { get; set; }
 
@@ -28,13 +28,13 @@ public struct Ellipse : IShape
 
     public int ZIndex { get; set; }
 
-    public Ellipse()
+    public Circle()
     {
         TopLeft = vec2.Zero;
 
         Opacity = 1f;
 
-        Size = vec2.Zero;
+        Diameter = 0f;
 
         Fill = Colour.Transparent;
 

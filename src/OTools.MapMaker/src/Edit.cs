@@ -134,14 +134,14 @@ public class PointEdit
 
     }
 
-    private Ellipse DrawHandle()
+    private Circle DrawHandle()
     {
         float radius = Manager.Settings.Select_HandleRadius;
 
         return new()
         {
             TopLeft = _instance.Centre - radius,
-            Size = (2 * radius, 2 * radius),
+            Diameter = 2 * radius,
 
             BorderColour = Manager.Settings.Select_HandleAnchorColour,
             BorderWidth = Manager.Settings.Select_HandleLineWidth,

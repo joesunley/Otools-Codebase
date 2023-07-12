@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using OTools.Common;
+using ownsmtp.logging;
 using SixLabors.ImageSharp.ColorSpaces;
 using TerraFX.Interop.Windows;
 
@@ -14,6 +15,8 @@ public abstract class Colour : IStorable
 
     public virtual uint HexValue { get; protected set; }
 
+    public float Opacity { get; set; }
+
     public ushort Precedence { get; internal set; }
 
     protected Colour(string name)
@@ -21,12 +24,16 @@ public abstract class Colour : IStorable
         Id = Guid.NewGuid();
 
         Name = name;
+
+        Opacity = 1f;
     }
 
     protected Colour(Guid id, string name)
     {
         Id = id;
         Name = name;
+
+        Opacity = 1f;
     }
 
     public virtual (byte r, byte g, byte b) ToRGB()
@@ -36,6 +43,17 @@ public abstract class Colour : IStorable
              r = (byte)((HexValue & 0xff0000) >> 16);
 
         return (r, g, b);
+    }
+
+    public virtual (byte a, byte r, byte g, byte b) ToARGB()
+    {
+        byte b = (byte)(HexValue & 0x0000ff),
+             g = (byte)((HexValue & 0x00ff00) >> 8),
+             r = (byte)((HexValue & 0xff0000) >> 16),
+             a = (byte)((HexValue & 0xff000000) >> 24);
+
+        return (a, r, g, b);
+
     }
 
     public virtual (float c, float m, float y, float k) ToCMYK()
@@ -76,7 +94,7 @@ public abstract class Colour : IStorable
 
     private static readonly Guid s_transparentId = Guid.NewGuid();
     public static Colour Transparent
-        => new RgbColour(s_transparentId, "Transparent", 0x0) { Precedence = 0 };
+        => new RgbColour(s_transparentId, "Transparent", 0x00000000) { Precedence = 0 };
 }
 
 public sealed class SpotColour : Colour
@@ -105,7 +123,7 @@ public sealed class SpotColour : Colour
                  g = (byte)(255 * (1 - m) * (1 - k)),
                  b = (byte)(255 * (1 - y) * (1 - k));
 
-            return (uint)(b + (g << 8) + (r << 16));
+            return (uint)(b + (g << 8) + (r << 16) + ((byte)(Opacity * 255) << 24));
         }
     }
 
@@ -154,9 +172,11 @@ public sealed class RgbColour : Colour
         Red = (byte)(hexValue & 0x0000ff);
         Green = (byte)((hexValue & 0x00ff00) >> 8);
         Blue = (byte)((hexValue & 0xff0000) >> 16);
+        
+        Opacity = (byte)((hexValue & 0xff000000) >> 24) / 255f;
     }
 
-    public override uint HexValue => (uint)(Blue + (Green << 8) + (Red << 16));
+    public override uint HexValue => (uint)(Blue + (Green << 8) + (Red << 16) + ((byte)(Opacity * 255) >> 24));
 
     public override (byte r, byte g, byte b) ToRGB() 
         => (Red, Green, Blue);
@@ -191,11 +211,15 @@ public sealed class CmykColour : Colour
     {
         get
         {
+
             byte r = (byte)(255 * (1 - Cyan) * (1 - Key)),
                  g = (byte)(255 * (1 - Magenta) * (1 - Key)),
                  b = (byte)(255 * (1 - Yellow) * (1 - Key));
 
-            return (uint)(b + (g << 8) + (r << 16));
+            uint outp = (uint)(b + (g << 8) + (r << 16) + ((byte)(Opacity * 255) << 24));
+
+            ODebugger.Warn($"This is happening: {outp}");
+            return outp;
         }
     }
 
