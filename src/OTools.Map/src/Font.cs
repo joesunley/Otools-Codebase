@@ -51,6 +51,8 @@ public struct FontStyle
         Strikeout = strikeout;
         Italics = italics;
     }
+
+    public static FontStyle None => new(false, false ,false, ItalicsMode.None); 
 }
 
 public enum ItalicsMode { None, Italic, Oblique }

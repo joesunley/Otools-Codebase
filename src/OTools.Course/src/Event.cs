@@ -1,45 +1,47 @@
 ﻿using OTools.Common;
 using OTools.CoursePlanner;
+using OTools.Maps;
 
 namespace OTools.Courses;
 
 public sealed class Event
 {
-    public string Title { get; set; }
-    
-    public Metadata Metadata { get; set; }
+	public string Title { get; set; }
 	
-	public CourseMap Map { get; set; }
+	public Metadata Metadata { get; set; }
+	
+	public CourseMap? Map { get; set; }
+	public Map? SymbolMap { get; set; }
 
-    public ControlStore Controls { get; set; }
-    public CourseStore Courses { get; set; }
-    public ItemStore Items { get; set; }
+	public ControlStore Controls { get; set; }
+	public CourseStore Courses { get; set; }
+	public ItemStore Items { get; set; }
 	
 	public EventSettings Settings { get; set; }
 
-    public Event(string title = "")
-    {
-        Title = title;
+	public Event(string title = "")
+	{
+		Title = title;
 
-        Metadata = new();
+		Metadata = new();
 
-        Controls = new();
-        Courses = new();
-        Items = new();
+		Controls = new();
+		Courses = new();
+		Items = new();
 		
 		Settings = EventSettings.Default;
-    }
+	}
 
-    public Event(string title, ControlStore controls, CourseStore courses, ItemStore items, EventSettings? settings = null)
-    {
-        Title = title;
+	public Event(string title, ControlStore controls, CourseStore courses, ItemStore items, EventSettings? settings = null)
+	{
+		Title = title;
 
-        Metadata = new();
+		Metadata = new();
 
-        Controls = controls;
-        Courses = courses;
-        Items = items;
+		Controls = controls;
+		Courses = courses;
+		Items = items;
 
-        Settings = settings ?? EventSettings.Default;
-    }
+		Settings = settings ?? EventSettings.Default;
+	}
 }

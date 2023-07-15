@@ -56,7 +56,7 @@ public sealed class XMLNode
 
     public string InnerText
     {
-        get => _innerText ?? String.Empty;
+        get => _innerText ?? string.Empty;
         set
         {
             if (_children.Count > 0)

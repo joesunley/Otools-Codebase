@@ -1,5 +1,4 @@
 ﻿using OTools.Common;
-using OTools.Maps;
 
 namespace OTools.Courses;
 
@@ -41,26 +40,50 @@ public abstract class Course : IStorable
  * %s -> Control Score (score course only)
  */
 
+
 public sealed class LinearCourse : Course
 {
     public float? Distance { get; set; }
     public uint? Climb { get; set; }
 
-    public List<ICoursePart> Parts { get; set; } // Maybe change to CombinedCoursePart?
+    public CombinedCoursePart Parts { get; set; } 
 
-    public LinearCourse(Event parent, string name, string description, string displayFormat, IEnumerable<ICoursePart> parts, float? distance = null, uint? climb = null)
+    public Dictionary<vec4, (vec2 tVals, sbyte isCourseUnique)> Gaps { get; set; }
+    public Dictionary<vec4, (IEnumerable<vec2> points, sbyte isCourseUnique)> Bends { get; set; }
+
+    public LinearCourse(Event parent, string name, string description, string displayFormat, IEnumerable<ICoursePart> parts, IEnumerable<(vec4 k, (vec2, sbyte) v)>? gaps = null, IEnumerable<(vec4, (IEnumerable<vec2>, sbyte))>? bends = null, float? distance = null, uint? climb = null)
         : base(parent, name, description, displayFormat)
     {
         Distance = distance;
         Climb = climb;
         Parts = new(parts);
+
+        Gaps = new();
+        if (gaps != null)
+            foreach (var (k, v) in gaps)
+                Gaps.Add(k, v);
+        
+        Bends = new();
+        if (bends != null)
+            foreach (var (k, v) in bends)
+                Bends.Add(k, v);
     }
-    public LinearCourse(Event parent, Guid id, string name, string description, string displayFormat, IEnumerable<ICoursePart> parts, float? distance = null, uint? climb = null)
+    public LinearCourse(Event parent, Guid id, string name, string description, string displayFormat, IEnumerable<ICoursePart> parts, IEnumerable<(vec4 k, (vec2, sbyte) v)>? gaps = null, IEnumerable<(vec4, (IEnumerable<vec2>, sbyte))>? bends = null, float? distance = null, uint? climb = null)
         : base(parent, id, name, description, displayFormat)
     {
         Distance = distance;
         Climb = climb;
         Parts = new(parts);
+
+        Gaps = new();
+        if (gaps != null)
+            foreach (var (k, v) in gaps)
+                Gaps.Add(k, v);
+
+        Bends = new();
+        if (bends != null)
+            foreach (var (k, v) in bends)
+                Bends.Add(k, v);
     }
 }
 

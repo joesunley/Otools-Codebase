@@ -67,7 +67,7 @@ public sealed class PatternFill : IFill
     public Colour ForeColour { get; set; }
     public Colour BackColour { get; set; }
 
-    public float Rotation { get; set; } // Radians
+    public float Rotation { get; set; } // Radians // Change to degrees
 
     public PatternFill(float foreSpacing, float backSpacing, Colour foreColour, Colour backColour, float rotation)
     {

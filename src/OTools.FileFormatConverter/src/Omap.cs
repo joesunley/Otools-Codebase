@@ -1326,7 +1326,7 @@ file static class v9_MarshallLoad
 
 		PathCollection pC = ConvertPathWithoutHoles(obj.coords);
 
-		LineObject lObj = new(pC, sym.line_width / 1000, ConvertColour(sym.color));
+		LineObject lObj = new(pC, sym.line_width / 1000, ConvertColour(sym.color), false);
 
 		return lObj;
 	}

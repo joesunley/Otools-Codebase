@@ -1,9 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Runtime;
-using System.Runtime.InteropServices;
-using System.Text;
-
-namespace OTools.Courses;
+﻿namespace OTools.Courses;
 
 public interface ICoursePart
 {
@@ -12,6 +7,9 @@ public interface ICoursePart
 
 public sealed class CombinedCoursePart : List<ICoursePart>, ICoursePart
 {
+    public CombinedCoursePart() : base() { }
+    public CombinedCoursePart(IEnumerable<ICoursePart> collection) : base(collection) {}
+
     public IEnumerable<Control> GetVariation(string varStr)
     {
         throw new NotImplementedException();

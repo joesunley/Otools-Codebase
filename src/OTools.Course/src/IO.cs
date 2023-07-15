@@ -20,6 +20,9 @@ public interface ICourseLoaderV1
     XMLNode SaveCourses(IEnumerable<Course> courses);   
     XMLNode SaveCourse(Course course);
 
+    XMLNode SaveGaps(IEnumerable<(vec4, (vec2, sbyte))> gaps);
+    XMLNode SaveBends(IEnumerable<(vec4, (IEnumerable<vec2>, sbyte))> bends);
+
     XMLNode SaveCourseParts(IEnumerable<ICoursePart> parts);
     XMLNode SaveCoursePart(ICoursePart part);
     XMLNode SaveCombinedCoursePart(CombinedCoursePart part);
@@ -39,6 +42,9 @@ public interface ICourseLoaderV1
     IEnumerable<Course> LoadCourses(XMLNode node);
     Course LoadCourse(XMLNode node);
 
+    IEnumerable<(vec4, (vec2, sbyte))> LoadGaps(XMLNode node);
+    IEnumerable<(vec4, (IEnumerable<vec2>, sbyte))> LoadBends(XMLNode node);
+
     IEnumerable<ICoursePart> LoadCourseParts(XMLNode node);
     ICoursePart LoadCoursePart(XMLNode node);
     CombinedCoursePart LoadCombinedCoursePart(XMLNode node);
@@ -52,7 +58,7 @@ public interface ICourseLoaderV1
     Metadata LoadMetadata(XMLNode node);
 }
 
-public partial class CourseLoader : ICourseLoaderV1
+public partial class CourseLoaderV1 : ICourseLoaderV1
 {
 
     public XMLNode SaveEvent(Event ev)
@@ -161,6 +167,48 @@ public partial class CourseLoader : ICourseLoaderV1
             node.AddAttribute("climb", (l.Climb ?? -1f).ToString());
 
             node.AddChild(SaveCourseParts(l.Parts));
+        }
+
+        return node;
+    }
+
+    public XMLNode SaveGaps(IEnumerable<(vec4, (vec2, sbyte))> gaps)
+    {
+        XMLNode node = new("Gaps");
+
+        foreach (var gap in gaps)
+        {
+            XMLNode child = new("Gap");
+
+            child.AddAttribute("leg", gap.Item1.ToString());
+
+            child.AddAttribute("range", gap.Item2.Item1.ToString()!);
+            child.AddAttribute("course", gap.Item2.Item2.ToString());
+
+            node.AddChild(child);
+        }
+
+        return node;
+    }
+    public XMLNode SaveBends(IEnumerable<(vec4, (IEnumerable<vec2>, sbyte))> bends)
+    {
+        XMLNode node = new("Gaps");
+
+        foreach (var bend in bends)
+        {
+            XMLNode child = new("Gap");
+
+            child.AddAttribute("leg", bend.Item1.ToString());
+            child.AddAttribute("course", bend.Item2.Item2.ToString());
+
+            XMLNode points = new("Points");
+
+            foreach (vec2 v2 in bend.Item2.Item1)
+                points.AddChild(SaveVec2(v2));
+
+            child.AddChild(points);
+
+            node.AddChild(child);
         }
 
         return node;
@@ -468,10 +516,44 @@ public partial class CourseLoader : ICourseLoaderV1
 
                 IEnumerable<ICoursePart> courseParts = LoadCourseParts(node);
 
-                return new LinearCourse(_event, id, name, description, displayFormat, courseParts, dist != -1 ? dist : null, climb);
+                return new LinearCourse(_event, id, name, description, displayFormat, courseParts, null, null, dist != -1 ? dist : null, climb);
             }
             default: throw new Exception(); // TODO
         }
+    }
+
+    public IEnumerable<(vec4, (vec2, sbyte))> LoadGaps(XMLNode node)
+    {
+        List<(vec4, (vec2, sbyte))> gaps = new();
+
+        foreach (XMLNode child in node.Children)
+        {
+            vec4 v4 = child.Attributes["leg"].Parse<vec4>();
+            vec2 v2 = child.Attributes["range"].Parse<vec2>();
+            sbyte s = child.Attributes["course"].Parse<sbyte>();
+
+            gaps.Add((v4, (v2, s)));
+        }
+
+        return gaps;
+    }
+    public IEnumerable<(vec4, (IEnumerable<vec2>, sbyte))> LoadBends(XMLNode node)
+    {
+        List<(vec4, (IEnumerable<vec2>, sbyte))> bends = new();
+
+        foreach (XMLNode child in node.Children)
+        {
+            vec4 v4 = child.Attributes["leg"].Parse<vec4>();
+            sbyte s = child.Attributes["course"].Parse<sbyte>();
+
+            List<vec2> points = new();
+            foreach (XMLNode chi in child.Children)
+                points.Add(LoadVec2(chi));
+
+            bends.Add((v4, (points, s)));
+        }
+
+        return bends;
     }
 
     public IEnumerable<ICoursePart> LoadCourseParts(XMLNode node)

@@ -205,13 +205,13 @@ public struct BezierPath : IPathSegment, IEnumerable<BezierPoint>
 	}
 
 	public IEnumerable<vec2> GetAllPoints()
-		=> _points.SelectMany(point => new[] { point.EarlyControl, point.Anchor, point.LateControl }).ToList();
+		=> _points.SelectMany(point => new[] { point.EarlyControl, point.Anchor, point.LateControl });
 
 	public IEnumerable<vec2> GetControlPoints()
-		=> _points.SelectMany(point => new[] { point.EarlyControl, point.LateControl }).ToList();
+		=> _points.SelectMany(point => new[] { point.EarlyControl, point.LateControl });
 
 	public IEnumerable<vec2> GetAnchorPoints()
-		=> _points.Select(x => x.Anchor).ToList();
+		=> _points.Select(x => x.Anchor);
 
 	public IEnumerator<BezierPoint> GetEnumerator() => _points.GetEnumerator();
 	IEnumerator IEnumerable.GetEnumerator() => _points.GetEnumerator();

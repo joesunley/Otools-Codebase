@@ -11,6 +11,7 @@ public sealed class Control : IStorable
     public vec2 Position { get; set; }
     public ControlType Type { get; set; }
     public Description Description { get; set; }
+    public ushort? Score { get; set; }
 
     public Control(ushort code, vec2 position, ControlType type, Description description)
     {

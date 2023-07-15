@@ -4,7 +4,7 @@ using OTools.Maps;
 namespace OTools.Courses;
 
 
-public class Item: IStorable 
+public class Item: IStorable
 {
     public Guid Id => Object.Id;
 
