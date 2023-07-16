@@ -14,7 +14,7 @@ public static class MapCreation
         map.Colours.Add(purple);
 
         vec2[] vec2s = { (-3.5, -2.021), (0, 4.041), (3.5, -2.021), (-3.5, -2.021) };
-        LineObject tri = new(new(vec2s), .35f, purple);
+        LineObject tri = new(new(vec2s), .35f, purple, true);
         PointSymbol startTriangle = new("Start", "", new(701, 0, 0), false, false, tri.Yield(), true);
 
         LineSymbol courseLine = new("Line", "", new(704, 0, 0), false, false, purple, .35f, DashStyle.None, MidStyle.None, LineStyle.Default, BorderStyle.None);

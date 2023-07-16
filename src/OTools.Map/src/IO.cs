@@ -21,9 +21,11 @@ public static class MapLoader
         };
     }
 
-    public static XMLDocument Save(Map map)
+    public static XMLDocument Save(Map map, ushort version = 0)
     {
-        var mapNode = CURRENT_VERSION switch
+        ushort versionToUse = version == 0 ? CURRENT_VERSION : version;
+
+        var mapNode = versionToUse switch
         {
             1 => new MapLoaderV1().SaveMap(map),
             2 => new MapLoaderV2().SaveMap(map),

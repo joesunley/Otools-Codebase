@@ -157,14 +157,18 @@ public sealed class RgbColour : Colour
         Red = r;
         Green = g;
         Blue = b;
+
+        Opacity = 1f;
     }
     
-    public RgbColour(Guid id, string name, byte r, byte g, byte b)
+    public RgbColour(Guid id, string name, byte r, byte g, byte b, float a)
         : base(id, name)
     {
         Red = r;
         Green = g;
         Blue = b;
+
+        Opacity = a;
     }
     public RgbColour(Guid id, string name, uint hexValue)
         : base(id, name)
@@ -172,11 +176,11 @@ public sealed class RgbColour : Colour
         Red = (byte)(hexValue & 0x0000ff);
         Green = (byte)((hexValue & 0x00ff00) >> 8);
         Blue = (byte)((hexValue & 0xff0000) >> 16);
-        
-        Opacity = (byte)((hexValue & 0xff000000) >> 24) / 255f;
+
+        Opacity = 1f;
     }
 
-    public override uint HexValue => (uint)(Blue + (Green << 8) + (Red << 16) + ((byte)(Opacity * 255) >> 24));
+    public override uint HexValue => (uint)(Blue + (Green << 8) + (Red << 16) + ((byte)(Opacity * 255) << 24));
 
     public override (byte r, byte g, byte b) ToRGB() 
         => (Red, Green, Blue);

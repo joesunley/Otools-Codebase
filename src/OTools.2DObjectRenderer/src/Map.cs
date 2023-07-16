@@ -3,10 +3,7 @@ using OTools.Maps;
 using Sunley.Mathematics;
 using System.Data;
 using System.Diagnostics;
-using OTools.Common;
 using static System.Diagnostics.Debug;
-using ownsmtp.logging;
-
 namespace OTools.ObjectRenderer2D;
 
 public interface IMapRenderer2D : IVisualRenderer
@@ -421,7 +418,8 @@ public class MapRenderer2D : IMapRenderer2D
 			IEnumerable<vec2> mids = _Utils.CalculateMidPoints(inst.Segments, inst.Symbol.MidStyle);
 
 			foreach (vec2 p in mids)
-				renders.AddRange(LiveMapObjects(inst.Symbol.MidStyle.MapObjects, p));
+				renders.AddRange(RenderMapObjects(inst.Symbol.MidStyle.MapObjects)
+					.Select(el => { el.TopLeft = p; return el; }));
 		}
 
 		return renders.Select(x => { x.Opacity = inst.Opacity; return x; });
@@ -474,7 +472,8 @@ public class MapRenderer2D : IMapRenderer2D
 
 		List<IShape> renders = new();
 		foreach (vec2 p in points)
-			renders.AddRange(LiveMapObjects(oFill.Objects, p));
+			renders.AddRange(RenderMapObjects(oFill.Objects)
+				.Select(el => { el.TopLeft = p; return el; }));
 
 		return renders;
 	}
@@ -566,25 +565,6 @@ public class MapRenderer2D : IMapRenderer2D
 		Debug.WriteLine(rect);
 
 		return new IShape[] { r };
-	}
-
-	private IEnumerable<IShape> LiveMapObjects(IEnumerable<MapObject> objs, vec2 centre)
-	{
-		foreach (IShape el in RenderMapObjects(objs))
-		{
-			if (el is Circle e)
-			{
-				vec2 transform = new(
-					centre.X - e.Diameter / 2,
-					centre.Y - e.Diameter / 2
-					);
-
-				el.TopLeft = transform;
-			}
-			else el.TopLeft = centre;
-
-			yield return el;
-		}
 	}
 }
 

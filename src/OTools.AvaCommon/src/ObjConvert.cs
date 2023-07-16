@@ -6,31 +6,128 @@ using Avalonia.Media;
 using OTools.Maps;
 using ownsmtp.logging;
 using OT = OTools.ObjectRenderer2D;
+using System.Globalization;
+using OTools.Common;
 
 namespace OTools.AvaCommon;
 
 public static class ObjConvert
 {
 	public static IEnumerable<Shape> ConvertCollection(this IEnumerable<OT.IShape> shapes)
-	{ 
-		return shapes.Select(el => (Shape)(el switch
+	{
+		//return shapes.Select(el => (Shape)(el switch
+		//{
+		//	OT.Rectangle r => ConvRectange(r),
+		//	OT.Circle e => ConvCircle(e),
+		//	OT.Line l => ConvLine(l),
+		//	OT.Area a => ConvArea(a),
+		//	OT.Path p => ConvPath(p),
+		//	OT.Text t => ConvText(t),
+		//	_ => throw new NotImplementedException(),
+		//}));
+
+		List<Shape> elements = new();
+
+		foreach (var el in shapes)
 		{
-			OT.Rectangle r => ConvRectange(r),
-			OT.Circle e => ConvCircle(e),
-			OT.Line l => ConvLine(l),
-			OT.Area a => ConvArea(a),
-			OT.Path p => ConvPath(p),
-			OT.Text t => ConvText(t),
-			_ => throw new NotImplementedException(),
-		}));
+			switch (el)
+			{
+				case OT.Rectangle r: elements.Add(ConvRectangle(r)); break;
+				case OT.Circle c: elements.Add(ConvCircle(c)); break;
+				case OT.Line l: elements.Add(ConvLine(l)); break;
+				case OT.Area a: elements.Add(ConvArea(a)); break;
+				case OT.Path p: elements.Add(ConvPath(p)); break;
+				case OT.Text t: elements.AddRange(ConvText(t)); break;
+			}
+		}
+
+		return elements;
 	}
 
-    private static AV.Path ConvText(OT.Text t)
-    {
-		return new();
-    }
+	private static IEnumerable<AV.Path> ConvText(OT.Text t)
+	{
+		vec2 centre = t.TopLeft;
 
-    private static Rectangle ConvRectange(OT.Rectangle rect)
+		TextAlignment hAlign = t.HorizontalAlignment switch
+		{
+			HorizontalAlignment.Left => TextAlignment.Left,
+			HorizontalAlignment.Centre => TextAlignment.Center,
+			HorizontalAlignment.Right => TextAlignment.Right,
+			HorizontalAlignment.Justify => TextAlignment.Justify,
+			_ => throw new InvalidOperationException(),
+		};
+
+		FontWeight weight = t.Font.FontStyle.Bold ? FontWeight.Bold : FontWeight.Normal;
+
+		Avalonia.Media.FontStyle style = t.Font.FontStyle.Italics switch
+		{
+			ItalicsMode.None => Avalonia.Media.FontStyle.Normal,
+			ItalicsMode.Italic => Avalonia.Media.FontStyle.Italic,
+			ItalicsMode.Oblique => Avalonia.Media.FontStyle.Oblique,
+			_ => throw new InvalidOperationException(),
+		};
+
+		Typeface typeface = new(
+			new FontFamily(t.Font.FontFamily),
+			style, weight,
+			FontStretch.Normal);
+
+		FormattedText ft = new(t.Content, CultureInfo.CurrentCulture,
+			FlowDirection.LeftToRight,
+			typeface, t.Font.Size,
+			_Utils.ColourToBrush(t.Font.Colour))
+		{
+			TextAlignment = hAlign,
+		};
+
+		Geometry geom = ft.BuildGeometry(centre.ToPoint())!;
+
+		List<AV.Path> output = new();
+
+		AV.Path main = new()
+		{
+			Data = geom,
+
+			Fill = _Utils.ColourToBrush(t.Font.Colour),
+			StrokeThickness = 0f, // No Border for main text
+
+			ZIndex = t.Font.Colour.Precedence,
+		};
+
+		if (t.Framing.width != 0f)
+		{
+			AV.Path framing = new()
+			{
+				Data = geom,
+
+				Stroke = _Utils.ColourToBrush(t.Framing.colour),
+				StrokeThickness = t.Framing.width * 2f,
+
+				ZIndex = t.Framing.colour.Precedence,
+			};
+
+			output.Add(framing);
+		}
+
+		if (t.Border.width != 0f)
+		{
+			AV.Path border = new()
+			{
+				Data = ft.BuildHighlightGeometry(centre.ToPoint())!,
+
+				Stroke = _Utils.ColourToBrush(t.Border.colour),
+				StrokeThickness = t.Border.width,
+			};
+
+			output.Add(border);
+		}
+
+		output.Add(main);
+
+		return output;
+	}
+
+	private static Rectangle ConvRectangle(OT.Rectangle rect)
 	{
 		Rectangle output = new()
 		{
@@ -40,9 +137,9 @@ public static class ObjConvert
 			Width = rect.Size.X,
 			Height = rect.Size.Y,
 
-			Fill = ColourToBrush(rect.Fill),
+			Fill = _Utils.ColourToBrush(rect.Fill),
 
-			Stroke = ColourToBrush(rect.BorderColour),
+			Stroke = _Utils.ColourToBrush(rect.BorderColour),
 			StrokeThickness = rect.BorderWidth,
 			StrokeDashArray = new(rect.DashArray),
 		};
@@ -54,29 +151,12 @@ public static class ObjConvert
 
 	private static AV.Path ConvCircle(OT.Circle circle)
 	{
-		//Ellipse output = new()
-		//{
-		//	Opacity = ellipse.Opacity,
-		//	ZIndex = ellipse.ZIndex,
-
-		//	Width = ellipse.Size.X,
-		//	Height = ellipse.Size.Y,
-
-		//	Fill = ColourToBrush(ellipse.Fill),
-
-		//	Stroke = ColourToBrush(ellipse.BorderColour),
-		//	StrokeThickness = ellipse.BorderWidth,
-		//	StrokeDashArray = new(ellipse.DashArray),
-		//};
-
-		//output.SetTopLeft(ellipse.TopLeft);
-
 		OT.Path path = new()
 		{
 			Opacity = circle.Opacity,
 			ZIndex = circle.ZIndex,
 
-			Segments = new() { CreateCircle(circle.Diameter / 2) },
+			Segments = new() { _Utils.CreateCircle(circle.Diameter / 2) },
 			IsClosed = true,
 
 			Fill = circle.Fill,
@@ -88,11 +168,9 @@ public static class ObjConvert
 			TopLeft = circle.TopLeft,
 		};
 
-		var conv = ConvPath(path);
+		var output = ConvPath(path);
 
-		return conv;
-
-		//return output;
+		return output;
 	}
 
 	private static Polyline ConvLine(OT.Line line)
@@ -102,9 +180,9 @@ public static class ObjConvert
 			Opacity = line.Opacity,
 			ZIndex = line.ZIndex,
 
-			Points = line.Points.Select(ToPoint).ToList(),
+			Points = line.Points.Select(_Utils.ToPoint).ToList(),
 
-			Stroke = ColourToBrush(line.Colour),
+			Stroke = _Utils.ColourToBrush(line.Colour),
 			StrokeThickness = line.Width,
 			StrokeDashArray = new(line.DashArray),
 		};
@@ -121,11 +199,11 @@ public static class ObjConvert
 			Opacity = area.Opacity,
 			ZIndex = area.ZIndex,
 
-			Points = area.Points.Select(ToPoint).ToList(),
+			Points = area.Points.Select(_Utils.ToPoint).ToList(),
 
-			Fill = ColourToBrush(area.Fill),
+			Fill = _Utils.ColourToBrush(area.Fill),
 
-			Stroke = ColourToBrush(area.BorderColour),
+			Stroke = _Utils.ColourToBrush(area.BorderColour),
 			StrokeThickness = area.BorderWidth,
 			StrokeDashArray = new(area.DashArray),
 		};
@@ -158,14 +236,14 @@ public static class ObjConvert
 			new CombinedGeometry(GeometryCombineMode.Exclude, outlineGeom, holeGeom);
 
 
-        AV.Path output = new()
+		AV.Path output = new()
 		{
 			Opacity = path.Opacity,
 			ZIndex = path.ZIndex,
 
 			Data = geom,
 
-			Stroke = ColourToBrush(path.BorderColour),
+			Stroke = _Utils.ColourToBrush(path.BorderColour),
 			StrokeThickness = path.BorderWidth,
 			StrokeDashArray = new(path.DashArray),
 
@@ -176,7 +254,7 @@ public static class ObjConvert
 		{
 			output.Fill = path.Fill.Value.IsT0 ? 
 				ConvVisualFill(path.Fill.Value.AsT0) : 
-				ColourToBrush(path.Fill.Value.AsT1);
+				_Utils.ColourToBrush(path.Fill.Value.AsT1);
 		}
 
 		//output.SetTopLeft(path.TopLeft);
@@ -198,7 +276,7 @@ public static class ObjConvert
 				var points = sSeg.Points.Select(x => x + topLeft).ToArray();
 
 				fig.StartPoint = points[0].ToPoint();
-				startSeg.Points.AddRange(points.Skip(1).Select(ToPoint));
+				startSeg.Points.AddRange(points.Skip(1).Select(_Utils.ToPoint));
 
 				segs.Add(startSeg);
 			}
@@ -315,20 +393,23 @@ public static class ObjConvert
 
 		return output;
 	}
+}
 
+internal static class _Utils
+{
 	public static IBrush ColourToBrush(uint colour)
 	{
 		byte b = (byte)(colour & 0x0000000ff),
 			 g = (byte)((colour & 0x0000ff00) >> 8),
 			 r = (byte)((colour & 0x00ff0000) >> 16),
-             a = (byte)((colour & 0xff000000) >> 24);
+			 a = (byte)((colour & 0xff000000) >> 24);
 
-        Color col = new(a, r, g, b);
+		Color col = new(a, r, g, b);
 
-        return new SolidColorBrush(col);
+		return new SolidColorBrush(col);
 	}
 
-	public static Point ToPoint(this vec2 v2) 
+	public static Point ToPoint(this vec2 v2)
 		=> new(v2.X, v2.Y);
 
 	public static OT.PolyBezierSegment CreateCircle(float radius)
@@ -337,7 +418,7 @@ public static class ObjConvert
 		float k = radius * KAPPA;
 
 
-        BezierPoint top = new(
+		BezierPoint top = new(
 			anchor: (0, radius),
 			earlyControl: (-k, radius),
 			lateControl: (k, radius));
