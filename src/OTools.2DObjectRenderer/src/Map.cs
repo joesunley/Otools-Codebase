@@ -1,4 +1,5 @@
 ﻿using ComputeSharp;
+using OneOf.Types;
 using OTools.Maps;
 using Sunley.Mathematics;
 using System.Data;
@@ -26,7 +27,7 @@ public interface IMapRenderer2D : IVisualRenderer
 	IEnumerable<IShape> RenderPathInstance(PathInstance inst);
 	IEnumerable<IShape> RenderTextInstance(TextInstance inst);
 
-	IEnumerable<(Symbol, IEnumerable<IShape>)> RenderMap();
+	IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap();
 }
 
 public class MapRenderer2D : IMapRenderer2D
@@ -41,11 +42,11 @@ public class MapRenderer2D : IMapRenderer2D
 		_symbolCache = new();
 	}
 
-	public IEnumerable<(Symbol, IEnumerable<IShape>)> RenderMap()
+	public IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
 	{
-		List<(Symbol, IEnumerable<IShape>)> objs = new();
+		List<(Instance, IEnumerable<IShape>)> objs = new();
 		foreach (Instance inst in _activeMap.Instances)
-			objs.Add((inst.Symbol, RenderInstance(inst)));
+			objs.Add((inst, RenderInstance(inst)));
 		return objs;
 	}
 
@@ -95,9 +96,9 @@ public class MapRenderer2D : IMapRenderer2D
 		};
 
 		// Prevents unnecessary ellipses
-		if (obj.OuterRadius == Colour.Transparent)
+		if (obj.OuterColour == Colour.Transparent)
 			return new IShape[] { innerEllipse };
-		if (obj.InnerRadius == Colour.Transparent)
+		if (obj.InnerColour == Colour.Transparent)
 			return new IShape[] { outerEllipse };
 		return new IShape[] { innerEllipse, outerEllipse };
 	}
@@ -105,12 +106,12 @@ public class MapRenderer2D : IMapRenderer2D
 	{
 		List<IPathSegment> segments = new();
 
-		foreach (Maps.IPathSegment seg in obj.Segments)
+		foreach (IPath seg in obj.Segments)
 		{
 			segments.Add(seg switch
 			{
 				LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-				BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
+				BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
 				_ => throw new InvalidOperationException(),
 			});
 		}
@@ -134,13 +135,13 @@ public class MapRenderer2D : IMapRenderer2D
 	{
 		List<IPathSegment> segments = new();
 
-		foreach (Maps.IPathSegment seg in obj.Segments)
+		foreach (IPath seg in obj.Segments)
 		{
 			segments.Add(seg switch
 			{
 				LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-				BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
-				_ => throw new InvalidOperationException(),
+                BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
+                _ => throw new InvalidOperationException(),
 			});
 		}
 
@@ -160,7 +161,7 @@ public class MapRenderer2D : IMapRenderer2D
 
 		renders.Add(border);
 
-		IList<vec2> poly = obj.Segments.Linearise();
+		IList<vec2> poly = obj.Segments.LinearApproximation();
 		vec4 rect = poly.AABB();
 
 		var fillObjs = obj.Fill switch
@@ -323,13 +324,13 @@ public class MapRenderer2D : IMapRenderer2D
 	public IEnumerable<IShape> RenderPathInstance(PathInstance inst)
 	{
 		List<IPathSegment> segments = new();
-		foreach (Maps.IPathSegment seg in inst.Segments)
+		foreach (IPath seg in inst.Segments)
 		{
 			segments.Add(seg switch
 			{
 				LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-				BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
-				_ => throw new InvalidOperationException(),
+                BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
+                _ => throw new InvalidOperationException(),
 			});
 		}
 
@@ -337,13 +338,13 @@ public class MapRenderer2D : IMapRenderer2D
 		foreach (PathCollection coll in inst.Holes)
 		{
 			List<IPathSegment> hole = new();
-			foreach (Maps.IPathSegment seg in coll)
+			foreach (IPath seg in coll)
 			{
 				hole.Add(seg switch
 				{
 					LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-					BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
-					_ => throw new InvalidOperationException(),
+                    BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
+                    _ => throw new InvalidOperationException(),
 				});
 			}
 
@@ -374,7 +375,7 @@ public class MapRenderer2D : IMapRenderer2D
 
 		if (inst.Symbol is AreaSymbol aSym)
 		{
-			var poly = inst.Segments.Linearise();
+			var poly = inst.Segments.LinearApproximation();
 			vec4 rect = poly.AABB();
 
 			VisualFill visFill = new();
@@ -592,15 +593,15 @@ public class WireframeMapRenderer2D : IMapRenderer2D
 		// MapObject thingying -> maybe of each point symbol?
 	}
 
-	public IEnumerable<(Symbol, IEnumerable<IShape>)> RenderMap()
+	public IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
 	{
-		List<(Symbol, IEnumerable<IShape>)> objs = new();
+		List<(Instance, IEnumerable<IShape>)> objs = new();
 		foreach (Instance inst in _activeMap.Instances)
-			objs.Add((inst.Symbol, RenderInstance(inst)));
+			objs.Add((inst, RenderInstance(inst)));
 		return objs;
 	}
 	
-	public IEnumerable<IShape> Render() => RenderMap().Select(x => x.Item2).SelectMany(x => x);
+	public IEnumerable<IShape> Render() => RenderMap().SelectMany(x => x.Item2);
 
 	public IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs)
 	{
@@ -646,13 +647,13 @@ public class WireframeMapRenderer2D : IMapRenderer2D
 
 		List<IPathSegment> segments = new();
 
-		foreach (Maps.IPathSegment seg in obj.Segments)
+		foreach (IPath seg in obj.Segments)
 		{
 			segments.Add(seg switch
 			{
 				LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-				BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
-				_ => throw new InvalidOperationException(),
+                BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
+                _ => throw new InvalidOperationException(),
 			});
 		}
 
@@ -676,13 +677,13 @@ public class WireframeMapRenderer2D : IMapRenderer2D
 
 		List<IPathSegment> segments = new();
 
-		foreach (Maps.IPathSegment seg in obj.Segments)
+		foreach (IPath seg in obj.Segments)
 		{
 			segments.Add(seg switch
 			{
 				LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-				BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
-				_ => throw new InvalidOperationException(),
+                BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
+                _ => throw new InvalidOperationException(),
 			});
 		}
 
@@ -790,13 +791,13 @@ public class WireframeMapRenderer2D : IMapRenderer2D
 	public IEnumerable<IShape> RenderPathInstance(PathInstance inst)
 	{
 		List<IPathSegment> segments = new();
-		foreach (Maps.IPathSegment seg in inst.Segments)
+		foreach (IPath seg in inst.Segments)
 		{
 			segments.Add(seg switch
 			{
 				LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-				BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
-				_ => throw new InvalidOperationException(),
+                BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
+                _ => throw new InvalidOperationException(),
 			});
 		}
 
@@ -804,13 +805,13 @@ public class WireframeMapRenderer2D : IMapRenderer2D
 		foreach (PathCollection coll in inst.Holes)
 		{
 			List<IPathSegment> hole = new();
-			foreach (Maps.IPathSegment seg in coll)
+			foreach (IPath seg in coll)
 			{
 				hole.Add(seg switch
 				{
 					LinearPath linear => new PolyLineSegment { Points = linear.ToList() },
-					BezierPath bezier => new PolyBezierSegment { Points = bezier.ToList() },
-					_ => throw new InvalidOperationException(),
+                    BezierPath bezier => new PolyBezierSegment { Points = new(bezier.AsCubicBezier()) },
+                    _ => throw new InvalidOperationException(),
 				});
 			}
 
@@ -862,7 +863,7 @@ internal static partial class _Utils
 {
 	public static PolyBezierSegment CreateBezierSegment(BezierPath path)
 	{
-		return new() { Points = path.ToList() };
+		return new() { Points = new(path.AsCubicBezier()) };
 	}
 
 	public static double[] CreateDashArray(float lineLength, DashStyle dashStyle, float lineWidth)
@@ -926,7 +927,7 @@ internal static partial class _Utils
 	{
 		float totalLen = 0f;
 
-		foreach (OTools.Maps.IPathSegment seg in pC)
+		foreach (IPath seg in pC)
 		{
 			switch (seg)
 			{
@@ -934,7 +935,7 @@ internal static partial class _Utils
 					totalLen += line.Length();
 					break;
 				case BezierPath bezier:
-					totalLen += InterpolateAlongBezierPath(bezier, 0.05f).Length();
+					totalLen += bezier.LinearApproximation().Length();
 					break;
 			}
 		}
@@ -942,43 +943,15 @@ internal static partial class _Utils
 		return totalLen;
 	}
 
-	public static IEnumerable<vec2> InterpolateAlongBezierPath(BezierPath bezPath, float resolution)
-	{
-		List<vec2> points = new();
-
-		for (int i = 1; i < bezPath.Count(); i++)
-		{
-			BezierPoint early = bezPath[i - 1];
-			BezierPoint late = bezPath[i];
-
-			for (float t = 0f; t <= 1; t += resolution)
-				points.Add(CalculateBezierLerp(early, late, t));
-		}
-
-		return points;
-	}
-
-	public static vec2 CalculateBezierLerp(BezierPoint a, BezierPoint b, float t)
-	{
-		vec2 p0 = vec2.Lerp(a.Anchor, a.LateControl, t);
-		vec2 p1 = vec2.Lerp(a.LateControl, b.EarlyControl, t);
-		vec2 p2 = vec2.Lerp(b.EarlyControl, b.Anchor, t);
-
-		vec2 d = vec2.Lerp(p0, p1, t);
-		vec2 e = vec2.Lerp(p1, p2, t);
-
-		return vec2.Lerp(d, e, t);
-	}
-
 	public static IEnumerable<vec2> CalculateMidPoints(PathCollection pC, MidStyle midStyle)
 	{
 		List<List<vec2>> paths = new();
 		List<vec2> points = new();
 
-		foreach (Maps.IPathSegment seg in pC)
+		foreach (IPath seg in pC)
 		{
 
-			if (seg.IsGap)
+			if (pC.IsGap(seg))
 			{
 				paths.Add(points);
 				points = new();
@@ -986,16 +959,12 @@ internal static partial class _Utils
 				continue;
 			}
 
-			switch (seg)
+			points.AddRange(seg switch
 			{
-				case LinearPath line:
-					points.AddRange(line);
-					break;
-				case BezierPath bezier:
-					points.AddRange(InterpolateAlongBezierPath(bezier, 0.05f));
-					break;
-				default: throw new InvalidOperationException("Unknown Path Type");
-			}
+				LinearPath linear => linear,
+				BezierPath bezier => bezier.LinearApproximation(),
+				_ => throw new InvalidOperationException("Unknown Path Type"),
+			});
 
 			paths.Add(points);
 			points = new();
@@ -1177,23 +1146,6 @@ internal static partial class _Utils
 			   q.Y <= MathF.Max(p.Y, r.Y) && q.Y >= MathF.Min(p.Y, r.Y);
 	}
 
-	public static IList<vec2> Linearise(this PathCollection pc)
-	{
-		List<vec2> points = new();
-
-		foreach (Maps.IPathSegment seg in pc)
-		{
-			points.AddRange(seg switch
-			{
-				LinearPath line => line,
-				BezierPath bez => InterpolateAlongBezierPath(bez, 0.05f),
-				_ => throw new Exception(), // Can't happen
-			});
-		}
-
-		return points;
-	}
-
 	public static bool IsInBounds(vec4 bounds, vec2 p)
 	{
 		vec2 tL = bounds.XY,
@@ -1285,17 +1237,19 @@ internal static partial class _Utils
 
 	public static PolyBezierSegment RotateBezier(PolyBezierSegment bez, float rotation, vec2? rotationCentre = null)
 	{
-		PolyBezierSegment newBez = new();
+		//PolyBezierSegment newBez = new();
 
-		foreach (var point in bez.Points)
-		{
-			vec2[] ps = { point.Anchor, point.EarlyControl, point.LateControl };
-			vec2[] rotated = PolygonTools.Rotate(ps, rotation, rotationCentre).ToArray();
+		//foreach (var point in bez.Points)
+		//{
+		//	vec2[] ps = { point.Anchor, point.EarlyControl.AsT0, point.LateControl.AsT0 };
+		//	vec2[] rotated = PolygonTools.Rotate(ps, rotation, rotationCentre).ToArray();
 
-			newBez.Points.Add(new BezierPoint(rotated[0], rotated[1], rotated[2]));
-		}
+		//	newBez.Points.Add(new BezierPoint(rotated[0], rotated[1], rotated[2]));
+		//}
 
-		return newBez;
+		//return newBez;
+
+		throw new NotImplementedException();
 	}
 }
 

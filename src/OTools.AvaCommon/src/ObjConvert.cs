@@ -250,11 +250,11 @@ public static class ObjConvert
 			StrokeJoin = PenLineJoin.Round,
 		};
 
-		if (path.Fill.HasValue)
+		if (!path.Fill.IsT2)
 		{
-			output.Fill = path.Fill.Value.IsT0 ? 
-				ConvVisualFill(path.Fill.Value.AsT0) : 
-				_Utils.ColourToBrush(path.Fill.Value.AsT1);
+			output.Fill = path.Fill.IsT0 ? 
+                ConvVisualFill(path.Fill.AsT0) : 
+                _Utils.ColourToBrush(path.Fill.AsT1);
 		}
 
 		//output.SetTopLeft(path.TopLeft);
@@ -283,37 +283,21 @@ public static class ObjConvert
 			break;
 			case OT.PolyBezierSegment bSeg:
 			{
+				fig.StartPoint = (bSeg.Points[0].EarlyAnchor + topLeft).ToPoint();
 
-				fig.StartPoint = (bSeg.Points[0].Anchor + topLeft).ToPoint();
-
-				for (int i = 1; i < bSeg.Points.Count; i++)
+				foreach (CubicBezier bez in bSeg.Points)
 				{
-					BezierPoint early = bSeg.Points[i - 1],
-						late = bSeg.Points[i];
+                    BezierSegment seg = new()
+                    {
+                        Point1 = (bez.EarlyControl + topLeft).ToPoint(),
+                        Point2 = (bez.LateControl + topLeft).ToPoint(),
+                        Point3 = (bez.LateAnchor + topLeft).ToPoint(),
+                    };
 
-					BezierSegment seg = new()
-					{
-						Point1 = (early.LateControl + topLeft).ToPoint(),
-						Point2 = (late.EarlyControl + topLeft).ToPoint(),
-						Point3 = (late.Anchor + topLeft).ToPoint(),
-					};
+                    segs.Add(seg);
+                }
 
-					segs.Add(seg);
-				}
-
-				if (isClosed && segments.Count == 1)
-				{
-					BezierSegment seg = new()
-					{
-						Point1 = (bSeg.Points[^1].LateControl + topLeft).ToPoint(),
-						Point2 = (bSeg.Points[0].EarlyControl + topLeft).ToPoint(),
-						Point3 = (bSeg.Points[0].Anchor + topLeft).ToPoint(),
-					};
-
-					segs.Add(seg);
-				}
-
-			}
+            }
 			break;
 		}
 
@@ -332,20 +316,32 @@ public static class ObjConvert
 					break;
 					case OT.PolyBezierSegment bez:
 					{
-						for (int j = 1; j < bez.Points.Count; j++)
+						//for (int j = 1; j < bez.Points.Count; j++)
+						//{
+						//	BezierPoint early = bez.Points[j - 1],
+						//		late = bez.Points[j];
+
+						//	BezierSegment seg = new()
+						//	{
+						//		Point1 = (early.LateControl + topLeft).ToPoint(),
+						//		Point2 = (late.EarlyControl + topLeft).ToPoint(),
+						//		Point3 = (late.Anchor + topLeft).ToPoint(),
+						//	};
+
+						//	segs.Add(seg);
+						//}
+
+						foreach (CubicBezier b in bez.Points)
 						{
-							BezierPoint early = bez.Points[j - 1],
-								late = bez.Points[j];
-
-							BezierSegment seg = new()
+                            BezierSegment seg = new()
 							{
-								Point1 = (early.LateControl + topLeft).ToPoint(),
-								Point2 = (late.EarlyControl + topLeft).ToPoint(),
-								Point3 = (late.Anchor + topLeft).ToPoint(),
-							};
+                                Point1 = (b.EarlyControl + topLeft).ToPoint(),
+                                Point2 = (b.LateControl + topLeft).ToPoint(),
+                                Point3 = (b.LateAnchor + topLeft).ToPoint(),
+                            };
 
-							segs.Add(seg);
-						}
+                            segs.Add(seg);
+                        }
 					}
 					break;
 				}
@@ -393,6 +389,14 @@ public static class ObjConvert
 
 		return output;
 	}
+
+	public static void SetTopLeft(this AvaloniaObject shape, vec2 v2)
+	{
+		//WriteLine(v2.ToString());
+
+		shape.SetValue(Canvas.LeftProperty, v2.X);
+		shape.SetValue(Canvas.TopProperty, v2.Y);
+	}
 }
 
 internal static class _Utils
@@ -438,14 +442,8 @@ internal static class _Utils
 			earlyControl: (-radius, -k),
 			lateControl: (-radius, k));
 
-		return new() { Points = new() { top, right, bottom, left } };
-	}
+		BezierPath path = new() { top, right, bottom, left };
 
-	public static void SetTopLeft(this AvaloniaObject shape, vec2 v2)
-	{
-		//WriteLine(v2.ToString());
-
-		shape.SetValue(Canvas.LeftProperty, v2.X);
-		shape.SetValue(Canvas.TopProperty, v2.Y);
+		return new() { Points = new(path.AsCubicBezier()) };
 	}
 }

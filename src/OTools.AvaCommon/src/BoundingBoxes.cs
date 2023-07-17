@@ -1,4 +1,5 @@
 ﻿using OTools.Maps;
+using System.Diagnostics;
 
 namespace OTools.AvaCommon;
 
@@ -8,7 +9,7 @@ public static class BoundingBox
     {
         switch (inst)
         {
-            case PointInstance p: return OfSymbol(p.Symbol) + p.Centre;
+            case PointInstance p: return OfSymbol(p.Symbol) + (p.Centre, p.Centre);
             case LineInstance l: return OfSegments(l.Segments);
             case AreaInstance a: return OfSegments(a.Segments);
             case TextInstance t: return vec4.Zero; // TODO: Implement
@@ -31,6 +32,8 @@ public static class BoundingBox
                     bottomRight = vec2.Max(bottomRight, objBBox.ZW);
                 }
 
+                Debug.WriteLine($"BOx: {new vec4(topLeft, bottomRight)}");
+
                 return (topLeft, bottomRight);
             }
             default: throw new InvalidOperationException($"Cannot Calculate Bounding Box of {nameof(s)}");
@@ -49,8 +52,8 @@ public static class BoundingBox
 
                 return (topLeft, bottomRight);
             }
-            case LineObject l: return OfSegments(l.Segments);
-            case AreaObject a: return OfSegments(a.Segments);
+            case LineObject l: return OfSegments(l.Segments) + ((-l.Width, -l.Width), (l.Width, l.Width));
+            case AreaObject a: return OfSegments(a.Segments) + ((-a.BorderWidth, -a.BorderWidth), (a.BorderWidth, a.BorderWidth));
             case TextObject t: return vec4.Zero; // TODO: Implement
             default: throw new InvalidOperationException();
         }
@@ -61,7 +64,7 @@ public static class BoundingBox
         vec2 topLeft = vec2.MaxValue,
             bottomRight = vec2.MinValue;
 
-        IList<vec2> poly = segments.Linearise();
+        IList<vec2> poly = segments.LinearApproximation();
 
         foreach (vec2 point in poly)
         {

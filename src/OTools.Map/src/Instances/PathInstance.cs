@@ -1,5 +1,8 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using OTools.Maps;
+using Sunley.Mathematics;
+using TerraFX.Interop.Windows;
 
 namespace OTools.Maps;
 
@@ -78,177 +81,177 @@ public interface PathInstance : Instance
 	}
 }
 
-public sealed class PathCollection : List<IPathSegment>
+public sealed class PathCollection : IList<IPath>
 {
-	public PathCollection() { }
+	private readonly List<IPath> _segments;
+	private Dictionary<IPath, bool> _gaps;
+
+	public PathCollection()
+	{
+		_segments = new();
+		_gaps = new();
+	}
+
 	public PathCollection(IEnumerable<vec2> points)
 	{
-		Add(new LinearPath(points));
+		LinearPath lP = new(points);
+		_segments = new() { lP };
+        _gaps = new() { { lP, false } };
+    }
+
+    #region IList Implementation
+    public IPath this[int index] { get => _segments[index]; set => _segments[index] = value; }
+
+	public int Count => _segments.Count;
+
+	public bool IsReadOnly => false;
+
+    public void Add(IPath item)
+	{
+		_segments.Add(item);
+		_gaps.Add(item, false);
 	}
 
-	public IEnumerable<vec2> GetAllPoints()
+    public void Clear()
+		=> _segments.Clear();
+
+    public bool Contains(IPath item)
+		=> _segments.Contains(item);
+
+    public void CopyTo(IPath[] array, int arrayIndex)
+		=> _segments.CopyTo(array, arrayIndex);
+
+    public IEnumerator<IPath> GetEnumerator()
+		=> _segments.GetEnumerator();
+
+    public int IndexOf(IPath item)
+		=> _segments.IndexOf(item);
+
+    public void Insert(int index, IPath item)
+		=> _segments.Insert(index, item);
+
+    public bool Remove(IPath item)
+		=> _segments.Remove(item);
+
+    public void RemoveAt(int index)
+		=> _segments.RemoveAt(index);
+
+    IEnumerator IEnumerable.GetEnumerator()
+		=> _segments.GetEnumerator();
+    #endregion
+
+	public bool IsGap(IPath path)
 	{
-		List<vec2> points = new();
+		if (_gaps.TryGetValue(path, out var isGap))
+            return isGap;
+		return false;	
+	}
+	public bool SetGap(IPath path)
+	{
+		if (!_segments.Contains(path))
+			return false;
 
-		foreach (IPathSegment obj in this)
-			points.AddRange(obj.GetAllPoints());
+		if (_gaps.ContainsKey(path))
+			_gaps[path] = true;
+		else
+			_gaps.Add(path, true);
 
-		return points;
+		return true;
 	}
 
-	public IEnumerable<vec2> GetAnchorPoints()
+	public IList<vec2> LinearApproximation(int n = 99)
 	{
 		List<vec2> points = new();
-
-		foreach (IPathSegment obj in this)
-			points.AddRange(obj.GetAnchorPoints());
-
-		return points;
-	}
-
-	public IEnumerable<vec2> GetControlPoints()
-	{
-		List<vec2> points = new();
-
-		foreach (IPathSegment obj in this)
+		foreach (IPath seg in _segments)
 		{
-			if (obj is BezierPath bez)
+			points.AddRange(seg switch
 			{
-				points.AddRange(bez.Select(x => x.EarlyControl));
-				points.AddRange(bez.Select(x => x.LateControl));
-			}
+				BezierPath b => b.LinearApproximation(n),
+				LinearPath l => l,
+				_ => throw new InvalidOperationException()
+			});
 		}
 
 		return points;
 	}
-
-	private const float RESOLUTION = 0.05f;
-
-	public IList<vec2> Linearise(float resolution = RESOLUTION)
-	{
-		List<vec2> points = new();
-
-		foreach (IPathSegment seg in this)
-		{
-			switch (seg)
-			{
-				case LinearPath line: points.AddRange(line); break;
-				case BezierPath bez:
-					{
-						for (int i = 1; i < bez.Count(); i++)
-						{
-							BezierPoint early = bez[i - 1], late = bez[i];
-
-							for (float t = 0f; t <= 1; t += resolution)
-							{
-								vec2 p0 = vec2.Lerp(early.Anchor, early.LateControl, t);
-								vec2 p1 = vec2.Lerp(early.LateControl, late.EarlyControl, t);
-								vec2 p2 = vec2.Lerp(late.EarlyControl, late.Anchor, t);
-
-								vec2 d = vec2.Lerp(p0, p1, t);
-								vec2 e = vec2.Lerp(p1, p2, t);
-
-								points.Add(vec2.Lerp(d, e, t));
-							}
-						}
-					}
-					break;
-			}
-		}
-
-		return points;
-	}
 }
 
-public interface IPathSegment
-{
-	bool IsGap { get; set; }
+//public interface IPath
+//{
+//	bool IsGap { get; set; }
 
-	IEnumerable<vec2> GetAllPoints();
-	IEnumerable<vec2> GetAnchorPoints();
-	IEnumerable<vec2> GetControlPoints();
-}
-
-public struct BezierPoint
-{
-	public vec2 Anchor { get; set; }
-	public vec2 EarlyControl { get; set; }
-	public vec2 LateControl { get; set; }
-
-	public BezierPoint(vec2 anchor, vec2? earlyControl = null, vec2? lateControl = null)
-	{
-		Anchor = anchor;
-		EarlyControl = earlyControl ?? anchor;
-		LateControl = lateControl ?? anchor;
-	}
-}
-
-public struct BezierPath : IPathSegment, IEnumerable<BezierPoint>
-{
-	private readonly List<BezierPoint> _points;
-
-	public bool IsGap { get; set; }
-
-	public BezierPoint this[int index]
-	{
-		get => _points[index];
-		set => _points[index] = value;
-	}
+//	IEnumerable<vec2> GetAllPoints();
+//	IEnumerable<vec2> GetAnchorPoints();
+//	IEnumerable<vec2> GetControlPoints();
+//}
 
 
-	public BezierPath(IList<BezierPoint>? points = null)
-	{
-		points ??= Array.Empty<BezierPoint>();
-		_points = new(points);
+//public struct BezierPath : IPath, IEnumerable<BezierPoint>
+//{
+//	private readonly List<BezierPoint> _points;
 
-		IsGap = false;
-	}
+//	public bool IsGap { get; set; }
 
-	public IEnumerable<vec2> GetAllPoints()
-		=> _points.SelectMany(point => new[] { point.EarlyControl, point.Anchor, point.LateControl });
+//	public BezierPoint this[int index]
+//	{
+//		get => _points[index];
+//		set => _points[index] = value;
+//	}
 
-	public IEnumerable<vec2> GetControlPoints()
-		=> _points.SelectMany(point => new[] { point.EarlyControl, point.LateControl });
 
-	public IEnumerable<vec2> GetAnchorPoints()
-		=> _points.Select(x => x.Anchor);
+//	public BezierPath(IList<BezierPoint>? points = null)
+//	{
+//		points ??= Array.Empty<BezierPoint>();
+//		_points = new(points);
 
-	public IEnumerator<BezierPoint> GetEnumerator() => _points.GetEnumerator();
-	IEnumerator IEnumerable.GetEnumerator() => _points.GetEnumerator();
-}
+//		IsGap = false;
+//	}
 
-public struct LinearPath : IPathSegment, IEnumerable<vec2>
-{
-	private readonly List<vec2> _points;
+//	public IEnumerable<vec2> GetAllPoints()
+//		=> _points.SelectMany(point => new[] { point.EarlyControl, point.Anchor, point.LateControl });
 
-	public bool IsGap { get; set; }
+//	public IEnumerable<vec2> GetControlPoints()
+//		=> _points.SelectMany(point => new[] { point.EarlyControl, point.LateControl });
 
-	public vec2 this[int index]
-	{
-		get => _points[index];
-		set => _points[index] = value;
-	}
+//	public IEnumerable<vec2> GetAnchorPoints()
+//		=> _points.Select(x => x.Anchor);
 
-	public LinearPath(IEnumerable<vec2>? points = null)
-	{
-		points ??= new List<vec2>();
-		_points = new(points);
+//	public IEnumerator<BezierPoint> GetEnumerator() => _points.GetEnumerator();
+//	IEnumerator IEnumerable.GetEnumerator() => _points.GetEnumerator();
+//}
 
-		IsGap = false;
-	}
+//public struct LinearPath : IPath, IEnumerable<vec2>
+//{
+//	private readonly List<vec2> _points;
 
-	public int IndexOf(vec2 v2)
-		=> _points.IndexOf(v2);
+//	public bool IsGap { get; set; }
 
-	public IEnumerable<vec2> GetAllPoints()
-		=> _points;
+//	public vec2 this[int index]
+//	{
+//		get => _points[index];
+//		set => _points[index] = value;
+//	}
 
-	public IEnumerable<vec2> GetAnchorPoints()
-		=> _points;
+//	public LinearPath(IEnumerable<vec2>? points = null)
+//	{
+//		points ??= new List<vec2>();
+//		_points = new(points);
 
-	public IEnumerable<vec2> GetControlPoints()
-		=> Enumerable.Empty<vec2>();
+//		IsGap = false;
+//	}
 
-	public IEnumerator<vec2> GetEnumerator() => _points.GetEnumerator();
-	IEnumerator IEnumerable.GetEnumerator() => _points.GetEnumerator();
-}
+//	public int IndexOf(vec2 v2)
+//		=> _points.IndexOf(v2);
+
+//	public IEnumerable<vec2> GetAllPoints()
+//		=> _points;
+
+//	public IEnumerable<vec2> GetAnchorPoints()
+//		=> _points;
+
+//	public IEnumerable<vec2> GetControlPoints()
+//		=> Enumerable.Empty<vec2>();
+
+//	public IEnumerator<vec2> GetEnumerator() => _points.GetEnumerator();
+//	IEnumerator IEnumerable.GetEnumerator() => _points.GetEnumerator();
+//}

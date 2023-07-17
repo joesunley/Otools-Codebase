@@ -727,8 +727,8 @@ public class MapLoaderV1 : IMapLoaderV1
     public XMLNode SavePathCollection(PathCollection coll)
     {
         XMLNode node = new("Segments");
-
-        foreach (IPathSegment seg in coll)
+        
+        foreach (IPath seg in coll)
         {
             XMLNode s = seg switch
             {
@@ -737,7 +737,7 @@ public class MapLoaderV1 : IMapLoaderV1
                 _ => throw new InvalidOperationException(),
             };
 
-            if (seg.IsGap) s.AddAttribute("isGap", "true");
+            if (coll.IsGap(seg)) s.AddAttribute("isGap", "true");
 
             node.AddChild(s);
         }
@@ -763,9 +763,9 @@ public class MapLoaderV1 : IMapLoaderV1
         {
             XMLNode p = new("BezierPoint");
 
-            if (pt.EarlyControl != pt.Anchor)
+            if (pt.EarlyControl.IsT0)
             {
-                XMLNode early = SaveVec2(pt.EarlyControl);
+                XMLNode early = SaveVec2(pt.EarlyControl.AsT0);
                 early.Name = "EarlyControl";
 
                 p.AddChild(early);
@@ -777,9 +777,9 @@ public class MapLoaderV1 : IMapLoaderV1
 
             p.AddChild(anchor);
 
-            if (pt.LateControl != pt.Anchor)
+            if (pt.LateControl.IsT0)
             {
-                XMLNode late = SaveVec2(pt.LateControl);
+                XMLNode late = SaveVec2(pt.LateControl.AsT0);
                 late.Name = "LateControl";
 
                 p.AddChild(late);
@@ -1383,7 +1383,7 @@ public class MapLoaderV1 : IMapLoaderV1
 
         node.Children.ForEach(seg =>
         {
-            IPathSegment tSeg;
+            IPath tSeg;
 
             switch (seg.Name)
             {
@@ -1435,8 +1435,9 @@ public class MapLoaderV1 : IMapLoaderV1
                 default: throw new InvalidOperationException();
             }
 
-            tSeg.IsGap = seg.Attributes.Exists("isGap") && bool.Parse(seg.Attributes["isGap"]);
             pC.Add(tSeg);
+            if (seg.Attributes.Exists("isGap") && bool.Parse(seg.Attributes["isGap"]))
+                pC.SetGap(tSeg);
         });
 
         return pC;
@@ -2213,7 +2214,7 @@ public class MapLoaderV2 : IMapLoaderV2
     {
         XMLNode node = new("Segments");
 
-        foreach (IPathSegment seg in coll)
+        foreach (IPath seg in coll)
         {
             XMLNode s = seg switch
             {
@@ -2222,7 +2223,7 @@ public class MapLoaderV2 : IMapLoaderV2
                 _ => throw new InvalidOperationException(),
             };
 
-            if (seg.IsGap) s.AddAttribute("isGap", "true");
+            if (coll.IsGap(seg)) s.AddAttribute("isGap", "true");
 
             node.AddChild(s);
         }
@@ -2248,9 +2249,9 @@ public class MapLoaderV2 : IMapLoaderV2
         {
             XMLNode p = new("BezierPoint");
 
-            if (pt.EarlyControl != pt.Anchor)
+            if (pt.EarlyControl.IsT0)
             {
-                XMLNode early = SaveVec2(pt.EarlyControl);
+                XMLNode early = SaveVec2(pt.EarlyControl.AsT0);
                 early.Name = "EarlyControl";
 
                 p.AddChild(early);
@@ -2262,9 +2263,9 @@ public class MapLoaderV2 : IMapLoaderV2
 
             p.AddChild(anchor);
 
-            if (pt.LateControl != pt.Anchor)
+            if (pt.LateControl.IsT0)
             {
-                XMLNode late = SaveVec2(pt.LateControl);
+                XMLNode late = SaveVec2(pt.LateControl.AsT0);
                 late.Name = "LateControl";
 
                 p.AddChild(late);
@@ -2925,7 +2926,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
         node.Children.ForEach(seg =>
         {
-            IPathSegment tSeg;
+            IPath tSeg;
 
             switch (seg.Name)
             {
@@ -2977,8 +2978,9 @@ public class MapLoaderV2 : IMapLoaderV2
                 default: throw new InvalidOperationException();
             }
 
-            tSeg.IsGap = seg.Attributes.Exists("isGap") && bool.Parse(seg.Attributes["isGap"]);
             pC.Add(tSeg);
+            if (seg.Attributes.Exists("isGap") && bool.Parse(seg.Attributes["isGap"]))
+                pC.SetGap(tSeg);
         });
 
         return pC;

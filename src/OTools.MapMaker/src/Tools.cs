@@ -26,7 +26,7 @@ public static class Tools
 				}
 				case LineSymbol l: {
 					LineInstance lineInst = (LineInstance)inst;
-					LineObject obj = new(lineInst.Segments, l.Colour, l.Colour);
+					LineObject obj = new(lineInst.Segments, l.Width, l.Colour, false);
 					mapObjects.Add(obj);
 				} break;
 			}
@@ -81,7 +81,7 @@ public static class Tools
 		vec2 point = vec2.Zero;
 		float dist = float.MaxValue;
 
-		foreach (IPathSegment seg in path)
+		foreach (IPath seg in path)
 		{
             switch (seg)
 			{
@@ -138,16 +138,4 @@ public static class Tools
 	{
 		throw new NotImplementedException();
 	}
-
-    public static vec2 CalculateBezierLerp(BezierPoint a, BezierPoint b, float t)
-    {
-        vec2 p0 = vec2.Lerp(a.Anchor, a.LateControl, t);
-        vec2 p1 = vec2.Lerp(a.LateControl, b.EarlyControl, t);
-        vec2 p2 = vec2.Lerp(b.EarlyControl, b.Anchor, t);
-
-        vec2 d = vec2.Lerp(p0, p1, t);
-        vec2 e = vec2.Lerp(p1, p2, t);
-
-        return vec2.Lerp(d, e, t);
-    }
 }

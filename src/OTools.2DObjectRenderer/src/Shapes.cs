@@ -1,6 +1,7 @@
 ﻿using OTools.Maps;
 using Sunley.Mathematics;
 using OneOf;
+using OneOf.Types;
 
 namespace OTools.ObjectRenderer2D;
 
@@ -125,7 +126,7 @@ public struct Path : IShape
     public List<IPathSegment> Segments { get; set; }
     public List<IPathSegment[]> Holes { get; set; }
 
-    public OneOf<VisualFill, uint>? Fill { get; set; }
+    public OneOf<VisualFill, uint, None> Fill { get; set; }
 
     public bool IsClosed { get; set; }
     public float BorderWidth { get; set; }
@@ -144,7 +145,7 @@ public struct Path : IShape
         Segments = new();
         Holes = new();
 
-        Fill = null;
+        Fill = new None();
 
         IsClosed = false;
         BorderWidth = 0f;
@@ -196,7 +197,14 @@ public interface IPathSegment { }
 
 public struct PolyBezierSegment : IPathSegment
 {
-    public List<BezierPoint> Points { get; set; }
+    //public List<BezierPoint> Points { get; set; }
+
+    //public PolyBezierSegment()
+    //{
+    //    Points = new();
+    //}
+
+    public List<CubicBezier> Points { get; set; }
 
     public PolyBezierSegment()
     {

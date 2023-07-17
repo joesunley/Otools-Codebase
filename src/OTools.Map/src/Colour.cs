@@ -94,7 +94,7 @@ public abstract class Colour : IStorable
 
     private static readonly Guid s_transparentId = Guid.NewGuid();
     public static Colour Transparent
-        => new RgbColour(s_transparentId, "Transparent", 0x00000000) { Precedence = 0 };
+        => new RgbColour(s_transparentId, "Transparent", 0, 0, 0, 0) { Precedence = 0 };
 }
 
 public sealed class SpotColour : Colour
