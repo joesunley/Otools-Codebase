@@ -2,9 +2,6 @@
 using OTools.AvaCommon;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace OTools.MapMaker;
 
@@ -34,6 +31,7 @@ public class MapDraw
 	
 	public void SymbolChanged(Symbol sym)
 	{
+		if (!isActive) return;
 
 		switch (sym)
 		{
@@ -51,11 +49,13 @@ public class MapDraw
 
 	public void MouseDown(MouseButton mouse)
 	{
-		
+		if (!isActive) return;
 	}
 
 	public void MouseUp(MouseButton mouse)
 	{
+		if (!isActive) return;
+
 		switch (active)
 		{
 			case Active.Point: if (mouse == MouseButton.Left) draws.point.End(); break;
@@ -76,6 +76,8 @@ public class MapDraw
 
 	public void MouseMove()
 	{
+		if (!isActive) return;
+
 		switch (active)
 		{
 			case Active.Point: draws.point.Update(); break;
@@ -88,6 +90,8 @@ public class MapDraw
 
 	public void KeyUp(Key key)
 	{
+		if (!isActive) return;
+
 		switch (active)
 		{
 			case Active.SimplePath:
@@ -104,7 +108,10 @@ public class MapDraw
 		}
 	}
 
-	public static MapDraw Start() => new();
+	public void Start() => isActive = true;
+	public void Stop() => isActive = false;
+
+	public static MapDraw Create() => new();
 	
 	private enum Active { None, Point, SimplePath, ComplexPath }
 }

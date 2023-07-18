@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using OTools.Maps;
 using Sunley.Mathematics;
 using TerraFX.Interop.Windows;
@@ -171,6 +172,51 @@ public sealed class PathCollection : IList<IPath>
 				_ => throw new InvalidOperationException()
 			});
 		}
+
+		return points;
+	}
+
+	public IEnumerable<vec2> GetPoints()
+	{
+		List<vec2> points = new();
+
+		foreach (IPath path in _segments)
+		{
+			switch (path)
+			{
+				case LinearPath l:
+					points.AddRange(l);
+					break;
+				case BezierPath b:
+					foreach (BezierPoint p in b)
+					{
+						points.Add(p.Anchor);
+
+                        if (p.EarlyControl.IsT0)
+                            points.Add(p.EarlyControl.AsT0);
+
+                        if (p.LateControl.IsT0)
+                            points.Add(p.LateControl.AsT0);
+                    }
+					break;
+            }
+		}
+
+		return points;
+	}
+
+	public IEnumerable<BezierPoint> GetBeziers()
+	{
+		List<BezierPoint> points = new();
+
+		foreach (IPath path in _segments)
+		{
+			if (path is BezierPath bez)
+			{
+				foreach (BezierPoint p in bez)
+                    points.Add(p);
+			}
+        }
 
 		return points;
 	}

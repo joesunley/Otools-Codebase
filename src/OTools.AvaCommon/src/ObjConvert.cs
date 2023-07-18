@@ -253,8 +253,8 @@ public static class ObjConvert
 		if (!path.Fill.IsT2)
 		{
 			output.Fill = path.Fill.IsT0 ? 
-                ConvVisualFill(path.Fill.AsT0) : 
-                _Utils.ColourToBrush(path.Fill.AsT1);
+				ConvVisualFill(path.Fill.AsT0) : 
+				_Utils.ColourToBrush(path.Fill.AsT1);
 		}
 
 		//output.SetTopLeft(path.TopLeft);
@@ -287,17 +287,17 @@ public static class ObjConvert
 
 				foreach (CubicBezier bez in bSeg.Points)
 				{
-                    BezierSegment seg = new()
-                    {
-                        Point1 = (bez.EarlyControl + topLeft).ToPoint(),
-                        Point2 = (bez.LateControl + topLeft).ToPoint(),
-                        Point3 = (bez.LateAnchor + topLeft).ToPoint(),
-                    };
+					BezierSegment seg = new()
+					{
+						Point1 = (bez.EarlyControl + topLeft).ToPoint(),
+						Point2 = (bez.LateControl + topLeft).ToPoint(),
+						Point3 = (bez.LateAnchor + topLeft).ToPoint(),
+					};
 
-                    segs.Add(seg);
-                }
+					segs.Add(seg);
+				}
 
-            }
+			}
 			break;
 		}
 
@@ -333,15 +333,15 @@ public static class ObjConvert
 
 						foreach (CubicBezier b in bez.Points)
 						{
-                            BezierSegment seg = new()
+							BezierSegment seg = new()
 							{
-                                Point1 = (b.EarlyControl + topLeft).ToPoint(),
-                                Point2 = (b.LateControl + topLeft).ToPoint(),
-                                Point3 = (b.LateAnchor + topLeft).ToPoint(),
-                            };
+								Point1 = (b.EarlyControl + topLeft).ToPoint(),
+								Point2 = (b.LateControl + topLeft).ToPoint(),
+								Point3 = (b.LateAnchor + topLeft).ToPoint(),
+							};
 
-                            segs.Add(seg);
-                        }
+							segs.Add(seg);
+						}
 					}
 					break;
 				}

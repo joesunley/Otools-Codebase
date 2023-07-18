@@ -1,10 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Controls.PanAndZoom;
 using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 using Avalonia.Media;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using ownsmtp.logging;
+using System.Diagnostics;
 
 namespace OTools.AvaCommon
 {
@@ -18,9 +20,14 @@ namespace OTools.AvaCommon
 
 			canvas.PointerMoved += (_, args) =>
 			{
-				var point = args.GetCurrentPoint(canvas).Position;
-				MousePosition = (point.X, point.Y);
-				MouseMoved?.Invoke(MousePosition);
+				var point = args.GetCurrentPoint(canvas);
+				MousePosition = (point.Position.X, point.Position.Y);
+				MouseMoved?.Invoke(new()
+				{
+					Position = MousePosition,
+					Modifiers = args.KeyModifiers,
+					Properties = point.Properties,
+				});
 			};
 		}
 
@@ -53,17 +60,20 @@ namespace OTools.AvaCommon
 		public event Action<ZoomChangedEventArgs>? ZoomChanged;
 
 		public vec2 MousePosition { get; private set; }
-		public event Action<vec2>? MouseMoved;
+		public event Action<MouseMovedEventArgs>? MouseMoved;
 
 		public void Load(Map map)
 		{
 			canvas.Children.Clear();
 
 			var render = new MapRenderer2D(map).RenderMap();
-			var els = render.Select(x => x.Item2).SelectMany(x => x);
-			var conv = ObjConvert.ConvertCollection(els);
 
-			canvas.Children.AddRange(conv);
+			foreach (var (inst, els) in render)
+			{
+				var conv = ObjConvert.ConvertCollection(els);
+
+				Add(inst.Id, conv);
+			}
 		}
 
 
@@ -90,7 +100,7 @@ namespace OTools.AvaCommon
 
 		public void Update(Guid id, IEnumerable<Control> objects)
 		{
-			ODebugger.Assert(_ids.Contains(id));
+			Debug.Assert(_ids.Contains(id));
 			ODebugger.Info($"Updated {id}");
 			
 			objects = objects.Select(x =>
@@ -141,4 +151,11 @@ namespace OTools.AvaCommon
 		#endregion
 
 	}
+}
+
+public struct MouseMovedEventArgs
+{
+	public vec2 Position { get; set; }
+	public KeyModifiers Modifiers { get; set; }
+	public PointerPointProperties Properties { get; set; }
 }
