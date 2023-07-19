@@ -1,0 +1,88 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="450"
+		x:Class="OTools.MapMaker.ColourEditDialog"
+		Title="ColourEditDialog" 
+		CanResize="False">
+	<Window.Styles>
+		<Style Selector="NumericUpDown.nud">
+			<Setter Property="Width" Value="100"/>
+			<Setter Property="Height" Value="30"/>
+			<Setter Property="HorizontalAlignment" Value="Right"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="Minimum" Value="0"/>
+			<Setter Property="Maximum" Value="255"/>
+			<Setter Property="Increment" Value="1"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="FontSize" Value="15"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Padding" Value="0" />
+			<Setter Property="Margin" Value="0 0 20 0" />
+			<Setter Property="Value" Value="0" />
+		</Style>
+		<Style Selector="TextBlock.nud">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="FontSize" Value="20" />
+			<Setter Property="Margin" Value="0 0 10 0" />
+		</Style>
+		<Style Selector="Button.ok">
+			<Setter Property="Margin" Value="0 0 10 10" />
+			<Setter Property="Width" Value="50" />
+		</Style>
+	</Window.Styles>
+	
+	
+	<Grid RowDefinitions="50, Auto, Auto, Auto, *, Auto, Auto">
+
+		<Grid ColumnDefinitions="50, *" Grid.Row="0">
+			<Rectangle Grid.Column="0" x:Name="rctCol" Width="32" Height="32" Fill="GreenYellow" Stroke="Black" StrokeThickness="1" RadiusX="3" RadiusY="3"/>
+			<TextBox Grid.Column="1" x:Name="txtName" Text="Green 100%" VerticalAlignment="Center" Margin="0 0 10 0" BorderBrush="Black" />
+		</Grid>
+
+		<Rectangle Grid.Row="1" Stroke="DarkGray" StrokeThickness="1" Margin="10"/>
+
+		<Grid ColumnDefinitions="120, *" Grid.Row="2">
+
+			<StackPanel Grid.Column="0" Margin="15 10 0 0" Spacing="10">
+				<RadioButton x:Name="radRGB" Content="RGB" IsChecked="False" />
+				<RadioButton x:Name="radCMYK" Content="CMYK" IsChecked="True" />
+				<RadioButton x:Name="radSpot" Content="Spot" IsChecked="False" />
+			</StackPanel>
+
+			<Grid ColumnDefinitions="Auto,*" RowDefinitions="*,*,*,*" Grid.Column="1" Height="180" VerticalAlignment="Top">
+				<TextBlock x:Name="txt1" Classes="nud" Grid.Column="0" Grid.Row="0" Text="Cyan"/>
+				<TextBlock x:Name="txt2" Classes="nud" Grid.Column="0" Grid.Row="1" Text="Magenta"/>
+				<TextBlock x:Name="txt3" Classes="nud" Grid.Column="0" Grid.Row="2" Text="Yellow"/>
+				<TextBlock x:Name="txt4" Classes="nud" Grid.Column="0" Grid.Row="3" Text="Black"/>
+				
+				<NumericUpDown x:Name="nud1" Classes="nud" Grid.Column="1" Grid.Row="0" />
+				<NumericUpDown x:Name="nud2" Classes="nud" Grid.Column="1" Grid.Row="1" />
+				<NumericUpDown x:Name="nud3" Classes="nud" Grid.Column="1" Grid.Row="2" />
+				<NumericUpDown x:Name="nud4" Classes="nud" Grid.Column="1" Grid.Row="3" />
+			</Grid>
+		</Grid>
+
+		<Rectangle Grid.Row="3" Stroke="DarkGray" StrokeThickness="1" Margin="10" />
+		
+
+		
+		<Rectangle Grid.Row="5" Stroke="DarkGray" StrokeThickness="1" Margin="10" />
+
+		<Grid ColumnDefinitions="Auto,*,Auto" Grid.Row="6">
+			<Button Classes="ok" Content="Reset" Margin="15 0  0 10"/>
+			
+			<StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0 0 5 0">
+
+				<Button Classes="ok" Content="OK" />
+				<Button Classes="ok" Content="Cancel" />
+				<!--<Button Classes="ok" Content="Help" />-->
+
+			</StackPanel>
+
+
+		</Grid>
+		
+	</Grid>
+</Window>

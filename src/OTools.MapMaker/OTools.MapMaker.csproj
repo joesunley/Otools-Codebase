@@ -34,4 +34,8 @@
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\Controls\" />
+  </ItemGroup>
 </Project>
