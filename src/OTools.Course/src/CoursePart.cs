@@ -1,8 +1,20 @@
-﻿namespace OTools.Courses;
+﻿using OneOf;
+
+namespace OTools.Courses;
 
 public interface ICoursePart
 {
     IEnumerable<Control> GetVariation(string varStr) { throw new NotImplementedException(); }
+
+    /*
+     * Variation Definition:
+     * 
+     * A, B, A
+     * B, A, B
+     * 
+     * A, B { A, A }, A
+     * 
+     */
 }
 
 public sealed class CombinedCoursePart : List<ICoursePart>, ICoursePart
@@ -124,6 +136,7 @@ public sealed class ButterflyCoursePart : ICoursePart
     }
 }
 
+
 public sealed class PhiLoopCoursePart : ICoursePart
 {
     public Control First { get; set; }
@@ -143,6 +156,7 @@ public sealed class PhiLoopCoursePart : ICoursePart
         Back = back;
     }
 }
+
 
 
 file static class _Utils

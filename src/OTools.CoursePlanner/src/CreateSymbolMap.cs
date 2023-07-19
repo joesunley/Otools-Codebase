@@ -27,8 +27,8 @@ public static class CreateSymbolMap
         PointObject cObj = new(Colour.Transparent, purple, 2.15f, .35f); // Not 100% sure about 4.3f
         PointSymbol control = new("Control", string.Empty, (703, 0, 0), false, false, cObj.Yield(), false);
 
-        //      Font font = new("Arial", purple, 4f, 1f, 1f, 1f, FontStyle.None);
-        //      TextSymbol controlNum = new("Control Number", string.Empty, (704, 0, 0), false, false, font, false, Colour.Transparent, 0f, white, 0f);
+        Font font = new("Arial", purple, 4f, 1f, 1f, 1f, FontStyle.None);
+        TextSymbol controlNum = new("Control Number", string.Empty, (704, 0, 0), false, false, font, false, Colour.Transparent, 0f, white, 0f);
 
         LineSymbol courseLine = new("Course Line", string.Empty, (705, 0, 0), false, false, purple, .35f, DashStyle.None, MidStyle.None, LineStyle.Default, BorderStyle.None);
 
@@ -51,7 +51,7 @@ public static class CreateSymbolMap
         map.Symbols.Add(start);
         map.Symbols.Add(mapIssue);
         map.Symbols.Add(control);
-        //      map.Symbols.Add(controlNum);
+        map.Symbols.Add(controlNum);
         map.Symbols.Add(courseLine);
         map.Symbols.Add(finish);
         map.Symbols.Add(markedRoute);

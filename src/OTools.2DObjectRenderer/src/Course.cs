@@ -2,6 +2,7 @@
 using OTools.Maps;
 using ownsmtp.logging;
 using Sunley.Mathematics;
+using System.Text;
 using TerraFX.Interop.Windows;
 
 namespace OTools.ObjectRenderer2D;
@@ -148,36 +149,33 @@ public class CourseRenderer2D : ICourseRenderer2D
 
     public IEnumerable<IShape> RenderCoursePart(ICoursePart part, string variation = "")
     {
-        throw new NotImplementedException();
+        return part switch
+        {
+            LinearCoursePart lcp => RenderLinearCoursePart(lcp, variation),
+            CombinedCoursePart ccp => RenderCombinedCoursePart(ccp, variation),
+            VariationCoursePart vcp => RenderVariationCoursePart(vcp, variation),
+            ButterflyCoursePart bcp => RenderButterflyCoursePart(bcp, variation),
+            PhiLoopCoursePart plcp => RenderPhiLoopCoursePart(plcp, variation),
+            _ => throw new ArgumentException()
+        };
     }
-    public IEnumerable<IShape> RenderLinearCoursePart(LinearCoursePart part, string variation = "")
+    public IEnumerable<IShape> RenderLinearCoursePart(LinearCoursePart part, string variation = "") 
+        => RenderLinearCoursePart(part);
+
+    public IEnumerable<IShape> RenderLinearCoursePart(IList<Control> controls)
     {
         List<IShape> shapes = new();
 
-        for (int i = 1; i < part.Count; i++)
+        for (int i = 1; i < controls.Count; i++)
         {
-            Control f = part[i - 1],
-                t = part[i];
+            Control f = controls[i - 1],
+                t = controls[i];
 
             vec4 line = new(f.Position, t.Position);
 
-            float r1 = f.Type switch
-            {
-                ControlType.Normal => 0f,
-                ControlType.Start => 0f,
-                ControlType.Finish => 0f,
-                ControlType.CrossingPoint => 0f,
-                ControlType.Exchange => 0f,
-            };
+            float r1 = _Utils.CalculateLineEscape(f.Type, _activeEvent.SymbolMap!.Symbols);
+            float r2 = _Utils.CalculateLineEscape(t.Type, _activeEvent.SymbolMap!.Symbols);
 
-            float r2 = t.Type switch
-            {
-                ControlType.Normal => 0f,
-                ControlType.Start => 0f,
-                ControlType.Finish => 0f,
-                ControlType.CrossingPoint => 0f,
-                ControlType.Exchange => 0f,
-            };
 
             line = _Utils.RemoveCircleFromLine(line, r1, r2);
 
@@ -190,16 +188,46 @@ public class CourseRenderer2D : ICourseRenderer2D
 
             shapes.AddRange(_mapRenderer.RenderPathInstance(lineInstance));
 
-            shapes.AddRange(RenderControl(f));          
+            shapes.AddRange(RenderControl(f));
+
+            if (i == controls.Count - 1)
+                shapes.AddRange(RenderControl(t));
         }
+
+        return shapes;
+
     }
     public IEnumerable<IShape> RenderCombinedCoursePart(CombinedCoursePart part, string variation = "")
     {
-        throw new NotImplementedException();
+        List<IShape> shapes = new();
+        foreach (var p in part)
+            shapes.AddRange(RenderCoursePart(p, variation));
+        return shapes;
     }
     public IEnumerable<IShape> RenderVariationCoursePart(VariationCoursePart part, string variation = "")
     {
-        throw new NotImplementedException();
+        if (variation == "all")
+        {
+            throw new NotImplementedException();
+        }
+        else if (variation.Contains('{') || variation.Contains('}'))
+        {
+            throw new NotImplementedException();
+        }
+        else // Simple variation
+        {
+            int index = Encoding.ASCII.GetBytes(variation)[0] - 65;
+
+            ICoursePart coursePart = part.Parts[index];
+            ODebugger.Assert(coursePart is LinearCoursePart);
+
+            List<Control> controls = (coursePart as LinearCoursePart)!;
+            controls.Insert(0, part.First);
+            controls.Add(part.Last);
+
+            return RenderLinearCoursePart(controls);
+        }
+        
     }
     public IEnumerable<IShape> RenderButterflyCoursePart(ButterflyCoursePart part, string variation = "")
     {
@@ -227,40 +255,74 @@ internal static partial class _Utils
         return new(xy, zw);
     }
 
-    public static float CalculateHeightOfEquilateralTriangle(float sideLength) 
+    public static float CalculateHeightOfEquilateralTriangle(float sideLength)
         => .5f * (MathF.Sqrt(3) * sideLength);
 
     public static float ObjectExtrusion(PointSymbol sym)
     {
-        float dist = float.MaxValue;
+        float dist = float.MinValue;
 
         foreach (var obj in sym.MapObjects)
         {
-            switch(obj)
+            switch (obj)
             {
-                case PointObject obj:
+                case PointObject pObj:
                 {
-                    
-                }
+                    if (pObj.InnerRadius + pObj.OuterRadius > dist)
+                        dist = pObj.InnerRadius + pObj.OuterRadius;
+                } break;
+                case LineObject lObj:
+                {
+                    foreach (vec2 p in lObj.Segments.LinearApproximation())
+                    {
+                        float mag = p.Mag();
+
+                        if (mag > dist)
+                            dist = mag;
+                    }
+                } break;
+                case AreaObject aObj:
+                {
+                    foreach (vec2 p in aObj.Segments.LinearApproximation())
+                    {
+                        float mag = p.Mag();
+
+                        if (mag > dist)
+                            dist = mag;
+                    }
+                } break;
+                case TextObject tObj: break;
             }
         }
+
+        return dist;
     }
-    private static (vec2, float) MaxExtru(IEnumerable<vec2> points, vec2 centre)
+
+    public static float CalculateLineEscape(ControlType controlType, SymbolStore symbols)
     {
-        vec2 nearest = vec2.Zero;
-        float dist = float.MaxValue;
-
-        foreach (vec2 p in points)
+        PointSymbol sym = controlType switch
         {
-            float mag = vec2.Mag(p, centre);
+            ControlType.Normal => symbols["Control"] as PointSymbol
+                                ?? throw new InvalidOperationException("Control should be a PointSymbol"),
+            ControlType.Start => symbols["Start"] as PointSymbol
+                                ?? throw new InvalidOperationException("Start should be a PointSymbol"),
+            ControlType.Finish => symbols["Finish"] as PointSymbol
+                                ?? throw new InvalidOperationException("Finish should be a PointSymbol"),
+            ControlType.CrossingPoint => symbols["CrossingPoint"] as PointSymbol
+                                ?? throw new InvalidOperationException("CrossingPoint should be a PointSymbol"),
+            ControlType.Exchange => symbols["Exchange"] as PointSymbol
+                                ?? throw new InvalidOperationException("Exchange should be a PointSymbol"),
+            _ => throw new InvalidOperationException(),
+        };
 
-            if (mag < dist)
-            {
-                nearest = p;
-                dist = mag;
-            }
+        return ObjectExtrusion(sym);
+    }
+
+    public static void FilterVarStr(string variation)
+    {
+        foreach (char c in variation)
+        {
+
         }
-
-        return (nearest, dist);
     }
 }
