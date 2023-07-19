@@ -859,6 +859,82 @@ public class WireframeMapRenderer2D : IMapRenderer2D
 	}
 }
 
+public class UncrossableMapRenderer2D : IVisualRenderer
+{
+	private Map _activeMap;
+    private readonly Dictionary<int, IEnumerable<IShape>> _symbolCache;
+	private RgbColour _black;
+	private readonly MapRenderer2D _defaultRenderer;
+
+    public UncrossableMapRenderer2D(Map map)
+	{
+		_activeMap = map;
+		_symbolCache = new();
+
+		_black = new("Black", 0, 0, 0);
+
+		_defaultRenderer = new(map);
+	}
+
+    public IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
+	{
+		var render = _defaultRenderer.RenderMap().ToList();
+
+		List<(Instance, IEnumerable<IShape>)> output = new();
+
+		foreach (var (inst, shapes) in render)
+		{
+			if (inst.Symbol.IsUncrossable)
+			{
+				foreach (var shape in shapes)
+				{
+                    switch (shape)
+					{
+						case Path path:
+							if (path.BorderColour != Colour.Transparent)
+                                path.BorderColour = _black;
+							if (!path.Fill.IsT2 && (path.Fill.IsT1 && path.Fill.AsT1 != Colour.Transparent))
+								path.Fill = _black.HexValue;
+							break;
+						case Circle circle:
+                            if (circle.BorderColour != Colour.Transparent)
+                                circle.BorderColour = _black;
+							if (circle.Fill != Colour.Transparent)
+								circle.Fill = _black;
+                            break;
+						case Text text: // Don't expect this to happen (but could)
+							text.Font.Colour = _black;
+							break;
+						case Line line:
+                            if (line.Colour != Colour.Transparent)
+                                line.Colour = _black;
+                            break;
+						case Area area:
+							if (area.BorderColour != Colour.Transparent)
+                                area.BorderColour = _black;
+							if (area.Fill != Colour.Transparent)
+								area.Fill = _black;
+                            break;
+						case Rectangle rect:
+							if (rect.BorderColour != Colour.Transparent)
+                                rect.BorderColour = _black;
+                            if (rect.Fill != Colour.Transparent)
+                                rect.Fill = _black;
+                            break;
+					}
+                }
+
+				output.Add((inst, shapes));
+			}
+		}
+
+		return output;
+    }
+    public IEnumerable<IShape> Render() => RenderMap().SelectMany(x => x.Item2);
+
+	
+}
+
 internal static partial class _Utils
 {
 	public static PolyBezierSegment CreateBezierSegment(BezierPath path)
