@@ -19,14 +19,15 @@
             
             <StackPanel x:Name="toolPanel" Grid.Column="0"/>
             
-            <common:PaintBox x:Name="paintBox" Grid.Column="1" Margin="0" Background="LightGray"/>
+            <common:PaintBox x:Name="paintBox" Grid.Column="1" Margin="0" />
             
             <local:DescriptionBox x:Name="descriptionBox" Grid.Column="2" Margin="5"/>
             
         </Grid>
         
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <TextBlock x:Name="txtDebug" Margin="35 0 0 0" Text="Hello World"/>
+            <Button x:Name="btnDebug" Content="Show Debug" Padding="2"/>
+            <TextBlock x:Name="statusBar" Padding="10 0 0 0" Text="Hello World" VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>
