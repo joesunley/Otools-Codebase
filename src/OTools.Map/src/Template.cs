@@ -58,4 +58,6 @@ public struct TemplateAdjustment
     public vec2 Position { get; set; }
     public vec2 Scale { get; set; }
     public float Rotation { get; set; } // Radians
+
+	public static TemplateAdjustment None => new();
 }

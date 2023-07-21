@@ -75,6 +75,15 @@ namespace OTools.AvaCommon
 				Add(inst.Id, conv);
 			}
 		}
+		public void Load(IEnumerable<(Guid, IEnumerable<IShape>)> objects)
+		{
+			canvas.Children.Clear();
+
+			foreach (var (id, els) in objects)
+			{
+				Add(id, els.ConvertCollection());
+			}
+		}
 
 
 		#region ViewManager

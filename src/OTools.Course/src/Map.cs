@@ -16,6 +16,11 @@ public abstract class CourseMap
 	}
 }
 
+public class BlankMap : CourseMap
+{
+	public BlankMap() : base(string.Empty, TemplateAdjustment.None) { }
+}
+
 public class OMap : CourseMap
 {
 	public Map Map { get; set; }

@@ -32,7 +32,7 @@ public static class MapLoader
             _ => throw new IOException("Version not supported."),
         };
 
-        mapNode.AddAttribute("version", CURRENT_VERSION.ToString());
+        mapNode.AddAttribute("version", versionToUse.ToString());
 
         return new(mapNode);
     }
