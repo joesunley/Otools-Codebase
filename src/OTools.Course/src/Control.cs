@@ -13,7 +13,7 @@ public sealed class Control : IStorable
     public Description Description { get; set; }
     public ushort? Score { get; set; }
 
-    public Control(ushort code, vec2 position, ControlType type, Description description)
+    public Control(ushort code, vec2 position, ControlType type, Description description, ushort? score = null)
     {
         Id = Guid.NewGuid();
 
@@ -21,9 +21,10 @@ public sealed class Control : IStorable
         Position = position;
         Type = type;
         Description = description;
-    }
+		Score = score;
+	}
 
-    public Control(Guid id, ushort code, vec2 position, ControlType type, Description description)
+    public Control(Guid id, ushort code, vec2 position, ControlType type, Description description, ushort? score = null)
     {
         Id = id;
 
@@ -31,7 +32,8 @@ public sealed class Control : IStorable
         Position = position;
         Type = type;
         Description = description;
-    }
+		Score = score;
+	}
 }
 
 [Flags]
@@ -85,6 +87,8 @@ public sealed class Description
 
         ColumnFDetail = columnFDetail;
     }
+
+	public static Description Empty => new();
 }
 
 public sealed record DescriptionDetail(float Start, float End, char Operator);

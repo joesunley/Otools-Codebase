@@ -90,20 +90,17 @@ public sealed class LinearCourse : Course
 public sealed class ScoreCourse : Course
 {
     public List<Control> Controls { get; set; }
-    public List<float> Scores { get; set; }
 
-    public ScoreCourse(Event parent, string name, string description, string displayFormat, IEnumerable<Control> controls, IEnumerable<float> scores)
+	public ScoreCourse(Event parent, string name, string description, string displayFormat, IEnumerable<Control> controls)
         : base(parent, name, description, displayFormat)
     {
         Controls = new(controls);
-        Scores = new(scores);
     }
 
-    public ScoreCourse(Event parent, Guid id, string name, string description, string displayFormat, IEnumerable<Control> controls, IEnumerable<float> scores)
+    public ScoreCourse(Event parent, Guid id, string name, string description, string displayFormat, IEnumerable<Control> controls)
         : base(parent, id, name, description, displayFormat)
     {
         Controls = new(controls);
-        Scores = new(scores);
     }
 
 }

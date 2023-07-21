@@ -6,6 +6,39 @@ using System.Transactions;
 
 namespace OTools.Courses;
 
+public static class CourseLoader
+{
+	private const ushort CURRENT_VERSION = 1;
+	
+	public static Event Load(string filePath)
+	{
+		XMLDocument doc = XMLDocument.Deserialize(File.ReadAllText(filePath));
+		
+		if (!doc.Root.Attributes.Exists("version"))
+			throw new Exception("Did not find course version.");
+
+		return doc.Root.Attributes["version"] switch
+		{
+			"1" => new CourseLoaderV1().LoadEvent(doc.Root),
+			_ => throw new IOException("Version not supported."),
+		};
+	}
+
+	public static XMLDocument Save(Event ev, ushort version = 0)
+	{
+		ushort versionToUse = version == 0 ? CURRENT_VERSION : version;
+
+		var eventNode = versionToUse switch
+		{
+			1 => new CourseLoaderV1().SaveEvent(ev),
+		};
+
+		eventNode.AddAttribute("version", versionToUse.ToString());
+
+		return new(eventNode);
+	}
+}
+
 #region Version 1
 
 public interface ICourseLoaderV1
@@ -58,7 +91,7 @@ public interface ICourseLoaderV1
     Metadata LoadMetadata(XMLNode node);
 }
 
-public partial class CourseLoaderV1 : ICourseLoaderV1
+public class CourseLoaderV1 : ICourseLoaderV1
 {
 
     public XMLNode SaveEvent(Event ev)
@@ -91,6 +124,7 @@ public partial class CourseLoaderV1 : ICourseLoaderV1
         node.AddAttribute("id", control.Id.ToString());
         node.AddAttribute("code", control.Code.ToString());
         node.AddAttribute("type", ((byte)control.Type).ToString());
+		node.AddAttribute("score", control.Score?.ToString() ?? "-1");
 
         node.AddChild(SaveDescription(control.Description));
 
@@ -146,16 +180,13 @@ public partial class CourseLoaderV1 : ICourseLoaderV1
 
             XMLNode controls = new("Controls");
 
-            Debug.Assert(s.Controls.Count == s.Scores.Count);
-
-            for (int i = 0; i < s.Scores.Count; i++)
-            {
-                XMLNode child = new("Control");
-                child.AddAttribute("id", s.Controls[i].Id.ToString());
-                child.AddAttribute("score", s.Scores[i].ToString());
-
-                controls.AddChild(child);
-            }
+			foreach (Control c in s.Controls)
+			{
+				XMLNode control = new("Control");
+				control.AddAttribute("id", c.Id.ToString());
+				
+				controls.AddChild(control);
+			}
 
             node.AddChild(controls);
         }
@@ -441,13 +472,15 @@ public partial class CourseLoaderV1 : ICourseLoaderV1
     }
     public Control LoadControl(XMLNode node)
     {
-        Guid id = Guid.Parse(node.Attributes["id"]);
-        ushort code = ushort.Parse(node.Attributes["code"]);
+        Guid id = node.Attributes["id"].Parse<Guid>();
+		ushort code = node.Attributes["code"].Parse<ushort>();
         vec2 pos = LoadVec2(node.Children["Position"]);
-        ControlType type = (ControlType)byte.Parse(node.Attributes["type"]);
+        ControlType type = (ControlType)node.Attributes["type"].Parse<byte>();
         Description desc = LoadDescription(node.Children["Description"]);
+		ushort? score = node.Attributes["score"] == "-1" 
+			? null : node.Attributes["score"].Parse<ushort>();
 
-        return new(id, code, pos, type, desc);
+        return new(id, code, pos, type, desc, score);
     }
     public Description LoadDescription(XMLNode node)
     {
@@ -475,7 +508,7 @@ public partial class CourseLoaderV1 : ICourseLoaderV1
         }
         else
         {
-            ulong num = ushort.Parse(val);
+            ulong num = ulong.Parse(val);
             var bytes = BitConverter.GetBytes(num)[..^2];
 
             return new(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], null);
@@ -483,9 +516,10 @@ public partial class CourseLoaderV1 : ICourseLoaderV1
     }
 
     public IEnumerable<Course> LoadCourses(XMLNode node)
-    {
-        throw new NotImplementedException();
-    }
+	{
+		return node.Children.Select(LoadCourse);
+	}
+	
     public Course LoadCourse(XMLNode node)
     {
         Guid id = Guid.Parse(node.Attributes["id"]);
@@ -497,17 +531,15 @@ public partial class CourseLoaderV1 : ICourseLoaderV1
         {
             case "ScoreCourse":
             {
-                List<(Control c, float s)> controls = new();
+                List<Control> controls = new();
 
-                foreach (XMLNode child in node.Children)
+                foreach (XMLNode child in node.Children["Controls"].Children)
                 {
-                    Guid cId = Guid.Parse(child.Attributes["id"]);
-                    float score = float.Parse(child.Attributes["score"]);
+                    Guid cId = child.Attributes["id"].Parse<Guid>();
+					controls.Add(_event.Controls[cId]);
+				}
 
-                    controls.Add((_event.Controls[cId], score));
-                }
-
-                return new ScoreCourse(_event, id, name, description, displayFormat, controls.Select(x => x.c), controls.Select(x => x.s));
+                return new ScoreCourse(_event, id, name, description, displayFormat, controls);
             }
             case "LinearCourse":
             {
@@ -629,6 +661,8 @@ public partial class CourseLoaderV1 : ICourseLoaderV1
 
     public IEnumerable<Item> LoadItems(XMLNode node)
     {
+		return Enumerable.Empty<Item>();
+		
         Map map = new MapLoaderV1().LoadMap(node);
 
         return map.Instances.Select(i => new Item(i));
