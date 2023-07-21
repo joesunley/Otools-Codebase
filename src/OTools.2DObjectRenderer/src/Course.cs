@@ -1,4 +1,5 @@
-﻿using OTools.Courses;
+﻿using System.Diagnostics;
+using OTools.Courses;
 using OTools.Maps;
 using ownsmtp.logging;
 using Sunley.Mathematics;
@@ -33,22 +34,20 @@ public interface ICourseRenderer2D : IVisualRenderer
 public class CourseRenderer2D : ICourseRenderer2D
 {
     private readonly Event _activeEvent;
-    private readonly Dictionary<int, IEnumerable<IShape>> _symbolCache;
 
     private readonly MapRenderer2D _mapRenderer;
 
     public CourseRenderer2D(Event ev)
     {
         _activeEvent = ev;
-        _symbolCache = new();
         _mapRenderer = new(_activeEvent.SymbolMap 
             ?? throw new Exception("Symbol Map not set"));
     }
 
     public IEnumerable<IShape> Render()
-    {
-        throw new NotImplementedException();
-    }
+	{
+		throw new InvalidOperationException();
+	}
 
     public IEnumerable<IShape> RenderControls(IEnumerable<Control> controls) 
         => controls.SelectMany(RenderControl);
@@ -61,7 +60,7 @@ public class CourseRenderer2D : ICourseRenderer2D
             ControlType.Finish => RenderFinishControl(control),
             ControlType.CrossingPoint => RenderCrossingPointControl(control),
             ControlType.Exchange => Enumerable.Empty<IShape>(), // CourseRenderer2D.RenderCourse() handles this
-            _ => throw new ArgumentException()
+            _ => throw new ArgumentException(),
         };
     }
     public IEnumerable<IShape> RenderNormalControl(Control control)
@@ -69,26 +68,16 @@ public class CourseRenderer2D : ICourseRenderer2D
         PointSymbol sym = _activeEvent.SymbolMap!.Symbols["Control"] as PointSymbol
             ?? throw new InvalidOperationException("Finish should be a PointSymbol");
 
-        int hash = sym.GetHashCode();
-        if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape>? value))
-            return value.Select(x => { x.TopLeft = control.Position; return x; });
+		var shapes = _mapRenderer.RenderPointSymbol(sym);
 
-        var shapes = _mapRenderer.RenderPointSymbol(sym);
-        _symbolCache.Add(hash, shapes);
-
-        return shapes.Select(x => { x.TopLeft = control.Position; return x; });
-    }
+		return shapes.Select(x => { x.TopLeft = control.Position; return x; });
+	}
     public IEnumerable<IShape> RenderStartControl(Control control)
     {
         PointSymbol sym = _activeEvent.SymbolMap!.Symbols["Start"] as PointSymbol
             ?? throw new InvalidOperationException("Finish should be a PointSymbol");
 
-        int hash = sym.GetHashCode();
-        if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape>? value))
-            return value.Select(x => { x.TopLeft = control.Position; return x; });
-
         var shapes = _mapRenderer.RenderPointSymbol(sym);
-        _symbolCache.Add(hash, shapes);
 
         return shapes.Select(x => { x.TopLeft = control.Position; return x; });
     }
@@ -97,15 +86,11 @@ public class CourseRenderer2D : ICourseRenderer2D
         PointSymbol sym = _activeEvent.SymbolMap!.Symbols["Finish"] as PointSymbol 
             ?? throw new InvalidOperationException("Finish should be a PointSymbol");
 
-        int hash = sym.GetHashCode();
-        if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape>? value))
-            return value.Select(x => { x.TopLeft = control.Position; return x; });
+		var shapes = _mapRenderer.RenderPointSymbol(sym);
 
-        var shapes = _mapRenderer.RenderPointSymbol(sym);
-        _symbolCache.Add(hash, shapes);
+		return shapes.Select(x => { x.TopLeft = control.Position; return x; });
 
-        return shapes.Select(x => { x.TopLeft = control.Position; return x; });
-    }
+	}
     public IEnumerable<IShape> RenderCrossingPointControl(Control control)
     {
         throw new NotImplementedException();
@@ -134,6 +119,7 @@ public class CourseRenderer2D : ICourseRenderer2D
         ODebugger.Assert(!course.DisplayFormat.Contains("%n"));
 
         List<IShape> shapes = new();
+        
         foreach (Control c in course.Controls)
         {
             string number = course.DisplayFormat
@@ -142,7 +128,7 @@ public class CourseRenderer2D : ICourseRenderer2D
 
             shapes.AddRange(RenderControl(c));
             shapes.AddRange(RenderControlNumber(number, c.Position));
-        }
+		}
 
         return shapes;
     }
@@ -215,8 +201,8 @@ public class CourseRenderer2D : ICourseRenderer2D
             throw new NotImplementedException();
         }
         else // Simple variation
-        {
-            int index = Encoding.ASCII.GetBytes(variation)[0] - 65;
+		{
+			int index = variation.Parse<int>();
 
             ICoursePart coursePart = part.Parts[index];
             ODebugger.Assert(coursePart is LinearCoursePart);

@@ -33,13 +33,10 @@ public interface IMapRenderer2D : IVisualRenderer
 public class MapRenderer2D : IMapRenderer2D
 {
 	private Map _activeMap;
-
-	private readonly Dictionary<int, IEnumerable<IShape>> _symbolCache;
-
+    
 	public MapRenderer2D(Map map)
 	{
 		_activeMap = map;
-		_symbolCache = new();
 	}
 
 	public IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
@@ -239,10 +236,6 @@ public class MapRenderer2D : IMapRenderer2D
 	}
 	public IEnumerable<IShape> RenderSymbol(Symbol sym)
 	{
-		int hash = sym.GetHashCode();
-		if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape> value))
-			return value;
-
 		var result = sym switch
 		{
 			PointSymbol p => RenderPointSymbol(p),
@@ -251,26 +244,17 @@ public class MapRenderer2D : IMapRenderer2D
 			_ => throw new InvalidOperationException(),
 		};
 
-		_symbolCache.Add(hash, result);
 		return result;
 	}
 	public IEnumerable<IShape> RenderPointSymbol(PointSymbol sym)
 	{
-		int hash = sym.GetHashCode();
-		if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape>? value))
-			return value;
-
 		var shapes = RenderMapObjects(sym.MapObjects);
-		_symbolCache.Add(hash, shapes);
+
 		return shapes;
 	}
 	public IEnumerable<IShape> RenderPathSymbol(IPathSymbol sym)
 	{
 		//Note: Majority is implemented in RenderPathInstance(..)
-
-		int hash = sym.GetHashCode();
-		if (_symbolCache.TryGetValue(hash, out IEnumerable<IShape>? value))
-			return value!;
 
 		Path path = new()
 		{
@@ -284,7 +268,6 @@ public class MapRenderer2D : IMapRenderer2D
 
 		//TODO: Might not be worth it
 		var shapes = new IShape[] { path };
-		_symbolCache.Add(hash, shapes);
 		return shapes;
 	}
 
@@ -1313,20 +1296,18 @@ internal static partial class _Utils
 
 	public static PolyBezierSegment RotateBezier(PolyBezierSegment bez, float rotation, vec2? rotationCentre = null)
 	{
-		//PolyBezierSegment newBez = new();
+		PolyBezierSegment newBez = new();
 
-		//foreach (var point in bez.Points)
-		//{
-		//	vec2[] ps = { point.Anchor, point.EarlyControl.AsT0, point.LateControl.AsT0 };
-		//	vec2[] rotated = PolygonTools.Rotate(ps, rotation, rotationCentre).ToArray();
+		foreach (var point in bez.Points)
+		{
+			vec2[] ps = { point.EarlyAnchor, point.EarlyControl, point.LateControl, point.LateAnchor };
+			vec2[] rotated = PolygonTools.Rotate(ps, rotation, rotationCentre).ToArray();
 
-		//	newBez.Points.Add(new BezierPoint(rotated[0], rotated[1], rotated[2]));
-		//}
+			newBez.Points.Add(new CubicBezier(rotated[0], rotated[1], rotated[2], rotated[3]));
+		}
 
-		//return newBez;
-
-		throw new NotImplementedException();
-	}
+		return newBez;
+    }
 }
 
 public static class PolygonTools
