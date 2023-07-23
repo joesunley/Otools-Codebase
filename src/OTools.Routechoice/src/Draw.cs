@@ -110,7 +110,7 @@ public class CourseDraw
 		_active = false;
 		this.paintBox = paintBox;
 
-		_renderer = new r.MapRenderer2D(Manager.Map);
+		_renderer = new r.MapRenderer2D(Manager.SymbolMap);
 	}
 
 	public void Start()
@@ -184,7 +184,7 @@ public class CourseDraw
 		
 //		ODebugger.Warn($"{controls.Count}");
 
-		LineSymbol symLine = (LineSymbol)Manager.Map.Symbols["Line"];
+		LineSymbol symLine = (LineSymbol)Manager.SymbolMap.Symbols["Line"];
 //		PointSymbol symStart = (PointSymbol)Manager.Map.Symbols["Start"];
 //		PointSymbol symControl = (PointSymbol)Manager.Map.Symbols["Control"];
 //		PointSymbol symFinish = (PointSymbol)Manager.Map.Symbols["Finish"];
@@ -212,7 +212,7 @@ public class CourseDraw
 			return Enumerable.Empty<Shape>();
 
         vec2 start = points[0];
-        PointSymbol symStart = (PointSymbol)Manager.Map.Symbols["Start"];
+        PointSymbol symStart = (PointSymbol)Manager.SymbolMap.Symbols["Start"];
         PointInstance s = new(0, symStart, start, 0f); // Change Angle
 
         IEnumerable<r.IShape> render = _renderer.RenderInstance(s);
@@ -222,7 +222,7 @@ public class CourseDraw
         if (!controls.Any())
             return ObjConvert.ConvertCollection(render);
 
-		LineSymbol symLine = (LineSymbol)Manager.Map.Symbols["Line"];
+		LineSymbol symLine = (LineSymbol)Manager.SymbolMap.Symbols["Line"];
 		LineInstance l = new(0, symLine, new(points), false);
 
 		render = render.Concat(_renderer.RenderInstance(l));
@@ -333,7 +333,7 @@ public class RoutechoiceDraw
 	{
 		Polyline line = new()
 		{
-			Stroke = ObjConvert.ColourToBrush(colour),
+			// Stroke = ObjConvert.ColourToBrush(colour),
 			StrokeThickness = _lThickness,
 			Points = points.Select(p => new Point(p.X, p.Y)).ToList(),
 			StrokeLineCap = PenLineCap.Round,
@@ -350,7 +350,7 @@ public class RoutechoiceDraw
 		{
 			Ellipse e = new()
 			{
-				Stroke = ObjConvert.ColourToBrush(colour),
+				// Stroke = ObjConvert.ColourToBrush(colour),
 				StrokeThickness = _cThickness,
 				//Fill = ObjConvert.ColourToBrush(0xffffffff),
 				Width = _radius,

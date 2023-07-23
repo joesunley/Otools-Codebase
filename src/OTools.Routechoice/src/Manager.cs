@@ -13,7 +13,7 @@ public static class Manager
 
 	private static Tool _activeTool;
 
-	public static Map Map { get; }
+	public static Map? SymbolMap { get; private set; }
 
 	public static Tool Tool
 	{
@@ -30,7 +30,6 @@ public static class Manager
 
 	static Manager()
 	{
-		Map = MapCreation.Create();
 	}
 }
 

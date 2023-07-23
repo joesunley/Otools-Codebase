@@ -31,7 +31,7 @@ public class RcGame
 		_paintBox = Manager.PaintBox!;
 		_course = Manager.Course!;
 		
-		_renderer = new r.MapRenderer2D(Manager.Map);
+		_renderer = new r.MapRenderer2D(Manager.SymbolMap);
 
 		_currentLeg = 0;
 	}
@@ -55,7 +55,7 @@ public class RcGame
 
 		_image.RenderTransform = new RotateTransform(rotation.rotVals.Z, rotation.rotVals.X, rotation.rotVals.Y);
 		
-		LineSymbol symLine = (LineSymbol)Manager.Map.Symbols["Line"];
+		LineSymbol symLine = (LineSymbol)Manager.SymbolMap.Symbols["Line"];
 		LineInstance l = new(0, symLine, new(points), false);
 
 		_paintBox.AddOrUpdate(_legId, _renderer.RenderPathInstance(l).ConvertCollection());
