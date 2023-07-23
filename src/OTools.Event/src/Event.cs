@@ -1,6 +1,6 @@
 ﻿global using static System.Diagnostics.Debug;
 
-namespace OTools.Event;
+namespace OTools.Events;
 
 public interface IEvent
 {

@@ -1,7 +1,7 @@
 ﻿using OTools.Common;
 using System.Collections;
 
-namespace OTools.Event;
+namespace OTools.Events;
 
 public sealed class Result : IStorable
 {

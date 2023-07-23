@@ -1,7 +1,7 @@
 ﻿using OTools.Common;
 using OTools.Courses;
 
-namespace OTools.Event;
+namespace OTools.Events;
 
 public class Entry : IStorable
 {
@@ -20,8 +20,8 @@ public class Entry : IStorable
         Id = Guid.NewGuid();
 
         CardNo = string.Empty;
-        Name = new();
-        DateOfBirth = new DateOnly(1900, 1, 1);
+        Name = new(string.Empty, string.Empty);
+        DateOfBirth = new(1900, 1, 1);
         Club = string.Empty;
         Notes = string.Empty;
         Course = null;

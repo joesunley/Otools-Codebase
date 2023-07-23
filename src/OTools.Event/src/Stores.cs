@@ -1,6 +1,6 @@
 ﻿using OTools.Common;
 
-namespace OTools.Event;
+namespace OTools.Events;
 
 public sealed class EntryStore : Store<Entry>
 {

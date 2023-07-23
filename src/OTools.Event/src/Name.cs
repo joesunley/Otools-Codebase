@@ -1,4 +1,4 @@
-﻿namespace OTools.Event;
+﻿namespace OTools.Events;
 
 public struct Name : IEquatable<Name>
 {
