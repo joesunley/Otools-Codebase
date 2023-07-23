@@ -32,14 +32,14 @@ public interface IMapRenderer2D : IVisualRenderer
 
 public class MapRenderer2D : IMapRenderer2D
 {
-	private Map _activeMap;
+	protected Map _activeMap;
     
 	public MapRenderer2D(Map map)
 	{
 		_activeMap = map;
 	}
 
-	public IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
+	public virtual IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
 	{
 		List<(Instance, IEnumerable<IShape>)> objs = new();
 		foreach (Instance inst in _activeMap.Instances)
@@ -552,7 +552,7 @@ public class MapRenderer2D : IMapRenderer2D
 	}
 }
 
-public class WireframeMapRenderer2D : IMapRenderer2D
+public sealed class WireframeMapRenderer2D : IMapRenderer2D
 {
 	public static float LineWidth { get; set; }
 	public static float PointRadius { get; set; }
@@ -842,42 +842,45 @@ public class WireframeMapRenderer2D : IMapRenderer2D
 	}
 }
 
-public class UncrossableMapRenderer2D : IVisualRenderer
+public sealed class UncrossableMapRenderer2D : MapRenderer2D
 {
-	private Map _activeMap;
-    private readonly Dictionary<int, IEnumerable<IShape>> _symbolCache;
-	private RgbColour _black;
-	private readonly MapRenderer2D _defaultRenderer;
+	private readonly RgbColour _black;
+	public static bool RenderAsBlack = false;
 
-    public UncrossableMapRenderer2D(Map map)
+    public UncrossableMapRenderer2D(Map map) : base(map)
 	{
 		_activeMap = map;
-		_symbolCache = new();
 
 		_black = new("Black", 0, 0, 0);
+    }
 
-		_defaultRenderer = new(map);
-	}
-
-    public IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
+    public override IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
 	{
-		var render = _defaultRenderer.RenderMap().ToList();
-
+		var render = base.RenderMap();
 		List<(Instance, IEnumerable<IShape>)> output = new();
 
 		foreach (var (inst, shapes) in render)
 		{
+			var els = shapes.ToArray();
 			if (inst.Symbol.IsUncrossable)
 			{
-				foreach (var shape in shapes)
+				if (!RenderAsBlack)
 				{
-                    switch (shape)
+					output.Add((inst, els));
+					continue;
+				}
+				
+				for (int i = 0; i < els.Length; i++)
+				{
+					IShape el = els[i];
+                    switch (el)
 					{
 						case Path path:
 							if (path.BorderColour != Colour.Transparent)
                                 path.BorderColour = _black;
-							if (!path.Fill.IsT2 && (path.Fill.IsT1 && path.Fill.AsT1 != Colour.Transparent))
+							if (path.Fill.IsT1 && path.Fill.AsT1 != Colour.Transparent)
 								path.Fill = _black.HexValue;
+							els[i] = path;
 							break;
 						case Circle circle:
                             if (circle.BorderColour != Colour.Transparent)
@@ -907,15 +910,12 @@ public class UncrossableMapRenderer2D : IVisualRenderer
 					}
                 }
 
-				output.Add((inst, shapes));
+				output.Add((inst, els));
 			}
 		}
 
 		return output;
     }
-    public IEnumerable<IShape> Render() => RenderMap().SelectMany(x => x.Item2);
-
-	
 }
 
 internal static partial class _Utils
