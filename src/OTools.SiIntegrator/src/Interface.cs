@@ -7,6 +7,8 @@ namespace OTools.SiIntegrator;
 public class SiInterface
 {
 	private readonly Communication _comm = new();
+	private TargetDevice _currentTargetDevice = TargetDevice.Direct;
+	private DeviceInfo? _currentDevice;
 
 	public bool OpenSiComm(DeviceInfo deviceInfo, TargetDevice targetDevice, bool keepCurrentBaudrate = false)
 	{
@@ -67,7 +69,19 @@ public class SiInterface
 		if (!allowRemote && targetDevice == TargetDevice.Remote)
 			targetDevice = TargetDevice.Direct;
 		
-		)
+		_currentTargetDevice = targetDevice;
+
+		// int.TryParse(_currentDevice.DeviceSerial, out var serialNo);
+
+		return true;
+	}
+
+	public bool SetCurrentDevice(DeviceInfo device)
+	{
+		_currentDevice = device;
+
+		
+		return true;
 	}
 
 	public static IEnumerable<DeviceInfo> GetAllDevices() 
