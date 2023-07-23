@@ -263,7 +263,7 @@ public class CourseLoaderV1 : ICourseLoaderV1
             VariationCoursePart vcp => SaveVariationCoursePart(vcp),
             ButterflyCoursePart bcp => SaveButterflyCoursePart(bcp),
             PhiLoopCoursePart pcp => SavePhiLoopCoursePart(pcp),
-            _ => throw new Exception(), // Shouldn't happen
+            _ => throw new InvalidOperationException(), // Can't happen
         };
     }
     public XMLNode SaveCombinedCoursePart(CombinedCoursePart ccp)
@@ -282,7 +282,7 @@ public class CourseLoaderV1 : ICourseLoaderV1
         foreach (Control c in lcp)
         {
             XMLNode child = new("Control");
-            child.InnerText = c.Id.ToString();
+            child.AddAttribute("id", c.Id.ToString());
 
             node.AddChild(child);
         }

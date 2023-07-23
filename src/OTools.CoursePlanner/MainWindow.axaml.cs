@@ -22,9 +22,8 @@ public partial class MainWindow : Window
         
 		Manager.CourseRenderer = new CourseRenderer2D(ev);
 
-		var n = Manager.CourseRenderer.RenderCourse(ev.Courses[0]);
-
-		paintBox.Load((ev.Courses[0].Id, n).Yield());
+		var render = Manager.CourseRenderer.RenderCourse(ev.Courses[1]);
+		paintBox.Load((ev.Courses[1].Id, n: render).Yield());
 		
 		paintBox.ZoomChanged += args => statusBar.Text = $"Position: {paintBox.MousePosition:F2}\tZoom: {args.ZoomX:F2}, {args.ZoomY:F2}\tOffset: {args.OffsetX:F2}, {args.OffsetY:F2}";
 		paintBox.MouseMoved += args => statusBar.Text = $"Position: {args.Position:F2}\tZoom: {paintBox.Zoom:F2}\tOffset: {paintBox.Offset:F2}";

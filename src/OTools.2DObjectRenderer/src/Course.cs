@@ -96,6 +96,17 @@ public class CourseRenderer2D : ICourseRenderer2D
         throw new NotImplementedException();
     }
 
+	public IEnumerable<IShape> RenderControlNumbers(IEnumerable<Control> controls, string displayFormat)
+	{
+		return controls.SelectMany(c =>
+		{
+			string number = displayFormat
+							  .Replace("%c", c.Code.ToString())
+							  .Replace("%s", c.Score.ToString());
+
+			return RenderControlNumber(number, c.Position);
+		});
+	}
     public IEnumerable<IShape> RenderControlNumber(string text, vec2 controlPosition)
     {
         return Enumerable.Empty<IShape>();
@@ -107,13 +118,13 @@ public class CourseRenderer2D : ICourseRenderer2D
         {
             LinearCourse lc => RenderLinearCourse(lc),
             ScoreCourse sc => RenderScoreCourse(sc),
-            _ => throw new ArgumentException()
+            _ => throw new ArgumentException(),
         };
     }
     public IEnumerable<IShape> RenderLinearCourse(LinearCourse course)
-    {
-        throw new NotImplementedException();
-    }
+	{
+		throw new NotImplementedException();
+	}
     public IEnumerable<IShape> RenderScoreCourse(ScoreCourse course)
     {
         ODebugger.Assert(!course.DisplayFormat.Contains("%n"));
@@ -125,7 +136,7 @@ public class CourseRenderer2D : ICourseRenderer2D
             string number = course.DisplayFormat
                 .Replace("%c", c.Code.ToString())
                 .Replace("%s", c.Score.ToString());
-
+			
             shapes.AddRange(RenderControl(c));
             shapes.AddRange(RenderControlNumber(number, c.Position));
 		}

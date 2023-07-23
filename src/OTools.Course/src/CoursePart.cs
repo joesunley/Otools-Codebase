@@ -1,39 +1,131 @@
-﻿using OneOf;
+﻿using System.Numerics;
+using System.Text;
+using OneOf;
 
 namespace OTools.Courses;
 
 public interface ICoursePart
 {
-    IEnumerable<Control> GetVariation(string varStr) { throw new NotImplementedException(); }
+	IEnumerable<Control> GetVariation(VariationItem var);
+	VariationItem CreateVariation();
+}
 
-    /*
-     * Variation Definition:
-     * 
-     * A, B, A
-     * B, A, B
-     * 
-     * A, B { A, A }, A
-     * 
-     */
+public sealed class Variation : List<VariationItem>, IParsable<Variation>
+{
+	public Variation() { }
+	public Variation(IEnumerable<VariationItem> collection) : base(collection) { }
+
+	public static Variation Parse(string s, IFormatProvider? provider)
+	{
+		List<VariationItem> items = new();
+
+		for (int i = 0; i < s.Length; i++)
+		{
+			char c = s[i];
+
+			if (c is not ('{' or '}'))
+			{
+				items.Add(new(int.Parse(c.ToString())));
+				continue;
+			}
+			
+			int start = i+1;
+			int level = 1;
+
+			while (level != 0)
+			{
+				i += 1;
+
+				if (s[i] == '{')
+					level++;
+				else if (s[i] == '}')
+					level--;
+			}
+
+			int item = items[^1].AsT0;
+			items.Remove(items[^1]);
+			items.Add(new(
+				(item, Parse(s[start..i], provider))
+			));
+		}
+
+		return new(items);
+	}
+
+	public static bool TryParse(string? s, IFormatProvider? provider, out Variation result) => throw new NotImplementedException();
+
+	public override string ToString()
+	{
+		StringBuilder sb = new();
+
+		foreach (var item in this)
+		{
+			if (item.IsT0)
+				sb.Append(item.AsT0);
+			else
+			{
+				sb.Append(item.AsT1.Item1);
+				sb.Append('{');
+				sb.Append(item.AsT1.Item2);
+				sb.Append('}');
+			}
+		}
+
+		return sb.ToString();
+	}
+}
+public sealed class VariationItem : OneOfBase<int, (int, Variation)>
+{
+	public VariationItem(OneOf<int, (int, Variation)> item) : base(item) { }
 }
 
 public sealed class CombinedCoursePart : List<ICoursePart>, ICoursePart
 {
-    public CombinedCoursePart() : base() { }
+    public CombinedCoursePart() { }
     public CombinedCoursePart(IEnumerable<ICoursePart> collection) : base(collection) {}
+	public IEnumerable<Control> GetVariation(VariationItem var)
+	{
+		if (var.IsT0)
+			return this[0].GetVariation(var);
 
-    public IEnumerable<Control> GetVariation(string varStr)
-    {
-        throw new NotImplementedException();
-    }
+		List<Control> controls = new();
+		Variation v = var.AsT1.Item2;
+			
+		for (int i = 0; i < v.Count; i++)
+			controls.AddRange(this[i].GetVariation(v[i]));
+		
+		return controls;	
+	}
+
+	public VariationItem CreateVariation()
+	{
+		Variation v = new();
+		
+		foreach (var part in this)
+		{
+			v.Add(part.CreateVariation());
+		}
+
+		return new((0, v));
+	}
 }
 
 public sealed class LinearCoursePart : List<Control>, ICoursePart
 {
+	public LinearCoursePart() { }
+	public LinearCoursePart(IEnumerable<Control> collection) : base(collection) { }
+	
     public Control this[Guid id]
         => this.First(x => x.Id == id);
 
-    public IEnumerable<Control> GetVariation(string varStr) => this;
+	public IEnumerable<Control> GetVariation(VariationItem var)
+	{
+		if (var.IsT1 || var.AsT0 != 0)
+			throw new ArgumentException();
+
+		return this;
+	}
+	public VariationItem CreateVariation() => throw new NotImplementedException();
 }
 
 public sealed class VariationCoursePart : ICoursePart
@@ -59,27 +151,17 @@ public sealed class VariationCoursePart : ICoursePart
         Parts = new(parts);
     }
 
-    public IEnumerable<Control> GetVariation(string varStr)
-    {
-        List<Control> controls = new() { First };
+	public IEnumerable<Control> GetVariation(VariationItem var)
+	{
+		if (var.IsT0)
+			return Parts[var.AsT0].GetVariation(new(0));
 
-        int v = Convert.ToInt32(varStr[0]);
+		Variation v = var.AsT1.Item2;
+		return Parts[var.AsT1.Item1].GetVariation(v[0]);
 
-        if (varStr[1] == '{')
-        {
-            string newVarStr = _Utils.FilterVarStr(varStr);
-            controls.AddRange(Parts[v].GetVariation(newVarStr));
-        }
-        else
-        {
-            // varStr not needed
-            controls.AddRange(Parts[v].GetVariation(""));
-        }
+	}
 
-        controls.Add(Last);
-
-        return controls;
-    }
+	public VariationItem CreateVariation() => throw new NotImplementedException();
 }
 
 public sealed class ButterflyCoursePart : ICoursePart
@@ -102,38 +184,8 @@ public sealed class ButterflyCoursePart : ICoursePart
         Loops = new(loops);
     }
 
-    public IEnumerable<Control> GetVariation(string varStr)
-    {
-        List<Control> controls = new() { Central };
-
-        int v = Convert.ToInt32(varStr[0]);
-        string newVarStr = _Utils.FilterVarStr(varStr);
-
-        if (v >= Loops.Count * 2) throw new ArgumentException();
-
-        if (v == 1)
-        {
-            foreach (var loop in Loops)
-            {
-                controls.AddRange(loop.GetVariation(newVarStr));
-                controls.Add(Central);
-            }
-        }
-        else
-        {
-            for (int i = v-1; i < Loops.Count; i++)
-            {
-                controls.AddRange(Loops[i].GetVariation(newVarStr));
-                controls.Add(Central);
-            }
-            for (int i = 0; i < v-1; i++)
-            {
-                controls.AddRange(Loops[i].GetVariation(newVarStr));
-            }
-        }
-
-        throw new NotImplementedException();
-    }
+	public IEnumerable<Control> GetVariation(VariationItem var) => throw new NotImplementedException();
+	public VariationItem CreateVariation() => throw new NotImplementedException();
 }
 
 
@@ -155,45 +207,7 @@ public sealed class PhiLoopCoursePart : ICoursePart
         PartB = partB;
         Back = back;
     }
-}
 
-
-
-file static class _Utils
-{
-    public static string FilterVarStr(string str)
-    {
-        bool finished = false;
-        int index = 0;
-
-        if (!str.Contains('{') || !str.Contains('}'))
-            return str;
-
-        int level = 0;
-        bool started = false;
-
-        (int, int) a = (0, 0);
-
-        while (!finished)
-        {
-            char c = str[index];
-
-            if (c == '{')
-            {
-                level++;
-                started = true;
-                a.Item1 = index;
-            }
-            if (c == '}')
-            {
-                level--;
-                a.Item2 = index;
-            }
-
-            if (level == 0 && started)
-                finished = true;
-        }
-
-        return str[a.Item1..a.Item2];
-    }
+	public IEnumerable<Control> GetVariation(VariationItem var) => throw new NotImplementedException();
+	public VariationItem CreateVariation() => throw new NotImplementedException();
 }
