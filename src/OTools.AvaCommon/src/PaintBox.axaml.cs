@@ -77,7 +77,7 @@ namespace OTools.AvaCommon
 		}
 		public void Load(IEnumerable<(Guid, IEnumerable<IShape>)> objects)
 		{
-			canvas.Children.Clear();
+			Clear();
 
 			foreach (var (id, els) in objects)
 			{

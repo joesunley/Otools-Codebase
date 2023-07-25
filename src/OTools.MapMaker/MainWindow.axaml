@@ -4,11 +4,104 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:common="clr-namespace:OTools.AvaCommon;assembly=OTools.AvaCommon"
 		xmlns:local="clr-namespace:OTools.MapMaker;assembly=OTools.MapMaker"
-		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
 		x:Class="OTools.MapMaker.MainWindow"
 		Title="OTools.MapMaker">
-	<Grid RowDefinitions="50,*,20">
+	<Grid RowDefinitions="Auto,*,20">
 
+		<Menu Grid.Row="0">
+			<MenuItem Header="File" Click="MenuItemClicked">
+				<MenuItem Header="New" Click="MenuItemClicked"/>
+				<MenuItem Header="Open" Click="MenuItemClicked"/>
+				<MenuItem Header="Save" Click="MenuItemClicked"/>
+				<MenuItem Header="Save As" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Import" Click="MenuItemClicked">
+					
+				</MenuItem>
+				<MenuItem Header="Export As" Click="MenuItemClicked">
+					
+				</MenuItem>
+				<Separator/>
+				<MenuItem Header="Print" Click="MenuItemClicked">
+					<MenuItem Header="Courses" Click="MenuItemClicked"/>
+					<MenuItem Header="Descriptions" Click="MenuItemClicked"/>
+				</MenuItem>
+				<Separator/>
+				<MenuItem Header="Exit" Click="MenuItemClicked"/>
+			</MenuItem>
+			<MenuItem Header="Edit" Click="MenuItemClicked">
+				<MenuItem Header="Undo" Click="MenuItemClicked"/>
+				<MenuItem Header="Redo" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Select All" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Cut" Click="MenuItemClicked"/>
+				<MenuItem Header="Copy" Click="MenuItemClicked"/>
+				<MenuItem Header="Paste" Click="MenuItemClicked"/>
+				<MenuItem Header="Delete" Click="MenuItemClicked"/>
+			</MenuItem>
+			<MenuItem Header="View" Click="MenuItemClicked">
+				<MenuItem Header="Wireframe View" Click="MenuItemClicked"/>
+				<MenuItem Header="Uncrossable View" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Show Colour Pane" Click="MenuItemClicked" />
+				<MenuItem Header="Show Symbol Pane" Click="MenuItemClicked" />
+				<MenuItem Header="Show Template Pane" Click="MenuItemClicked" />
+			</MenuItem>
+			<MenuItem Header="Tools" Click="MenuItemClicked">
+				<MenuItem Header="Select" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Place Point" Click="MenuItemClicked"/>
+				<MenuItem Header="Draw Path" Click="MenuItemClicked"/>
+				<MenuItem Header="Draw Ellipse" Click="MenuItemClicked"/>
+				<MenuItem Header="Draw Rectangle" Click="MenuItemClicked"/>
+				<MenuItem Header="Draw Free Hand" Click="MenuItemClicked"/>
+				<MenuItem Header="Draw Text" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Fill Inbetween Objects" Click="MenuItemClicked"/>
+				<MenuItem Header="Join Objects" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Cut Object" Click="MenuItemClicked"/>
+				<MenuItem Header="Cut Hole" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Rotate Objects" Click="MenuItemClicked"/>
+				<MenuItem Header="Scale Objects" Click="MenuItemClicked"/>
+				<MenuItem Header="Stretch Objects" Click="MenuItemClicked"/>
+				<MenuItem Header="Rotate Pattern" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Convert to Bezier Path" Click="MenuItemClicked"/>
+				<MenuItem Header="Simplify Path" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Cutout" Click="MenuItemClicked"/>
+				<MenuItem Header="Cut Away" Click="MenuItemClicked"/>
+			</MenuItem>
+			<MenuItem Header="Map" Click="MenuItemClicked">
+				<MenuItem Header="Symbols" Click="MenuItemClicked">
+					<MenuItem Header="Replace Symbol Set" Click="MenuItemClicked"/>
+					<MenuItem Header="Edit Symbols" Click="MenuItemClicked"/>
+				</MenuItem>
+				<MenuItem Header="Colours" Click="MenuItemClicked">
+					<MenuItem Header="Replace Colours" Click="MenuItemClicked"/>
+					<MenuItem Header="Edit Colours" Click="MenuItemClicked"/>
+				</MenuItem>
+				<Separator/>
+				<MenuItem Header="Georeferencing" Click="MenuItemClicked"/>
+				<Separator/>
+				<MenuItem Header="Layers" Click="MenuItemClicked">
+					<MenuItem Header="Add New Map Layer" Click="MenuItemClicked"/>
+					<MenuItem Header="Add New Template Layer" Click="MenuItemClicked"/>
+				</MenuItem>
+				<Separator/>
+				<MenuItem Header="Show Grid" Click="MenuItemClicked" />
+				<MenuItem Header="Edit Grid" Click="MenuItemClicked"/>
+				<Separator/>
+			</MenuItem>
+			<MenuItem Header="Help" Click="MenuItemClicked">
+				
+			</MenuItem>
+		</Menu>
+		
 		<Grid ColumnDefinitions="50,*,150" Grid.Row="1">
 			<common:PaintBox x:Name="paintBox" Grid.Column="1"/>
 			

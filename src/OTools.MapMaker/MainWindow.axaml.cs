@@ -23,15 +23,13 @@ namespace OTools.MapMaker
 
 			//Map map = DefaultISOM();
 
-			Manager.MapRenderer = new UncrossableMapRenderer2D(map);
+			Manager.MapRenderer = new MapRenderer2D(map);
 			var render = Manager.MapRenderer.RenderMap();
 			
 			paintBox.Load(render.Select(x => (x.Item1.Id, x.Item2)));
 
-			var edit = MapEdit.Create();
-			var draw = MapDraw.Create();
-
-			edit.Start();
+			Manager.MapEdit = MapEdit.Create();
+            Manager.MapDraw = MapDraw.Create();
 
 			Manager.Map = map;
 			Manager.Symbol = map.Symbols["Course Line"];
@@ -61,5 +59,129 @@ namespace OTools.MapMaker
 				btnDebug.Content = "Show Debug";
 			}
 		}
+
+        private void MenuItemClicked(object? sender, RoutedEventArgs e)
+        {
+            MenuItem s = sender as MenuItem
+                ?? throw new InvalidOperationException();
+
+            // Invoke Handler
+            Manager.MenuClickHandle(s);
+        }
+
+        private void CheckBoxClicked(object? sender, RoutedEventArgs e) { }
 	}
 }
+
+/*Mapper Menu
+         * 
+         *  File
+         *      New
+         *          Map
+         *          Event
+         *      Open
+         *      Save
+         *      Save as
+         *      Export As
+         *          Image
+         *          PDF
+         *          OCAD / OMAP
+         *      Print
+         *      Exit
+         *  Edit
+         *      Undo
+         *      Redo
+         *      Cut
+         *      Copy
+         *      Paste
+         *      Delete
+         *  Tools
+         *      Select
+         *      Place Point
+         *      Draw Path
+         *      Draw Ellipse
+         *      Draw Rectangle
+         *      Draw Free Hand
+         *      Fill Between Objects
+         *      Rotate Object
+         *      Scale Object
+         *      Stretch Object
+         *      Rotate Pattern
+         *      Convert to Bezier Path
+         *      Simplify Path
+         *  Map
+         *      Georeferencing
+         *      Layers
+         *          Add New Map Layer
+         *          Add New Template Layer
+         *  Symbols
+         *      Load Symbol Set
+         *      Edit Symbols
+         *  View
+         *      Zoom to Entire Map
+         *      Show Grid
+         *  Panes
+         *      Colours
+         *      Symbols
+         *      Templates
+         *  Help
+         */
+/*Planner Menu
+ * 
+ *  File
+ *      New
+ *          Map
+ *          Event
+ *      Open
+ *      Save
+ *      Save As
+ *      Export As
+ *          Image
+ *          PDF
+ *          OCAD / OMAP
+ *          Routegadget File
+ *          IOF XML
+ *          Maprun File
+ *      Print
+ *          Courses
+ *          Descriptions
+ *      Exit
+ *  Edit
+ *      Undo
+ *      Redo
+ *      Cut
+ *      Copy
+ *      Paste
+ *      Delete
+ *  Tools
+ *      Map Issue Point
+ *      Start
+ *      Control
+ *      Finish
+ *      Out-of-Bounds Boundary
+ *      Out-of-Bounds Area
+ *      Out-of-Bounds Border
+ *      Crossing Point
+ *      Crossing Section
+ *      Temporary Construction or Closed Area
+ *      Variations
+ *          Forking
+ *          Butterfly Loop
+ *          Phi-Loop
+ *  Map
+ *      Change Map File
+ *      Edit Map
+ *  Event
+ *      Courses
+ *          Add Course
+ *          Delete Course
+ *          Properties
+ *      Control Numbering
+ *  View
+ *      Zoom
+ *          Entire Map
+ *          Entire Course
+ *      Show Grid
+ *      Print Mode
+ *  Help
+ */

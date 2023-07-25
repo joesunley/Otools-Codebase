@@ -15,6 +15,7 @@ namespace OTools.MapMaker
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                //desktop.MainWindow = new ColourEditDialog() { Height = 450, Width = 350 };
                 desktop.MainWindow = new MainWindow();
             }
 
