@@ -61,15 +61,20 @@ public abstract class Colour : IStorable
         var rgb = ToRGB();
 
         float
-            rd = (float)rgb.Item1 / 255,
-            gd = (float)rgb.Item2 / 255,
-            bd = (float)rgb.Item3 / 255;
+            rd = (float)rgb.r / 255,
+            gd = (float)rgb.g / 255,
+            bd = (float)rgb.b / 255;
 
-        byte k = (byte)(1 - Math.Max(rd, Math.Max(gd, bd)));
+        float k = (float)(1 - Math.Max(rd, Math.Max(gd, bd)));
 
-        byte c = (byte)((1 - rd - k) / (1 - k)),
-             m = (byte)((1 - gd - k) / (1 - k)),
-             y = (byte)((1 - bd - k) / (1 - k));
+        float c = (float)((1 - rd - k) / (1 - k)),
+              m = (float)((1 - gd - k) / (1 - k)),
+              y = (float)((1 - bd - k) / (1 - k));
+
+        if (float.IsNaN(c)) c = 0;
+        if (float.IsNaN(m)) m = 0;
+        if (float.IsNaN(y)) y = 0;
+        if (float.IsNaN(k)) k = 0;
 
         return (c, m, y, k);
     }
@@ -151,17 +156,17 @@ public sealed class RgbColour : Colour
     public byte Green { get; set; }
     public byte Blue { get; set; }
 
-    public RgbColour(string name, byte r, byte g, byte b)
+    public RgbColour(string name, byte r, byte g, byte b, float a = 1f)
         : base(name)
     {
         Red = r;
         Green = g;
         Blue = b;
 
-        Opacity = 1f;
+        Opacity = a;
     }
     
-    public RgbColour(Guid id, string name, byte r, byte g, byte b, float a)
+    public RgbColour(Guid id, string name, byte r, byte g, byte b, float a = 1f)
         : base(id, name)
     {
         Red = r;
@@ -173,9 +178,9 @@ public sealed class RgbColour : Colour
     public RgbColour(Guid id, string name, uint hexValue)
         : base(id, name)
     {
-        Red = (byte)(hexValue & 0x0000ff);
+        Red = (byte)((hexValue & 0xff0000) >> 16);
         Green = (byte)((hexValue & 0x00ff00) >> 8);
-        Blue = (byte)((hexValue & 0xff0000) >> 16);
+        Blue = (byte)(hexValue & 0x0000ff);
 
         Opacity = 1f;
     }
@@ -193,22 +198,26 @@ public sealed class CmykColour : Colour
     public float Yellow { get; set; }
     public float Key { get; set; }
 
-    public CmykColour(string name, float c, float m, float y, float k)
+    public CmykColour(string name, float c, float m, float y, float k, float a = 1f)
         : base(name)
     {
         Cyan = c;
         Magenta = m;
         Yellow = y;
         Key = k;
+
+        Opacity = a;
     }
 
-    public CmykColour(Guid id, string name, float c, float m, float y, float k)
+    public CmykColour(Guid id, string name, float c, float m, float y, float k, float a = 1f)
         : base(id, name)
     {
         Cyan = c;
         Magenta = m;
         Yellow = y;
         Key = k;
+
+        Opacity = a;
     }
 
     public override uint HexValue

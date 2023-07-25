@@ -31,6 +31,7 @@ public static class CourseLoader
 		var eventNode = versionToUse switch
 		{
 			1 => new CourseLoaderV1().SaveEvent(ev),
+            _ => throw new IOException("Version not supported."),
 		};
 
 		eventNode.AddAttribute("version", versionToUse.ToString());
@@ -337,6 +338,8 @@ public class CourseLoaderV1 : ICourseLoaderV1
 
     public XMLNode SaveItems(IEnumerable<Item> items)
     {
+        // This is shit
+
         ColourStore cols = new();
         SymbolStore syms = new();
         InstanceStore insts = new();
@@ -381,7 +384,7 @@ public class CourseLoaderV1 : ICourseLoaderV1
             if (!cols.Contains(c.Id))
                 cols.Add(c);
 
-        Map m = new(cols, syms, insts);
+        Map m = new(cols, new(), syms, insts);
 
         XMLNode node = new MapLoaderV1().SaveMap(m);
         node.Name = "Items";

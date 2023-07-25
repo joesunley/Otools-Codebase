@@ -1524,6 +1524,7 @@ public class MapLoaderV2 : IMapLoaderV2
         node.AddChild(SaveMapInfo(map.MapInfo));
 
         node.AddChild(SaveColours(map.Colours));
+        node.AddChild(SaveSpotColours(map.SpotColours));
         node.AddChild(SaveSymbols(map.Symbols));
         node.AddChild(SaveInstances(map.Instances));
 
@@ -1846,8 +1847,15 @@ public class MapLoaderV2 : IMapLoaderV2
         fontStyle.AddAttribute("strikeout", sym.Font.FontStyle.Strikeout.ToString());
         fontStyle.AddAttribute("italics", sym.Font.FontStyle.Italics.ToString());
 
+        XMLNode spacing = new("Spacing");
+
+        spacing.AddAttribute("line", sym.Font.LineSpacing.ToString());
+        spacing.AddAttribute("paragraph", sym.Font.ParagraphSpacing.ToString());
+        spacing.AddAttribute("character", sym.Font.CharacterSpacing.ToString());
+
         font.AddChild(colour);
         font.AddChild(fontStyle);
+        font.AddChild(spacing);
 
         XMLNode style = new("Style");
 
@@ -2259,7 +2267,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
 
             XMLNode anchor = SaveVec2(pt.Anchor);
-            anchor.Name = "AnchorControl";
+            anchor.Name = "Anchor";
 
             p.AddChild(anchor);
 
@@ -2311,12 +2319,12 @@ public class MapLoaderV2 : IMapLoaderV2
     {
         XMLNode node = new("LayerInfo");
 
-        foreach (var layer in layerInfo)
+        foreach (var (name, opacity) in layerInfo)
         {
             XMLNode l = new("Layer");
 
-            l.AddAttribute("name", layer.name);
-            l.AddAttribute("visible", layer.visible.ToString());
+            l.AddAttribute("name", name);
+            l.AddAttribute("opacity", opacity.ToString());
 
             node.AddChild(l);
         }
@@ -2364,6 +2372,7 @@ public class MapLoaderV2 : IMapLoaderV2
         _map.MapInfo.FilePath = filePath;
 
         _map.Colours = new(LoadColours(node.Children["Colours"]));
+        _map.SpotColours = new(LoadSpotColours(node.Children["SpotColours"]));
         _map.Symbols = new(LoadSymbols(node.Children["Symbols"]));
         _map.Instances = new(LoadInstances(node.Children["Instances"]));
 
@@ -2383,9 +2392,50 @@ public class MapLoaderV2 : IMapLoaderV2
 
         string name = node.Attributes["name"];
 
-        uint colour = uint.Parse(node.Attributes["hex"]);
+        XMLNode colNode = node.Children[0];
+        switch (colNode.Name)
+        {
+            case "Rgb":
+            {
+                byte
+                    r = colNode.Attributes["r"].Parse<byte>(),
+                    g = colNode.Attributes["g"].Parse<byte>(),
+                    b = colNode.Attributes["b"].Parse<byte>();
 
-        return new RgbColour(id, name, colour);
+                float a = colNode.Attributes.Exists("a") ?
+                    colNode.Attributes["a"].Parse<float>() : 1;
+
+                return new RgbColour(id, name, r, g, b, a);
+            }
+            case "CMYK":
+            {
+                float
+                    c = colNode.Attributes["c"].Parse<float>(),
+                    m = colNode.Attributes["m"].Parse<float>(),
+                    y = colNode.Attributes["y"].Parse<float>(),
+                    k = colNode.Attributes["k"].Parse<float>();
+
+                float a = colNode.Attributes.Exists("a") ?
+                    colNode.Attributes["a"].Parse<float>() : 1;
+
+                return new CmykColour(id, name, c, m, y, k, a);
+            }
+            case "Spot":
+            {
+                Dictionary<SpotCol, float> kvps = new();
+
+                foreach (XMLNode child in colNode.Children)
+                {
+                    Guid colId = child.Attributes["colour"].Parse<Guid>();
+                    float val = child.Attributes["value"].Parse<float>();
+
+                    kvps.Add(_map.SpotColours[colId], val);
+                }
+
+                return new SpotColour(id, name, kvps);
+            }
+            default: throw new InvalidOperationException("Unknown Colour Type");
+        }
     }
 
     public Colour ColourId(string s)
@@ -2665,7 +2715,7 @@ public class MapLoaderV2 : IMapLoaderV2
 
     public MidStyle LoadMidStyle(XMLNode node)
     {
-        IEnumerable<MapObject> objs = LoadMapObjects(node);
+        IEnumerable<MapObject> objs = LoadMapObjects(node.Children["MapObjects"]);
 
         return new(
             objs,
@@ -3030,12 +3080,12 @@ public class MapLoaderV2 : IMapLoaderV2
 
     public LayerInfo LoadLayerInfo(XMLNode node)
     {
-        LayerInfo info = new();
+        List<(string, float)> layers = new();
 
         foreach (XMLNode child in node.Children)
-            info.Add((child.Attributes["name"], bool.Parse(child.Attributes["visible"])));
+            layers.Add((child.Attributes["name"], child.Attributes["opacity"].Parse<float>()));
 
-        return info;
+        return new(layers);
     }
 
     #endregion

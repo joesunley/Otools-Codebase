@@ -25,6 +25,18 @@ public sealed class ColourStore : Store<Colour>
     }
 }
 
+public sealed class SpotColourStore : Store<SpotCol>
+{
+    public SpotColourStore() { }
+    public SpotColourStore(IEnumerable<SpotCol> items) : base(items) { }
+
+    public SpotCol this[string name]
+    {
+        get => _items.First(s => s.Name == name);
+        set => _items[_items.IndexOf(this.First(x => x.Name == name))] = value;
+    }
+}
+
 public sealed class SymbolStore : Store<Symbol>
 {
     public SymbolStore() { }

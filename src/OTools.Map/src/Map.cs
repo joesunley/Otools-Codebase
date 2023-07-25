@@ -11,6 +11,7 @@ public sealed class Map
     public MapInfo MapInfo { get; set; }
 
     public ColourStore Colours { get; set; }
+    public SpotColourStore SpotColours { get; set; }
     public SymbolStore Symbols { get; set; }
     public InstanceStore Instances { get; set; }
 
@@ -19,21 +20,24 @@ public sealed class Map
         Title = title;
 
         Metadata = new();
+        MapInfo = new();
 
         Colours = new();
+        SpotColours = new();
         Symbols = new();
         Instances = new();
     }
 
-    public Map(ColourStore colours, SymbolStore symbols, InstanceStore instances, string title = "")
+    public Map(ColourStore colours, SpotColourStore spotColours, SymbolStore symbols, InstanceStore instances, string title = "")
     {
         Title = title;
 
         Metadata = new();
+        MapInfo = new();
         
         Colours = colours;
+        SpotColours = spotColours;
         Symbols = symbols;
         Instances = instances;
-
     }
 }

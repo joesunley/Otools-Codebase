@@ -6,6 +6,13 @@ public class MapInfo
     public string FilePath { get; set; }
     public ColourFormat ColourFormat { get; set; }
 
+    public MapInfo()
+    {
+        LayerInfo = new LayerInfo();
+        FilePath = "";
+        ColourFormat = ColourFormat.RGB;
+    }
+
     public MapInfo(LayerInfo layerInfo, string filePath, ColourFormat colourFormat)
     {
         LayerInfo = layerInfo;
@@ -14,11 +21,17 @@ public class MapInfo
     }
 }
 
-public class LayerInfo : List<(string name, bool visible)>
+public class LayerInfo : List<(string name, float opacity)>
 {
     public LayerInfo()
     {
-        Add(("Main", true));
+        Add(("Main", 1f));
+    }
+    public LayerInfo(IEnumerable<(string, float)> layers)
+        : base(layers)
+    {
+        if (layers == null)
+            Add(("Main", 1f));
     }
 
     public void Swap(int index, sbyte direction)
