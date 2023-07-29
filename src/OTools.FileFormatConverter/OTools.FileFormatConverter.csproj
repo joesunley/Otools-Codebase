@@ -12,7 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Cube.Pdf.Ghostscript" Version="8.3.0" />
     <PackageReference Include="IOF.XML.V3" Version="1.0.0" />
+    <PackageReference Include="PDFsharp" Version="1.50.5147" />
   </ItemGroup>
 
 </Project>

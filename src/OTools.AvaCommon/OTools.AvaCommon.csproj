@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Controls.PanAndZoom" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview4" />
-    <PackageReference Include="XamlNameReferenceGenerator" Version="1.5.1" />
+    <PackageReference Include="Avalonia" Version="11.0.1" />
+    <PackageReference Include="Avalonia.Controls.PanAndZoom" Version="11.0.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.1" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.0.1" />
+    <PackageReference Include="Avalonia.Svg.Skia" Version="11.0.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.1" />
   </ItemGroup>
 
   <ItemGroup>

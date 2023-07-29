@@ -9,8 +9,9 @@
   <ItemGroup>
     <PackageReference Include="ComputeSharp" Version="2.0.3" />
     <PackageReference Include="OneOf" Version="3.0.255" />
-    <PackageReference Include="SharpHook" Version="4.0.0" />
+    <PackageReference Include="SharpHook" Version="4.2.1" />
     <PackageReference Include="Sunley.Mathematics-net6" Version="2.2.1" />
+    <PackageReference Include="Svg.Skia" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

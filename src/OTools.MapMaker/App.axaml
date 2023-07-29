@@ -3,6 +3,6 @@
              x:Class="OTools.MapMaker.App">
     <Application.Styles>
         <!--<FluentTheme Mode="Light"/>-->
-		<SimpleTheme Mode="Light"/>
+		<SimpleTheme/>
     </Application.Styles>
 </Application>
