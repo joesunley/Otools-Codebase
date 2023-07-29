@@ -47,7 +47,7 @@ public class MapMakerSettings
 		Select_HandleZIndex = 999,
 
 		Select_ObjectTolerance = 2f,
-		Select_PointTolerance = 1f,
+		Select_PointTolerance = 6f,
 	};
 
 }

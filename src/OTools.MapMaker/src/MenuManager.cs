@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using OTools.ObjectRenderer2D;
-using TerraFX.Interop.Windows;
 
 namespace OTools.MapMaker;
 
@@ -16,6 +15,8 @@ public class MenuManager
         {
             "Wireframe View" => WireframeView(),
             "Uncrossable View" => UncrossableView(),
+            "Select" => SetEdit(),
+            "Draw Path" => SetPathDraw(),
             _ => false
         };
 
@@ -68,6 +69,26 @@ public class MenuManager
 
             _active!.Icon = CreateCheckBox(true);
         }
+
+        return true;
+    }
+
+    // Draw Edit
+
+    private bool SetEdit()
+    {
+        Manager.Tool = Tool.Edit;
+        Manager.MapEdit!.Start();
+        Manager.MapDraw!.Stop();
+
+        return true;
+    }
+
+    private bool SetPathDraw()
+    {
+        Manager.Tool = Tool.Path;
+        Manager.MapDraw!.Start();
+        Manager.MapEdit!.Stop();
 
         return true;
     }

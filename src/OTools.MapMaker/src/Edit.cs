@@ -5,7 +5,6 @@ using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using ownsmtp.logging;
 using System.Diagnostics;
-using TerraFX.Interop.Windows;
 
 namespace OTools.MapMaker;
 
@@ -29,13 +28,17 @@ public class MapEdit
         paintBox = Manager.PaintBox!;
 
         paintBox.PointerReleased += (_, args) => MouseUp(args.InitialPressMouseButton, args.KeyModifiers);
+        paintBox.PointerPressed += (_, args) => MouseDown(args);
         paintBox.MouseMoved += MouseMove;
         paintBox.KeyUp += (_, args) => KeyUp(args.Key);
     }
 
-    public void MouseDown(MouseButton mouse)
+    public void MouseDown(PointerPressedEventArgs args)
     {
         if (!isActive) return;
+
+        if (args.GetCurrentPoint(paintBox.canvas).Properties.IsLeftButtonPressed)
+            pathEdit?.LMouseDown(); 
     }
 
     public void MouseUp(MouseButton mouse, KeyModifiers modifiers)
@@ -46,15 +49,14 @@ public class MapEdit
         {
             case MouseButton.Left:
             {
+
                 if (selectedInstance is null)
-                    SelectInstance();
+                    SelectInstance12();
 
-                else if (active == Active.Path)
-                {
-                    if (modifiers.HasFlag(KeyModifiers.Control))
-                        pathEdit!.CtrlClick();
-                }
+                if (modifiers.HasFlag(KeyModifiers.Control))
+                    pathEdit?.CtrlClick();
 
+                pathEdit?.LMouseUp();
             } break;
         }
     }
@@ -112,6 +114,54 @@ public class MapEdit
                     pointEdit.Select();
                     break;
             }
+        }
+    }
+
+    private (vec2 p, IList<Instance> inst, int i) _activeInsts = (vec2.Zero, Array.Empty<Instance>(), -1);
+    private void SelectInstance12()
+    {
+        if (_activeInsts.i != -1)
+        {
+            if (vec2.Mag(paintBox.MousePosition, _activeInsts.p) <= 1)
+            {
+                SelectInstance(_activeInsts.inst[_activeInsts.i]);
+                _activeInsts.i++;
+
+                if (_activeInsts.i >= _activeInsts.inst.Count)
+                    _activeInsts.i = 0;
+
+                return;
+            }
+        }
+
+        var instances = _Utils.SelectableInstances(Manager.Map!.Instances, paintBox.MousePosition, Manager.Settings.Select_PointTolerance).ToList();
+
+        instances = instances.OrderBy(x => x.Item2).ToList();
+
+        _activeInsts = (paintBox.MousePosition, instances.Select(x => x.Item1).ToList(), 1);
+
+        SelectInstance(_activeInsts.inst[0]);
+    }
+    private void SelectInstance(Instance inst)
+    {
+        Deselect();
+
+        selectedInstance = inst;
+
+        ODebugger.Debug($"Selected {inst} at {paintBox.MousePosition}");
+
+        switch (inst)
+        {
+            case PathInstance pathInst:
+                active = Active.Path;
+                pathEdit = new(paintBox, pathInst);
+                pathEdit.Select();
+                break;
+            case PointInstance pointInst:
+                active = Active.Point;
+                pointEdit = new(paintBox, pointInst);
+                pointEdit.Select();
+                break;
         }
     }
 
@@ -276,29 +326,77 @@ public class PathEdit
         paintBox.Remove(_helperId);
     }
 
+    private (int, int, sbyte) _index;
+
+    public void LMouseDown()
+    {
+        var (point, dist) = _Utils.NearestPoint(_instance.GetAllPoints(), paintBox.MousePosition);
+        if (dist > Manager.Settings.Select_PointTolerance) return;
+
+        _index = _Utils.FindPoint(_instance.Segments, point);
+    }
+
     public void MovePoint()
     {
-        var (point, _) = _Utils.NearestPoint(_instance.GetAllPoints(), paintBox.MousePosition);
-        var index = _Utils.FindPoint(_instance.Segments, point);
-
-        if (index.Item3 == -1)
+        if (_index.Item1 == -1)
         {
-            LinearPath linear = (LinearPath)_instance.Segments[index.Item1];
-            linear[index.Item2] = paintBox.MousePosition;
-            _instance.Segments[index.Item1] = linear;
+            ODebugger.Error("Couldn't Find Point");
+            return;
         }
 
-        switch (index.Item3)
+        switch (_index.Item3)
         {
-            case -1:
-                LinearPath linear = (LinearPath)_instance.Segments[index.Item1];
-                linear[index.Item2] = paintBox.MousePosition;
-                _instance.Segments[index.Item1] = linear;
+            case -1: 
+                LinearPath linear = (LinearPath)_instance.Segments[_index.Item1];
+
+                if (_index.Item2 == 0 && _index.Item1 != 0)
+                {
+                    IPath prev = _instance.Segments[_index.Item1 - 1];
+                    if (prev is LinearPath line && line[^1] == linear[_index.Item2])
+                        line[^1] = paintBox.MousePosition;
+                    else if (prev is BezierPath bez && bez[^1].Anchor == linear[_index.Item2])
+                    {
+                        BezierPoint bezier = bez[^1];
+                        vec2 delta = paintBox.MousePosition - bezier.Anchor;
+
+                        bezier = new()
+                        {
+                            Anchor = paintBox.MousePosition,
+                            EarlyControl = bezier.EarlyControl.IsT0 ? (bezier.EarlyControl.AsT0 + delta) : new None(),
+                            LateControl = bezier.LateControl.IsT0 ? (bezier.LateControl.AsT0 + delta) : new None(),
+                        };
+
+                        bez[^1] = bezier;
+                    }
+                }
+                else if (_index.Item2 == linear.Count - 1 && _index.Item1 != _instance.Segments.Count - 1)
+                {
+                    IPath next = _instance.Segments[_index.Item1 + 1];
+                    if (next is LinearPath line && line[0] == linear[_index.Item2])
+                        line[0] = paintBox.MousePosition;
+                    else if (next is BezierPath bez && bez[0].Anchor == linear[_index.Item2])
+                    {
+                        BezierPoint bezier = bez[0];
+                        vec2 delta = paintBox.MousePosition - bezier.Anchor;
+
+                        bezier = new()
+                        {
+                            Anchor = paintBox.MousePosition,
+                            EarlyControl = bezier.EarlyControl.IsT0 ? (bezier.EarlyControl.AsT0 + delta) : new None(),
+                            LateControl = bezier.LateControl.IsT0 ? (bezier.LateControl.AsT0 + delta) : new None(),
+                        };
+
+                        bez[0] = bezier;
+                    }
+                }
+
+                linear[_index.Item2] = paintBox.MousePosition;
+                _instance.Segments[_index.Item1] = linear;
                 break;
-            case 0:
+            case 0: // Early Control
             {
-                BezierPath path = (BezierPath)_instance.Segments[index.Item1];
-                BezierPoint bezier = path[index.Item2];
+                BezierPath path = (BezierPath)_instance.Segments[_index.Item1];
+                BezierPoint bezier = path[_index.Item2];
 
                 Assert(bezier.EarlyControl.IsT0, "Nearest Point is non-existent EarlyControl");
 
@@ -313,14 +411,14 @@ public class PathEdit
                     bezier.LateControl = bezier.Anchor + (normal * mag);
                 }
 
-                path[index.Item2] = bezier;
-                _instance.Segments[index.Item1] = path;
+                path[_index.Item2] = bezier;
+                _instance.Segments[_index.Item1] = path;
             }
             break;
-            case 1:
+            case 1: // Anchor
             {
-                BezierPath path = (BezierPath)_instance.Segments[index.Item1];
-                BezierPoint bezier = path[index.Item2];
+                BezierPath path = (BezierPath)_instance.Segments[_index.Item1];
+                BezierPoint bezier = path[_index.Item2];
 
                 vec2 delta = paintBox.MousePosition - bezier.Anchor;
 
@@ -331,13 +429,46 @@ public class PathEdit
                     LateControl = bezier.LateControl.IsT0 ? (bezier.LateControl.AsT0 + delta) : new None(),
                 };
 
-                path[index.Item2] = bezier;
-                _instance.Segments[index.Item1] = path;
+                if (_index.Item2 == 0 && _index.Item1 != 0)
+                {
+                    IPath prev = _instance.Segments[_index.Item1 - 1];
+                    if (prev is LinearPath line && line[^1] == path[_index.Item2].Anchor)
+                        line[^1] = paintBox.MousePosition;
+                    else if (prev is BezierPath bez && bez[^1].Anchor == path[_index.Item2].Anchor)
+                    {
+                        BezierPoint prevBezier = bez[^1];
+                        prevBezier.Anchor = paintBox.MousePosition;
+                        bez[^1] = prevBezier;
+                    }
+                }
+                else if (_index.Item2 == path.Count - 1 && _index.Item1 != _instance.Segments.Count - 1)
+                {
+                    IPath next = _instance.Segments[_index.Item1 + 1];
+                    if (next is LinearPath line && line[0] == path[_index.Item2].Anchor)
+                        line[0] = paintBox.MousePosition;
+                    else if (next is BezierPath bez && bez[0].Anchor == path[_index.Item2].Anchor)
+                    {
+                        BezierPoint b = bez[0];
+                        vec2 delta2 = paintBox.MousePosition - b.Anchor;
+
+                        b = new()
+                        {
+                            Anchor = paintBox.MousePosition,
+                            EarlyControl = b.EarlyControl.IsT0 ? (b.EarlyControl.AsT0 + delta2) : new None(),
+                            LateControl = b.LateControl.IsT0 ? (b.LateControl.AsT0 + delta2) : new None(),
+                        };
+
+                        bez[0] = b;
+                    }
+                }
+
+                path[_index.Item2] = bezier;
+                _instance.Segments[_index.Item1] = path;
             } break;
-            case 2:
+            case 2: // Late Control
             {
-                BezierPath path = (BezierPath)_instance.Segments[index.Item1];
-                BezierPoint bezier = path[index.Item2];
+                BezierPath path = (BezierPath)_instance.Segments[_index.Item1];
+                BezierPoint bezier = path[_index.Item2];
 
                 Assert(bezier.LateControl.IsT0, "Nearest Point is non-existent LateControl");
 
@@ -352,14 +483,19 @@ public class PathEdit
                     bezier.EarlyControl = bezier.Anchor + (normal * mag);
                 }
 
-                path[index.Item2] = bezier;
-                _instance.Segments[index.Item1] = path;
+                path[_index.Item2] = bezier;
+                _instance.Segments[_index.Item1] = path;
             }
             break;
         }
 
         paintBox.Update(_instance.Id, _renderer.RenderInstance(_instance).ConvertCollection());
         DrawHelpers();
+    }
+
+    public void LMouseUp()
+    {
+        _index = (-1, -1, -2);
     }
 
     public void CtrlClick()
@@ -416,12 +552,12 @@ public class PathEdit
     {
         var (point, _) = _Utils.NearestPoint(_instance.GetAllPoints(), paintBox.MousePosition);
 
-        var index = _Utils.FindPoint(_instance.Segments, point);
+        var _index = _Utils.FindPoint(_instance.Segments, point);
 
-        if (index.Item3 == -1)
-            ((LinearPath)_instance.Segments[index.Item1]).RemoveAt(index.Item2);
-        else if (index.Item3 == 1)
-            ((BezierPath)_instance.Segments[index.Item1]).RemoveAt(index.Item2);
+        if (_index.Item3 == -1)
+            ((LinearPath)_instance.Segments[_index.Item1]).RemoveAt(_index.Item2);
+        else if (_index.Item3 == 1)
+            ((BezierPath)_instance.Segments[_index.Item1]).RemoveAt(_index.Item2);
 
         paintBox.Update(_instance.Id, _renderer.RenderInstance(_instance).ConvertCollection());
         DrawHelpers();
@@ -541,10 +677,9 @@ internal static class _Utils
                         closest = instance;
                         closestDist = mag - extrusion;
                     }
-                }
-                break;
+                } break;
 
-                case PathInstance path:
+                case LineInstance path:
                 {
                     var (_, dist) = _Utils.NearestContinuousPointOnPathInstance(path, pos);
 
@@ -553,12 +688,65 @@ internal static class _Utils
                         closest = instance;
                         closestDist = dist;
                     }
-                }
-                break;
+                } break;
+
+                case AreaInstance area:
+                {
+                    var (_, dist) = _Utils.NearestContinuousPointOnPathInstance(area, pos);
+
+                    if (dist < closestDist)
+                    {
+                        closest = instance;
+                        closestDist = dist;
+                    }
+                } break;
             }
         }
 
         return (closest, closestDist);
+    }
+
+    public static IEnumerable<(Instance, float)> SelectableInstances(IEnumerable<Instance> coll, vec2 pos, float radius)
+    {
+        ReadOnlySpan<Instance> collection = coll.ToArray();
+        if (collection.IsEmpty) return Enumerable.Empty<(Instance, float)>();
+
+        List<(Instance, float)> instances = new();
+
+        foreach (Instance inst in collection)
+        {
+            switch (inst)
+            {
+                case PointInstance point:
+                {
+                    float mag = vec2.Mag(point.Centre, pos);
+                    float extrusion = _Utils.ObjectExtrusion(point.Symbol);
+
+                    if ((mag - extrusion) <= radius)
+                        instances.Add((inst, mag - extrusion));
+                } break;
+                case LineInstance line:
+                {
+                    var (_, dist) = _Utils.NearestContinuousPointOnPathInstance(line, pos);
+
+                    if (dist <= radius)
+                        instances.Add((inst, dist));
+                } break;
+                case AreaInstance area:
+                {
+                    var (_, dist) = _Utils.NearestContinuousPointOnPathInstance(area, pos);
+
+                    if (dist <= radius)
+                        instances.Add((inst, dist));
+
+                    if (PolygonTools.IsPointInPoly(PolygonTools.ToPolygon(area), Enumerable.Empty<IList<vec2>>(), pos))
+                        instances.Add((inst, 0));
+
+                } break;
+            }
+        }
+
+        return instances;
     }
 
     public static float ObjectExtrusion(PointSymbol sym)
@@ -760,7 +948,7 @@ internal static class _Utils
             }
         }
 
-        throw new Exception("Point not found");
+        return (-1, -1, -2);
     }
 
     public static (int, int, float) NearestSegmentOnPathInstance(PathInstance inst, vec2 v2)
@@ -839,5 +1027,10 @@ internal static class _Utils
         }
 
         throw new Exception("No t value found");
+    }
+
+    public static bool IsInRect(vec4 rect, vec2 p)
+    {
+        return p.X >= rect.X && p.X <= rect.Z && p.Y >= rect.Y && p.Y <= rect.W;
     }
 }

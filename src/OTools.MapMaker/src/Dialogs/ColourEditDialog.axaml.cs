@@ -132,6 +132,43 @@ namespace OTools.MapMaker
 
         }
 
+        private Grid CreateSpotColourGrid()
+        {
+            Grid g = new()
+            {
+                ColumnDefinitions = new ColumnDefinitions("*,*"),
+                Height = 30,
+            };
+
+            ComboBox cb = new();
+            cb.SetValue(Grid.ColumnProperty, 0);
+
+            var spotCols = Manager.Map?.SpotColours.Select(x => x.Name).ToList()
+                ?? new List<string>();
+
+            cb.ItemsSource = spotCols;
+
+            NumericUpDown nud = new()
+            {
+                Margin = new(10, 0, 10, 0),
+
+                Maximum = 100,
+                Minimum = 0,
+                Value = 0,
+                Increment = 1,
+
+                HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+
+                FormatString = "{0}%",
+            };
+            nud.SetValue(Grid.ColumnProperty, 1);
+
+            g.Children.Add(cb);
+            g.Children.Add(nud);
+
+            return g;
+        }
+
         private void SetSample()
         {
             var (a, r, g, b) = CreateColour().ToARGB();
