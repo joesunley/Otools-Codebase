@@ -14,7 +14,7 @@
 						Stretch="None" ClipToBounds="True" Focusable="True">
 			<Canvas x:Name="canvas" Background="LightGray"
 					Width="1000000" Height="1000000" 
-					x:FieldModifier="protected">
+					x:FieldModifier="public">
             </Canvas>
 		</paz:ZoomBorder>
 	</ScrollViewer>

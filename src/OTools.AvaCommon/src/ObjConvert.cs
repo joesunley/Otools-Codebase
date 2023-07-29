@@ -276,7 +276,9 @@ public static class ObjConvert
 				var points = sSeg.Points.Select(x => x + topLeft).ToArray();
 
 				fig.StartPoint = points[0].ToPoint();
-				startSeg.Points.AddRange(points.Skip(1).Select(_Utils.ToPoint));
+
+				for (int i = 1; i < points.Count(); i++)
+					startSeg.Points.Add(points[i].ToPoint());
 
 				segs.Add(startSeg);
 			}

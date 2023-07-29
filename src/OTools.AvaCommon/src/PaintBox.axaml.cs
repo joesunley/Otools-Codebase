@@ -29,6 +29,8 @@ namespace OTools.AvaCommon
 					Properties = point.Properties,
 				});
 			};
+
+			
 		}
 
 		public void ZoomTo(vec2 centre, float factor)
@@ -118,7 +120,7 @@ namespace OTools.AvaCommon
 				return x;
 			});
 
-			var els = canvas.Children.Select(x => (Control)x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
+			var els = canvas.Children.Where(x => x.Tag is string s && s.Contains(id.ToString()));
 			canvas.Children.RemoveAll(els);   
 			
 			canvas.Children.AddRange(objects);
@@ -137,7 +139,7 @@ namespace OTools.AvaCommon
 			ODebugger.Assert(_ids.Contains(id));
 			ODebugger.Info($"Removed {id}");
 			
-			var els = canvas.Children.Select(x => (Control)x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
+			var els = canvas.Children.Where(x => x.Tag is string s && s.Contains(id.ToString()));
 			canvas.Children.RemoveAll(els);
 			
 			_ids.Remove(id);
@@ -149,7 +151,7 @@ namespace OTools.AvaCommon
 
 			foreach (Guid id in _ids)
 			{
-				var els = canvas.Children.Select(x => (Control)x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
+				var els = canvas.Children.Where(x => x.Tag is string s && s.Contains(id.ToString()));
 				canvas.Children.RemoveAll(els);
 
 			}
