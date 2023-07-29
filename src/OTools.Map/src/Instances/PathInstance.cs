@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 using OTools.Maps;
 using Sunley.Mathematics;
-using TerraFX.Interop.Windows;
 
 namespace OTools.Maps;
 
@@ -85,7 +84,7 @@ public interface PathInstance : Instance
 public sealed class PathCollection : IList<IPath>
 {
 	private readonly List<IPath> _segments;
-	private Dictionary<IPath, bool> _gaps;
+	private Dictionary<int, bool> _gaps;
 
 	public PathCollection()
 	{
@@ -97,7 +96,7 @@ public sealed class PathCollection : IList<IPath>
 	{
 		LinearPath lP = new(points);
 		_segments = new() { lP };
-        _gaps = new() { { lP, false } };
+        _gaps = new() { { 0, false } };
     }
 
     #region IList Implementation
@@ -110,7 +109,7 @@ public sealed class PathCollection : IList<IPath>
     public void Add(IPath item)
 	{
 		_segments.Add(item);
-		_gaps.Add(item, false);
+		_gaps.Add(_segments.IndexOf(item), false);
 	}
 
     public void Clear()
@@ -143,7 +142,11 @@ public sealed class PathCollection : IList<IPath>
 
 	public bool IsGap(IPath path)
 	{
-		if (_gaps.TryGetValue(path, out var isGap))
+		if (!_segments.Contains(path))
+			throw new ArgumentException("Path is not in collection");
+		int index = _segments.IndexOf(path);
+
+		if (_gaps.TryGetValue(index, out var isGap))
             return isGap;
 		return false;	
 	}
@@ -151,11 +154,12 @@ public sealed class PathCollection : IList<IPath>
 	{
 		if (!_segments.Contains(path))
 			return false;
+		int index = _segments.IndexOf(path);
 
-		if (_gaps.ContainsKey(path))
-			_gaps[path] = true;
+		if (_gaps.ContainsKey(index))
+			_gaps[index] = true;
 		else
-			_gaps.Add(path, true);
+			_gaps.Add(index, true);
 
 		return true;
 	}
