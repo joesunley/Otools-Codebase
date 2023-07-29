@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ComputeSharp" Version="2.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\OTools.Common\OTools.Common.csproj" />
     <ProjectReference Include="..\OTools.Course\OTools.Course.csproj" />
     <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
