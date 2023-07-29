@@ -1,6 +1,5 @@
-﻿using ComputeSharp;
-using OneOf.Types;
-using OTools.Maps;
+﻿using OTools.Maps;
+using ownsmtp.logging;
 using Sunley.Mathematics;
 using System.Data;
 using System.Diagnostics;
@@ -437,7 +436,7 @@ public class MapRenderer2D : IMapRenderer2D
 
 		return vFill;
 	}
-	private IEnumerable<IShape> RenderObjectFill(ObjectFill oFill, IEnumerable<vec2> poly, vec4 rect, bool shouldBeClipped)
+	private IEnumerable<IShape> RenderObjectFill(ObjectFill oFill, IList<vec2> poly, vec4 rect, bool shouldBeClipped)
 	{
 		if (oFill.IsClipped != shouldBeClipped) // Jank
 			return Enumerable.Empty<IShape>();
@@ -452,7 +451,7 @@ public class MapRenderer2D : IMapRenderer2D
 		};
 
 		if (!oFill.IsClipped)
-			points = points.Where(p => PolygonTools.IsPointInPoly(poly, p, rect.XY - (5, 5.0001)));
+			points = points.Where(p => PolygonTools.IsPointInPoly(poly, Enumerable.Empty<IList<vec2>>(), p, rect.XY - (5, 5.0001)));
 
 		List<IShape> renders = new();
 		foreach (vec2 p in points)
@@ -1012,7 +1011,7 @@ internal static partial class _Utils
 
 			if (pC.IsGap(seg))
 			{
-				paths.Add(points);
+				//paths.Add(points);
 				points = new();
 
 				continue;
@@ -1029,10 +1028,10 @@ internal static partial class _Utils
 			points = new();
 		}
 
-		if (paths.Count == 0)
+		if (paths.Count == 0) // Does this actually happen?
 			return CalculateMidPoints(points, midStyle);
 
-		paths.Add(points);
+		//paths.Add(points);
 
 		List<vec2> midPoints = new();
 		foreach (List<vec2> p in paths)
@@ -1047,8 +1046,8 @@ internal static partial class _Utils
 
 		float spacing = midStyle.GapLength;
 
-		float modInitOff = midStyle.InitialOffset + midStyle.GapLength / 2; // HalfLength on all
-		float modEndOff = midStyle.EndOffset - (midStyle.GapLength / 2); // Remove to shift too right .5 spacing
+		float modInitOff = midStyle.InitialOffset + (midStyle.GapLength / 2); // HalfLength on all
+		float modEndOff = midStyle.EndOffset + (midStyle.GapLength / 2.2f); // Remove to shift too right .5 spacing
 
 		bool initOffDone = false;
 
@@ -1101,15 +1100,17 @@ internal static partial class _Utils
 		float usableSpacing = len / count;
 
 		if (spacing * 0.8f > usableSpacing || spacing * 1.2f < usableSpacing)
-			return Enumerable.Empty<vec2>();
-			//throw new Exception(); // Doesn't Work?
+		{
+			WriteLine("!!!!! Spacing too large !!!!!");
+			ODebugger.Warn("Spacing too large");
+		}
 
 		List<vec2> mids = new();
 		float currDistance = 0f;
 
-		while (currDistance < len)
+		while (currDistance <= len)
 		{
-			vec2 p = _Utils.PointAtDistance(points.ToList(), currDistance);
+			vec2 p = PointAtDistance(points.ToList(), currDistance);
 			mids.Add(p);
 			currDistance += usableSpacing;
 		}
@@ -1151,43 +1152,6 @@ internal static partial class _Utils
 		rnd ??= new Random();
 
 		return rnd.NextDouble() * (max - min) + min;
-	}
-
-	// TODO: Remove any possibility of collision with points on the polygon, as cause missed/extra points
-	// Might have fixed using very slight difference between topLeft(offset) but not sure
-	public static bool IsPointInPolygon(IList<vec2> polygon, vec2 topLeft, vec2 point)
-	{
-		vec4 line = (topLeft, point);
-
-		int intersections = 0;
-		for (int i = 0; i < polygon.Count; i++)
-		{
-			vec4 segment = i == 0 ?
-				(polygon[^1], polygon[0]) : (polygon[i - 1], polygon[i]);
-
-			if (DoLinesIntersect(line, segment))
-				intersections++;
-		}
-
-		return intersections % 2 == 1;
-	}
-
-	public static bool DoLinesIntersect(vec4 l1, vec4 l2)
-	{
-		int o1 = Orientation(l1.XY, l1.ZW, l2.XY),
-			o2 = Orientation(l1.XY, l1.ZW, l2.ZW),
-			o3 = Orientation(l2.XY, l2.ZW, l1.XY),
-			o4 = Orientation(l2.XY, l2.ZW, l1.ZW);
-
-		if (o1 != o2 && o3 != o4)
-			return true;
-
-		if (o1 == 0 && OnSegment(l1.XY, l2.XY, l1.ZW)) return true;
-		if (o2 == 0 && OnSegment(l1.XY, l1.ZW, l1.ZW)) return true;
-		if (o3 == 0 && OnSegment(l2.XY, l1.XY, l2.ZW)) return true;
-		if (o4 == 0 && OnSegment(l2.XY, l1.ZW, l2.ZW)) return true;
-
-		return false;
 	}
 
 	public static int Orientation(vec2 a, vec2 b, vec2 c)
@@ -1318,19 +1282,21 @@ public static class PolygonTools
 	public static IEnumerable<vec2> Xor(IEnumerable<vec2> poly1, IEnumerable<vec2> poly2) => throw new NotImplementedException();
 
 	// Needs a lot of optimising / needs rewriting
-	public static IEnumerable<vec2> PoissonDiscSampling(IEnumerable<vec2> poly, float spacing, IEnumerable<IEnumerable<vec2>>? holes = null)
+	public static IEnumerable<vec2> PoissonDiscSampling(IEnumerable<vec2> poly, float spacing, IEnumerable<IList<vec2>>? holes = null)
 	{
-		IList<vec2> polyArr = poly.ToArray();
+		IList<vec2> polyArr = poly.ToList();
 		vec4 rect = polyArr.AABB();
 
 		IEnumerable<vec2> points = RandomlySampledRect(rect, spacing);
 
-		IEnumerable<vec2> validPoints = points.Where(p => IsPointInPoly(polyArr, p, rect.XY - (5, 5.0001)));
+		IEnumerable<vec2> validPoints = points.Where(p => IsPointInPoly(polyArr, holes ?? Enumerable.Empty<IList<vec2>>(), p, rect.XY - (5, 5.0001)));
 
 		if (holes is null) return validPoints;
 
-		foreach (IEnumerable<vec2> hole in holes)
-			validPoints = validPoints.Where(p => !IsPointInPoly(hole, p, rect.XY - (5, 5.0001)));
+		// Important check until hole merging is implemented
+
+		foreach (IList<vec2> hole in holes)
+			validPoints = validPoints.Where(p => !IsPointInPoly(hole, Enumerable.Empty<IList<vec2>>(), p, rect.XY - (5, 5.0001)));
 
 		return validPoints;
 	}
@@ -1436,13 +1402,13 @@ public static class PolygonTools
 	private static double Next(this Random rnd, double min, double max)
 		=> rnd.NextDouble() * (max - min) + min;
 
-	public static IEnumerable<vec2> SpacedSampling(IEnumerable<vec2> poly, vec2 spacing, float rotation, IEnumerable<IEnumerable<vec2>>? holes = null)
+	public static IEnumerable<vec2> SpacedSampling(IList<vec2> poly, vec2 spacing, float rotation, IEnumerable<IEnumerable<vec2>>? holes = null)
 	{
 		vec4 aabb = poly.AABB() + (-spacing.X / 2, -spacing.Y / 2, spacing.X / 2, spacing.Y / 2);
 
 		if (rotation == 0f)
 			return SpacedSampledRect(aabb, spacing)
-				.Where(x => IsPointInPoly(poly, aabb.XY - (5, 5.0001), x));
+				.Where(x => IsPointInPoly(poly, Enumerable.Empty<IList<vec2>>(), aabb.XY - (5, 5.0001), x));
 
 		// if rotated
 		var rPoly = Rotate(poly, -rotation, aabb.XY);
@@ -1451,7 +1417,7 @@ public static class PolygonTools
 		var points = SpacedSampledRect(rBBox, spacing);
 
 		return Rotate(points, rotation, aabb.XY)
-			.Where(x => IsPointInPoly(poly, aabb.XY - (5, 5.0001), x));
+			.Where(x => IsPointInPoly(poly, Enumerable.Empty<IList<vec2>>(), aabb.XY - (5, 5.0001), x));
 	}
 
 	public static IEnumerable<vec2> SpacedSampledRect(vec4 rect, vec2 spacing)
@@ -1498,25 +1464,39 @@ public static class PolygonTools
 
 	public static IEnumerable<vec2> FilterOutside(IEnumerable<vec2> poly, IEnumerable<vec2> points) => throw new NotImplementedException();
 
-	public static bool IsPointInPoly(IEnumerable<vec2> poly, vec2 point, vec2? samplePoint = null)
-	{
-		vec2 sP = samplePoint ?? (poly.AABB().XY - (1, 1.0001));
-		vec4 line = (sP, point);
-		ReadOnlySpan<vec2> span = poly.ToArray();
+    public static bool IsPointInPoly(IList<vec2> poly, IEnumerable<IList<vec2>> holes, vec2 point, vec2? samplePoint = null)
+    {
+		// Doesn't work on overlapping holes
+		// Need to implement hole merging first
 
-		int intersections = 0;
-		for (int i = 0; i < span.Length; i++)
-		{
-			vec4 segment = (i == 0) ? (span[^1], span[0]) : (span[i - 1], span[i]);
+        vec2 sample = samplePoint ?? (poly.AABB().XY - (1, 1.0001));
+        vec4 line = (sample, point);
 
-			if (DoLinesIntersect(line, segment))
-				intersections++;
-		}
+        int intersections = 0;
 
-		return intersections % 2 == 1;
-	}
+        for (int i = 0; i < poly.Count; i++)
+        {
+            vec4 seg = (i == 0) ? (poly[^1], poly[0]) : (poly[i - 1], poly[i]);
 
-	private static bool DoLinesIntersect(vec4 l1, vec4 l2)
+            if (DoLinesIntersect(line, seg))
+                intersections++;
+        }
+
+        foreach (var hole in holes)
+        {
+            for (int i = 0; i < hole.Count; i++)
+            {
+                vec4 seg = (i == 0) ? (hole[^1], hole[0]) : (hole[i - 1], hole[i]);
+
+                if (DoLinesIntersect(line, seg))
+                    intersections++;
+            }
+        }
+
+        return (intersections % 2) == 1;
+    }
+
+    private static bool DoLinesIntersect(vec4 l1, vec4 l2)
 	{
 		int o1 = Orientation(l1.XY, l1.ZW, l2.XY),
 			o2 = Orientation(l1.XY, l1.ZW, l2.ZW),
@@ -1605,4 +1585,24 @@ public static class PolygonTools
 
 		return tLen;
 	}
+
+    public static IList<vec2> ToPolygon(PathInstance path)
+    {
+		List<vec2> v2s = new();
+
+		foreach (var seg in path.Segments)
+		{
+			switch (seg)
+			{
+				case LinearPath line:
+					v2s.AddRange(line);
+					break;
+				case BezierPath bezier:
+					v2s.AddRange(bezier.LinearApproximation());
+					break;
+			}
+		}
+
+		return v2s;
+    }
 }
