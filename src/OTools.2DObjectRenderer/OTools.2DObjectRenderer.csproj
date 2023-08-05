@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OTools.Common\OTools.Common.csproj" />
     <ProjectReference Include="..\OTools.Course\OTools.Course.csproj" />
     <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
   </ItemGroup>

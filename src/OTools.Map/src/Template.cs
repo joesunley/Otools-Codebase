@@ -1,5 +1,4 @@
 ﻿using OTools.Common;
-using SixLabors.ImageSharp;
 
 namespace OTools.Maps;
 
@@ -29,6 +28,7 @@ public abstract class Template : IStorable
         Adjustment = adjustment;
     }
 }
+
 
 public class MapTemplate : Template
 {

@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
-using OTools.Common;
+﻿using OTools.Common;
 using ownsmtp.logging;
-using SixLabors.ImageSharp.ColorSpaces;
-using TerraFX.Interop.Windows;
 
 namespace OTools.Maps;
 

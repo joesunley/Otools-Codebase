@@ -1,13 +1,10 @@
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using OTools.AvaCommon;
 using OTools.Common;
 using ownsmtp.logging;
-using TerraFX.Interop.DirectX;
-using TerraFX.Interop.Windows;
 
 namespace OTools.Routechoice
 {

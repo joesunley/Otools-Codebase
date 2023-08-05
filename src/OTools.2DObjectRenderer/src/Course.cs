@@ -1,10 +1,7 @@
-﻿using System.Diagnostics;
-using OTools.Courses;
+﻿using OTools.Courses;
 using OTools.Maps;
 using ownsmtp.logging;
 using Sunley.Mathematics;
-using System.Text;
-using TerraFX.Interop.Windows;
 
 namespace OTools.ObjectRenderer2D;
 

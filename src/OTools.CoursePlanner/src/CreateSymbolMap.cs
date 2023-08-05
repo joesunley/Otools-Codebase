@@ -1,7 +1,5 @@
-﻿using Avalonia.Utilities;
-using OTools.Common;
+﻿using OTools.Common;
 using OTools.Maps;
-using TerraFX.Interop.Windows;
 
 namespace OTools.CoursePlanner;
 
