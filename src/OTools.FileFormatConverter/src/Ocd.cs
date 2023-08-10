@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OneOf;
+using OneOf.Types;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -1784,11 +1786,68 @@ internal static class v6_Read
 {
     public static void H()
     {
-        FileStream fs = new(@"D:\Orienteering\Maps\UK\North\West\WCOC\Marron Leys - Oct 13.ocd", FileMode.Open, FileAccess.Read);
+        FileStream fs = new(@"J:\OneDrive - Jossy\Orienteering\Maps\UK\North\West\WCOC\Marron Leys - Oct 13.ocd", FileMode.Open, FileAccess.Read);
         BinaryReader reader = new(fs);
 
-        v6_FileHeader fz = reader.ReadBytes<v6_FileHeader>();
-        v6_SymHeader sH = reader.ReadBytes<v6_SymHeader>();
+        var fileHeader = reader.ReadBytes<v6_FileHeader>().AsT0;
+        var sH = reader.ReadBytes<v6_SymHeader>().AsT0;
+
+        var offset = fileHeader.FirstSymBlk;
+
+        while (offset != 0)
+        {
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+            var symBlock = reader.ReadBytes<v6_SymbolBlock>();
+
+            Assert(symBlock.IsT0);
+            var block  = symBlock.AsT0;
+
+            // Parse Symbol
+
+            for (int i = 0; i < block.FilePos.Length; i++)
+            {
+                int pos = block.FilePos[i];
+
+                if (pos == 0)
+                    continue;
+
+                reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+                byte[] data = reader.GetBytes<v6_BaseSym>();
+
+                var symBase = _Utils.ByteToType<v6_BaseSym>(data);
+                Assert(symBase.IsT0);
+                var sBase = symBase.AsT0;
+
+                switch (sBase.Otp)
+                {
+                    case 1:
+                    {
+                        var symPoint = _Utils.ByteToType<v6_PointSym>(data);
+                    }
+                    break;
+                    case 2:
+                    {
+                    }
+                    break;
+                    case 3:
+                    {
+                        var symArea = _Utils.ByteToType<v6_AreaSym>(data);
+                    }
+                    break;
+                    case 4:
+                    {
+                        var symText = _Utils.ByteToType<v6_TextSym>(data);
+                    }
+                    break;
+                    case 5:
+                    {
+                        var symRect = _Utils.ByteToType<v6_RectSym>(data);
+                    }
+                    break;
+                }
+            }
+            offset = block.NextBlock;
+        }
 
         Console.WriteLine(Marshal.SizeOf<v6_BaseSym>());
         Console.WriteLine(Marshal.SizeOf<v6_PointSym>());
@@ -1799,42 +1858,6 @@ internal static class v6_Read
         Console.WriteLine(Marshal.SizeOf<v6_RectSym>());
 
         Console.ReadLine();
-    }
-
-    public static T? ByteToType<T>(byte[] bytes)
-    {
-        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-        T? rObj = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-        handle.Free();
-
-        return rObj;
-    }
-    public static T? ByteToType<T>(BinaryReader reader)
-    {
-        byte[] bytes = reader.ReadBytes(Marshal.SizeOf(typeof(T)));
-
-        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-        T? rObj = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-        handle.Free();
-
-        return rObj;
-    }
-
-    public static T? ReadBytes<T>(this BinaryReader reader)
-    {
-        byte[] bytes = reader.ReadBytes(Marshal.SizeOf<T>());
-
-        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-        T? ret = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-        handle.Free();
-
-        return ret;
-    }
-
-    private static class ByteUtils
-    {
-        public static byte[] Seek(byte[] arr, int startPoint, int length) 
-            => arr.Skip(startPoint).Take(length).ToArray();
     }
 }
 
@@ -2008,3 +2031,32 @@ file struct v9_TBaseSym
 }
 
 #endregion
+
+file static class _Utils
+{
+    public static byte[] Seek(this byte[] arr, int startPoint, int length)
+        => arr.Skip(startPoint).Take(length).ToArray();
+    public static byte[] JumpTo(this byte[] arr, int point)
+        => arr.Skip(point).ToArray();
+
+    public static OneOf<T, Error<T>> ByteToType<T>(byte[] bytes)
+    {
+        GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        T? structure = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+        handle.Free();
+
+        if (structure is null)
+            return new Error<T>();
+        return structure;
+    }
+
+    public static OneOf<T, Error<T>> ReadBytes<T>(this BinaryReader reader)
+    {
+        byte[] bytes = reader.ReadBytes(Marshal.SizeOf<T>());
+
+        return ByteToType<T>(bytes);
+    }
+
+    public static byte[] GetBytes<T>(this BinaryReader reader) 
+        => reader.ReadBytes(Marshal.SizeOf<T>());
+}
