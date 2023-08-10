@@ -31,23 +31,25 @@ public interface IMapRenderer2D : IVisualRenderer
 
 public class MapRenderer2D : IMapRenderer2D
 {
-	protected Map _activeMap;
+	protected Map? _activeMap;
     
-	public MapRenderer2D(Map map)
+	public MapRenderer2D(Map? map = null)
 	{
 		_activeMap = map;
 	}
 
 	public virtual IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
 	{
+		if (_activeMap is null)
+			throw new InvalidOperationException("No map has been set.");
+
 		List<(Instance, IEnumerable<IShape>)> objs = new();
 		foreach (Instance inst in _activeMap.Instances)
 			objs.Add((inst, RenderInstance(inst)));
 		return objs;
 	}
 
-	public IEnumerable<IShape> Render() => RenderMap().Select(x => x.Item2).SelectMany(x => x);
-
+	public IEnumerable<(Guid, IEnumerable<IShape>)> Render() => RenderMap().Select(x => (x.Item1.Id, x.Item2));
 	public IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs)
 	{
 		List<IShape> shapes = new();
@@ -556,18 +558,20 @@ public sealed class WireframeMapRenderer2D : IMapRenderer2D
 	public static float LineWidth { get; set; }
 	public static float PointRadius { get; set; }
 
-	private Map _activeMap;
+	private Map? _activeMap;
 
 	// Need to add way to update for changed symbols.
 	// Could just redo the calculation for every symbol every time there is
 	// an update but is inefficient
 	private readonly Dictionary<Guid, Colour> _cachedPrimaryColours;
 
-	public WireframeMapRenderer2D(Map map)
+	public WireframeMapRenderer2D(Map? map = null)
 	{
 		_activeMap = map;
 
 		_cachedPrimaryColours = new();
+
+		if (_activeMap is null) return;
 
 		foreach (var kvp in CalculatePrimaryColours(_activeMap.Symbols))
 			_cachedPrimaryColours.TryAdd(kvp.Item1, kvp.Item2);
@@ -577,13 +581,16 @@ public sealed class WireframeMapRenderer2D : IMapRenderer2D
 
 	public IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
 	{
+		if (_activeMap is null)
+			throw new InvalidOperationException("No map has been set");
+
 		List<(Instance, IEnumerable<IShape>)> objs = new();
 		foreach (Instance inst in _activeMap.Instances)
 			objs.Add((inst, RenderInstance(inst)));
 		return objs;
 	}
 	
-	public IEnumerable<IShape> Render() => RenderMap().SelectMany(x => x.Item2);
+	public IEnumerable<(Guid, IEnumerable<IShape>)> Render() => RenderMap().Select(x => (x.Item1.Id, x.Item2));
 
 	public IEnumerable<IShape> RenderMapObjects(IEnumerable<MapObject> objs)
 	{
@@ -846,10 +853,8 @@ public sealed class UncrossableMapRenderer2D : MapRenderer2D
 	private readonly RgbColour _black;
 	public static bool RenderAsBlack = false;
 
-    public UncrossableMapRenderer2D(Map map) : base(map)
+    public UncrossableMapRenderer2D(Map? map = null) : base(map)
 	{
-		_activeMap = map;
-
 		_black = new("Black", 0, 0, 0);
     }
 

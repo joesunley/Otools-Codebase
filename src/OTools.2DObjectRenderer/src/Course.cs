@@ -32,16 +32,16 @@ public class CourseRenderer2D : ICourseRenderer2D
 {
     private readonly Event _activeEvent;
 
-    private readonly MapRenderer2D _mapRenderer;
+    private readonly IMapRenderer2D _mapRenderer;
 
     public CourseRenderer2D(Event ev)
     {
         _activeEvent = ev;
-        _mapRenderer = new(_activeEvent.SymbolMap 
+        _mapRenderer = new MapRenderer2D(_activeEvent.SymbolMap 
             ?? throw new Exception("Symbol Map not set"));
     }
 
-    public IEnumerable<IShape> Render()
+    public IEnumerable<(Guid, IEnumerable<IShape>)> Render()
 	{
 		throw new InvalidOperationException();
 	}

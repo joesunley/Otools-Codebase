@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using OTools.AvaCommon;
-using OTools.Common;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
 
@@ -24,9 +23,8 @@ namespace OTools.MapMaker
 			//Map map = DefaultISOM();
 
 			Manager.MapRenderer = new MapRenderer2D(map);
-			var render = Manager.MapRenderer.RenderMap();
-			
-			paintBox.Load(render.Select(x => (x.Item1.Id, x.Item2)));
+
+			paintBox.Load(Manager.MapRenderer.Render());
 
 			Manager.MapEdit = MapEdit.Create();
 			Manager.MapDraw = MapDraw.Create();

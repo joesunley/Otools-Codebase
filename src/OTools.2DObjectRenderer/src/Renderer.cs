@@ -2,5 +2,5 @@
 
 public interface IVisualRenderer
 {
-	public IEnumerable<IShape> Render();
+	public IEnumerable<(Guid, IEnumerable<IShape>)> Render();
 }
