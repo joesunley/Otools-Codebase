@@ -3,6 +3,7 @@ using Avalonia.Controls.PanAndZoom;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
+using OTools.Common;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using ownsmtp.logging;
@@ -91,8 +92,9 @@ namespace OTools.AvaCommon
 		#region ViewManager
 
 		private readonly List<Guid> _ids = new();
-		
-		public IEnumerable<Control> this[Guid id] => canvas.Children.Select(x => (Control)x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
+
+        public IEnumerable<Control> this[Guid id] 
+			=> canvas.Children.Select(x => x).Where(x => x.Tag is string s && s.Contains(id.ToString()));
 		
 		public void Add(Guid id, IEnumerable<Control> objects)
 		{
@@ -101,7 +103,10 @@ namespace OTools.AvaCommon
 
 			objects = objects.Select(x =>
 			{
-				x.Tag = id.ToString();
+				Tag tag = x.Tag as Tag ?? new();
+				tag.Add(id);
+				x.Tag = tag;
+
 				return x;
 			});
 			
@@ -116,11 +121,14 @@ namespace OTools.AvaCommon
 			
 			objects = objects.Select(x =>
 			{
-				x.Tag = id.ToString();
-				return x;
-			});
+                Tag tag = x.Tag as Tag ?? new();
+                tag.Add(id);
+                x.Tag = tag;
 
-			var els = canvas.Children.Where(x => x.Tag is string s && s.Contains(id.ToString()));
+                return x;
+            });
+
+			var els = canvas.Children.Where(x => (x.ToString() ?? string.Empty).Contains(id.ToString()));
 			canvas.Children.RemoveAll(els);   
 			
 			canvas.Children.AddRange(objects);
@@ -138,9 +146,9 @@ namespace OTools.AvaCommon
 		{
 			ODebugger.Assert(_ids.Contains(id));
 			ODebugger.Info($"Removed {id}");
-			
-			var els = canvas.Children.Where(x => x.Tag is string s && s.Contains(id.ToString()));
-			canvas.Children.RemoveAll(els);
+
+            var els = canvas.Children.Where(x => (x.ToString() ?? string.Empty).Contains(id.ToString()));
+            canvas.Children.RemoveAll(els);
 			
 			_ids.Remove(id);
 		}
@@ -161,7 +169,68 @@ namespace OTools.AvaCommon
 
 		#endregion
 
+		#region ViewManager2
+		public Guid CurrentLayer { get; set; }
+
+		private List<Layer> _layers = new();
+
+		public void Add2(Guid id, IEnumerable<Control> objects)
+		{
+			ODebugger.Info($"Added {id} to {CurrentLayer}");
+
+			objects = objects.Select(x =>
+			{
+				Tag tag = x.Tag as Tag ?? new();
+				tag.Add(id);
+				tag.Add(CurrentLayer);
+				x.Tag = tag;
+
+				return x;
+			});
+
+			canvas.Children.AddRange(objects);
+
+			//_layers[0].ObjectIds.Add(id);
+		}
+		public void AddLayer(Guid layerId, IEnumerable<(Guid id, IEnumerable<Control> objects)> layer)
+		{
+			ODebugger.Info($"Added Layer {layerId}");
+
+			foreach (var obj in layer)
+			{
+				var objs = obj.objects.Select(x =>
+				{
+					Tag tag = x.Tag as Tag ?? new();
+					tag.Add(obj.id);
+					tag.Add(layerId);
+					x.Tag = tag;
+
+					return x;
+				});
+
+				canvas.Children.AddRange(objs);
+			}
+
+			Layer l = new()
+			{
+				Id = layerId,
+                ObjectIds = new(layer.Select(x => x.id)),
+            };
+
+			_layers.Add(l);
+        }
+
+
+		#endregion
 	}
+}
+
+internal struct Layer : IStorable
+{
+	public Guid Id { get; set; }
+	public List<Guid> ObjectIds { get; set; }
+
+	public static implicit operator Guid(Layer layer) => layer.Id;
 }
 
 public struct MouseMovedEventArgs

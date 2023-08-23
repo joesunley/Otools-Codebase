@@ -15,12 +15,9 @@ namespace OTools.MapMaker
 			paintBox.PanTo(vec2.Zero);
 
 			Manager.PaintBox = paintBox;
-			ViewManager.Set(paintBox, this);
 
 			Map map = MapLoader.Load(@"C:\Dev\Phanes\tests\Files\map1.xml");
 			map.Colours.UpdatePrecendences(0);
-
-			//Map map = DefaultISOM();
 
 			Manager.MapRenderer = new MapRenderer2D(map);
 
