@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OTools.2DObjectRenderer\OTools.2DObjectRenderer.csproj" />
+    <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
   </ItemGroup>
 
 </Project>
