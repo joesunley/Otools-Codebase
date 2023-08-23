@@ -12,6 +12,10 @@ public sealed class Event : IEvent
 {
     public string Name { get; set; }
     public DateOnly Date { get; set; }
+
+    public EntryStore Entries { get; set; }
+    public ResultStore Results { get; set; }
+    public PunchStore Punches { get; set; }
 }
 
 public sealed class MultiDayEvent : IEvent

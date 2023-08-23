@@ -1,5 +1,4 @@
 ﻿using OTools.Common;
-using System.Collections;
 
 namespace OTools.Events;
 
@@ -7,53 +6,53 @@ public sealed class Result : IStorable
 {
     public Guid Id { get; set; }
 
-    public Entry Entry { get; set; }
+    public Entry? Entry { get; set; }
 
-    public List<Split> Legs { get; set; } 
+    public List<Punch> Punches { get; set; } 
 
     public Result()
     {
         Id = Guid.NewGuid();
-        Legs = new();
+        Punches = new();
     }
 
-    public Result(List<Split> legs)
+    public Result(List<Punch> punches)
     {
         Id = Guid.NewGuid();
-        Legs = legs;
+        Punches = punches;
     }
 
-    public Result(Guid id, List<Split> legs)
+    public Result(Guid id, List<Punch> punches)
     {
         Id = id;
-        Legs = legs;
+        Punches = punches;
     }
 }
 
-public struct Split
-{
-    public ushort Code { get; set; }
-    public DateTime RealTime { get; set; }
-}
+//public struct Punch
+//{
+//    public ushort Code { get; set; }
+//    public DateTime TimeStamp { get; set; }
+//}
 
 
 public static class ResultFunctions
 {
     public static TimeSpan GetResultTime(this Result result)
     {
-        return result.Legs[^1].RealTime - result.Legs[0].RealTime;
+        return result.Punches[^1].TimeStamp - result.Punches[0].TimeStamp;
     }
 
     public static IEnumerable<TimeSpan> GetSplitTimes(this Result result)
     {
-        for (int i = 1; i < result.Legs.Count; i++)
-            yield return result.Legs[i].RealTime - result.Legs[i - 1].RealTime;
+        for (int i = 1; i < result.Punches.Count; i++)
+            yield return result.Punches[i].TimeStamp - result.Punches[i - 1].TimeStamp;
     }
 
     public static IEnumerable<TimeSpan> GetElapsedTimes(this Result result)
     {
-        for (int i = 0; i < result.Legs.Count; i++)
-            yield return result.Legs[i].RealTime - result.Legs[0].RealTime;
+        for (int i = 0; i < result.Punches.Count; i++)
+            yield return result.Punches[i].TimeStamp - result.Punches[0].TimeStamp;
     }
 
     public static IEnumerable<(TimeSpan, TimeSpan)> GetSplitElapsedTimes(this Result result)

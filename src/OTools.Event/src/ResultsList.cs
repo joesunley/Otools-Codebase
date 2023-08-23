@@ -16,7 +16,7 @@ public class ResultsList
 
 	public static ResultsList Create(IEnumerable<Result> results)
 	{
-		IEnumerable<IGrouping<Course?, Result>> groups = results.GroupBy(x => x.Entry.Course);
+		IEnumerable<IGrouping<Course?, Result>> groups = results.GroupBy(x => x.Entry?.Course ?? null);
 
 		Dictionary<Course, IList<Result>> res = new();
 		
