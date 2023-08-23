@@ -54,11 +54,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.MapViewer", "src\OTo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.MapMaker", "src\OTools.MapMaker\OTools.MapMaker.csproj", "{AFF320B0-9FA5-4CD9-A1BB-186CC2970FDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.CoursePlanner", "src\OTools.CoursePlanner\OTools.CoursePlanner.csproj", "{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.CoursePlanner", "src\OTools.CoursePlanner\OTools.CoursePlanner.csproj", "{EF9F7563-5F81-4967-B38C-7E4221E4F2AD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.Routechoice", "src\OTools.Routechoice\OTools.Routechoice.csproj", "{93FA353E-9412-4CBD-A273-3C6509D1543B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.AvaCommon", "src\OTools.AvaCommon\OTools.AvaCommon.csproj", "{F063C9F6-0544-4E0D-9613-F8A482D2A932}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.AvaCommon", "src\OTools.AvaCommon\OTools.AvaCommon.csproj", "{F063C9F6-0544-4E0D-9613-F8A482D2A932}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.SymbolSet", "src\OTools.SymbolSet\OTools.SymbolSet.csproj", "{E9F561B7-236D-4C35-9E51-3166C7ECA10D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,6 +144,10 @@ Global
 		{F063C9F6-0544-4E0D-9613-F8A482D2A932}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F063C9F6-0544-4E0D-9613-F8A482D2A932}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F063C9F6-0544-4E0D-9613-F8A482D2A932}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9F561B7-236D-4C35-9E51-3166C7ECA10D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9F561B7-236D-4C35-9E51-3166C7ECA10D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9F561B7-236D-4C35-9E51-3166C7ECA10D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9F561B7-236D-4C35-9E51-3166C7ECA10D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -75,6 +75,9 @@ public struct SymbolNumber
 
     public static implicit operator SymbolNumber((ushort, ushort, ushort) tup)
         => new(tup.Item1, tup.Item2, tup.Item3);
+
+    public static implicit operator SymbolNumber(ushort num)
+        => new(num, 0, 0);
 }
 
 public interface IPathSymbol
