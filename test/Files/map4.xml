@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Map title="" version="2">
+  <MapInfo colourSpace="RGB">
+    <LayerInfo>
+      <Layer name="Main" opacity="1"></Layer>
+    </LayerInfo>
+  </MapInfo>
+  <Colours>
+    <Colour id="294b5793-824e-4b40-afdd-b5e88c98240c" name="Spot: Black" precedence="49">
+      <CMYK c="0" m="0" y="0" k="1"></CMYK>
+    </Colour>
+    <Colour id="c1554607-f183-4615-b588-c39962c2d05d" name="Spot: Blue" precedence="48">
+      <CMYK c="1" m="0" y="0" k="0"></CMYK>
+    </Colour>
+    <Colour id="41006464-7129-41b9-8ef1-1fc89207ac54" name="Spot: Yellow" precedence="47">
+      <CMYK c="0" m="0.27" y="0.79" k="0"></CMYK>
+    </Colour>
+    <Colour id="7e5bf69f-4985-4e29-b4ac-0ad2f28722fd" name="Spot: Green" precedence="46">
+      <CMYK c="0.76" m="0" y="0.91" k="0"></CMYK>
+    </Colour>
+    <Colour id="ced7c4af-7c3b-475c-8e05-da542dc7a7f1" name="Spot: Dark Green" precedence="45">
+      <CMYK c="1" m="0" y="0.8" k="0.3"></CMYK>
+    </Colour>
+    <Colour id="f9bdb07e-69c6-44dc-81dc-ab08404f5559" name="Spot: Brown" precedence="44">
+      <CMYK c="0" m="0.56" y="1" k="0.18"></CMYK>
+    </Colour>
+    <Colour id="ccd5e816-c345-4e31-9f48-44b76bd69069" name="Spot: Purple" precedence="43">
+      <CMYK c="0.35" m="0.85" y="0" k="0"></CMYK>
+    </Colour>
+    <Colour id="ecc86df3-6055-4a8a-bf19-b0e7ac21d529" name="Spot: White" precedence="42">
+      <CMYK c="0" m="0" y="0" k="0"></CMYK>
+    </Colour>
+    <Colour id="fa323a33-f9c7-4dea-97c2-775c4bbb597c" name="Upper purple for course overprint" precedence="41">
+      <Spot colour="cccb0243-8f06-41bb-8f5d-91634b24015d" factor="1"></Spot>
+    </Colour>
+    <Colour id="4ec8dc20-5f6d-4d25-a800-497550652c1e" name="White for course overprint" precedence="40">
+      <Spot colour="98f53635-5962-4745-b6a5-0e0cee96c79c" factor="1"></Spot>
+    </Colour>
+    <Colour id="5048a516-72c7-4368-84bd-523f3020178f" name="Purple 50% area symbol" precedence="39">
+      <Spot colour="cccb0243-8f06-41bb-8f5d-91634b24015d" factor="0.5"></Spot>
+    </Colour>
+    <Colour id="0efb7576-c2d4-4504-b02b-a07da8382ca8" name="Green for Ski-O" precedence="38">
+      <CMYK c="0.91" m="0" y="0.83" k="0"></CMYK>
+    </Colour>
+    <Colour id="d1e087f1-41cf-420a-93fe-9afff7e5fea4" name="White for railroad" precedence="37">
+      <Spot colour="98f53635-5962-4745-b6a5-0e0cee96c79c" factor="1"></Spot>
+    </Colour>
+    <Colour id="a5feb757-b3fa-4f8d-b1da-bc57783f47d0" name="Black 100%" precedence="36">
+      <Spot colour="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" factor="1"></Spot>
+    </Colour>
+    <Colour id="673da830-bd7f-4de4-a02c-3444dea5ed28" name="Blue 100% point symbols" precedence="35">
+      <Spot colour="6d57fd62-a658-4d7f-bb03-cb937ace7201" factor="1"></Spot>
+    </Colour>
+    <Colour id="81ac0c95-deb0-4423-9bb9-95bceaada3cd" name="Brown 100% point symbols" precedence="34">
+      <Spot colour="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" factor="1"></Spot>
+    </Colour>
+    <Colour id="dc2106f6-ce5b-4869-a697-bd6e3cc250e0" name="Green 100% point symbols" precedence="33">
+      <Spot colour="d23ea01a-79b4-4909-b013-946f816043d3" factor="1"></Spot>
+    </Colour>
+    <Colour id="ce327539-db01-4223-aa0a-0d38fb960157" name="Blue 100% line symbols" precedence="32">
+      <Spot colour="6d57fd62-a658-4d7f-bb03-cb937ace7201" factor="1"></Spot>
+    </Colour>
+    <Colour id="2ce9d10d-6cb7-441d-994f-9ff8ebf42dd5" name="Dark green line symbols" precedence="31">
+      <Spot colour="8cf4fb97-a59a-4799-8397-934f5e2181f2" factor="1"></Spot>
+    </Colour>
+    <Colour id="5d4257d1-2341-445f-a452-ad390a06f38a" name="Brown 100% line symbols" precedence="30">
+      <Spot colour="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" factor="1"></Spot>
+    </Colour>
+    <Colour id="757efb17-21ee-4cdb-9501-3dc90b7ffcbc" name="Lower purple for course overprint" precedence="29">
+      <Spot colour="cccb0243-8f06-41bb-8f5d-91634b24015d" factor="1"></Spot>
+    </Colour>
+    <Colour id="c380305e-db60-4a7b-907f-a1227fc3a57c" name="Dark green line symbols" precedence="28">
+      <Spot colour="8cf4fb97-a59a-4799-8397-934f5e2181f2" factor="1"></Spot>
+    </Colour>
+    <Colour id="9f5ecd9e-b74e-4bb6-babd-5af45a33cf00" name="Blue 100% point and line symbols" precedence="27">
+      <Spot colour="6d57fd62-a658-4d7f-bb03-cb937ace7201" factor="1"></Spot>
+    </Colour>
+    <Colour id="2e967d95-ceff-4828-9981-d02e825af28b" name="Brown 100%" precedence="26">
+      <Spot colour="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" factor="1"></Spot>
+    </Colour>
+    <Colour id="89140353-8677-4ec7-86cd-1970e8f509c1" name="White stripes for area passable at two levels" precedence="25">
+      <Spot colour="98f53635-5962-4745-b6a5-0e0cee96c79c" factor="1"></Spot>
+    </Colour>
+    <Colour id="32a24bea-820a-49c2-82d5-4e7e8453b045" name="Brown 50% for road infill" precedence="24">
+      <Spot colour="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" factor="0.5"></Spot>
+    </Colour>
+    <Colour id="351b4468-271f-400d-a69f-d4b731b9e154" name="Brown 30% for road infill" precedence="23">
+      <Spot colour="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" factor="0.3"></Spot>
+    </Colour>
+    <Colour id="2a1d5fb5-8781-4acf-a917-f8e336291709" name="Black 100% for road outline" precedence="22">
+      <Spot colour="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" factor="1"></Spot>
+    </Colour>
+    <Colour id="a3b7d5ae-c010-4b92-a7f1-8968d8815b59" name="Black 60% for buildings" precedence="21">
+      <Spot colour="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" factor="0.6"></Spot>
+    </Colour>
+    <Colour id="b7306cd3-5472-430d-8937-be51c781c614" name="Black 50% for large buildings and tramway" precedence="20">
+      <Spot colour="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" factor="0.5"></Spot>
+    </Colour>
+    <Colour id="10b2919d-8cb4-4c81-92f1-9e8ce1c71d25" name="Black 20% for canopy" precedence="19">
+      <Spot colour="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" factor="0.2"></Spot>
+    </Colour>
+    <Colour id="6440a707-1194-4e2b-aa96-4d5fd5d8f12a" name="Blue 100% area symbols" precedence="18">
+      <Spot colour="6d57fd62-a658-4d7f-bb03-cb937ace7201" factor="1"></Spot>
+    </Colour>
+    <Colour id="64d28f88-6f67-4885-bb63-17993d44bc94" name="Blue 70% area symbols" precedence="17">
+      <Spot colour="6d57fd62-a658-4d7f-bb03-cb937ace7201" factor="0.7"></Spot>
+    </Colour>
+    <Colour id="6bacb1b2-2749-4682-bf5d-de435ae5e688" name="Blue 50% area symbols" precedence="16">
+      <Spot colour="6d57fd62-a658-4d7f-bb03-cb937ace7201" factor="0.5"></Spot>
+    </Colour>
+    <Colour id="f2eb731e-1707-46f3-bf96-49179a740d46" name="Blue 30% area symbols" precedence="15">
+      <Spot colour="6d57fd62-a658-4d7f-bb03-cb937ace7201" factor="0.3"></Spot>
+    </Colour>
+    <Colour id="0aa1f69d-42e8-4905-b46f-437dcbbc454f" name="White over green and brown" precedence="14">
+      <Spot colour="98f53635-5962-4745-b6a5-0e0cee96c79c" factor="1"></Spot>
+    </Colour>
+    <Colour id="78c9cd05-4e96-4450-b5f5-b1a4714104ba" name="Brown 50% for paved area" precedence="13">
+      <Spot colour="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" factor="0.5"></Spot>
+    </Colour>
+    <Colour id="6e85aea6-7de8-445d-9354-061950b8881e" name="Brown 30% for paved area" precedence="12">
+      <Spot colour="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" factor="0.3"></Spot>
+    </Colour>
+    <Colour id="0cd5f7ec-2ed8-426e-bc25-aa6a716b5a73" name="Yellow 100% + Green 50%" precedence="11">
+      <Spot colour="39f5159d-c964-422d-969e-b24b5455edec" factor="1"></Spot>
+      <Spot colour="d23ea01a-79b4-4909-b013-946f816043d3" factor="0.5"></Spot>
+    </Colour>
+    <Colour id="464151a2-151b-425d-b021-789fcb0e32ff" name="Dark green area symbols" precedence="10">
+      <Spot colour="8cf4fb97-a59a-4799-8397-934f5e2181f2" factor="1"></Spot>
+    </Colour>
+    <Colour id="25ec80c0-3fe8-4022-9de7-6cffd134c97b" name="Green 100% area symbols" precedence="9">
+      <Spot colour="d23ea01a-79b4-4909-b013-946f816043d3" factor="1"></Spot>
+    </Colour>
+    <Colour id="9ddd2ae0-c1fc-4082-9ebf-ff9f1c7b606b" name="Green 60% area symbols" precedence="8">
+      <Spot colour="d23ea01a-79b4-4909-b013-946f816043d3" factor="0.6"></Spot>
+    </Colour>
+    <Colour id="31adae92-712d-49d3-93b8-4e35066a3358" name="Green 30% area symbols" precedence="7">
+      <Spot colour="d23ea01a-79b4-4909-b013-946f816043d3" factor="0.3"></Spot>
+    </Colour>
+    <Colour id="89baec3f-91af-492b-9596-92ec8eff211e" name="Black 30% area symbols" precedence="6">
+      <Spot colour="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" factor="0.3"></Spot>
+    </Colour>
+    <Colour id="d5bb0c0f-6abe-4924-9754-563f502de46f" name="White over Yellow" precedence="5">
+      <Spot colour="98f53635-5962-4745-b6a5-0e0cee96c79c" factor="1"></Spot>
+    </Colour>
+    <Colour id="a0391e80-fa80-4fd8-8e1a-c1fc1b4a1760" name="Black for cultivated land and sandy ground" precedence="4">
+      <Spot colour="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" factor="1"></Spot>
+    </Colour>
+    <Colour id="40ad7b6d-e598-448e-8f5d-950f5ffce44d" name="Orange for open land permitted to ride" precedence="3">
+      <CMYK c="0" m="0.6" y="1" k="0"></CMYK>
+    </Colour>
+    <Colour id="ff4c0740-24de-411a-bbf8-c23dc415bbfe" name="Yellow 100% area symbols" precedence="2">
+      <Spot colour="39f5159d-c964-422d-969e-b24b5455edec" factor="1"></Spot>
+    </Colour>
+    <Colour id="a6d6dcc3-74bd-49d4-8d12-21ebe49b1c22" name="Yellow 75% area symbols" precedence="1">
+      <Spot colour="39f5159d-c964-422d-969e-b24b5455edec" factor="0.75"></Spot>
+    </Colour>
+    <Colour id="00e0f4c8-026b-4c71-8ddc-5087d0265e54" name="Yellow 50% area symbols" precedence="0">
+      <Spot colour="39f5159d-c964-422d-969e-b24b5455edec" factor="0.5"></Spot>
+    </Colour>
+  </Colours>
+  <SpotColours>
+    <SpotColour id="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" name="Black" colour="294b5793-824e-4b40-afdd-b5e88c98240c"></SpotColour>
+    <SpotColour id="6d57fd62-a658-4d7f-bb03-cb937ace7201" name="Blue" colour="c1554607-f183-4615-b588-c39962c2d05d"></SpotColour>
+    <SpotColour id="39f5159d-c964-422d-969e-b24b5455edec" name="Yellow" colour="41006464-7129-41b9-8ef1-1fc89207ac54"></SpotColour>
+    <SpotColour id="d23ea01a-79b4-4909-b013-946f816043d3" name="Green" colour="7e5bf69f-4985-4e29-b4ac-0ad2f28722fd"></SpotColour>
+    <SpotColour id="8cf4fb97-a59a-4799-8397-934f5e2181f2" name="Dark Green" colour="ced7c4af-7c3b-475c-8e05-da542dc7a7f1"></SpotColour>
+    <SpotColour id="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" name="Brown" colour="f9bdb07e-69c6-44dc-81dc-ab08404f5559"></SpotColour>
+    <SpotColour id="cccb0243-8f06-41bb-8f5d-91634b24015d" name="Purple" colour="ccd5e816-c345-4e31-9f48-44b76bd69069"></SpotColour>
+    <SpotColour id="98f53635-5962-4745-b6a5-0e0cee96c79c" name="White" colour="ecc86df3-6055-4a8a-bf19-b0e7ac21d529"></SpotColour>
+  </SpotColours>
+  <Symbols>
+    <LineSymbol id="7b240910-a33d-4664-b86d-199572960457" name="Contour" description="A line joining points of equal heights" number="101-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+        <Width>0.21</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </LineSymbol>
+    <LineSymbol id="94808c60-315b-4f05-a7a4-bb579ef43b72" name="Index Contour" description="Every fifth contour shall be drawn with a thicker line. This is an aid to the quick assessment of height difference and the overall shape of the terrain." number="102-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+        <Width>0.3</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </LineSymbol>
+    <LineSymbol id="15717091-914d-4199-9c9c-3ba149297429" name="Form Line" description="An intermediate contour line. Form lines are used where more information can be given about the shape of the ground" number="103-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+        <Width>0.15</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+        <DashStyle dashLength="3" gapLength="0.3" groupSize="0" groupGapLength="0"></DashStyle>
+      </Style>
+    </LineSymbol>
+    <LineSymbol id="c6ab8112-d202-477e-9a6f-ce0d9d7c4b10" name="Earth Bank" description="An abrupt change in ground level which can be clearly distinguished from its surrounding." number="104-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+        <Width>0.37</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </LineSymbol>
+    <LineSymbol id="e4b7d533-7d68-46ce-b5e5-3e3e2b421a3c" name="Small Earth Wall" description="A distinct earth wall, usually man-made" number="105-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+        <Width>0.21</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+        <MidStyle gapLength="3.75" requireMid="True" initialOffset="0" endOffset="0">
+          <MapObjects>
+            <PointObject id="83b0d288-ba15-4f22-a5d4-d2e1fa1e6964">
+              <Style>
+                <Inner>
+                  <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+                  <Width>0.3</Width>
+                </Inner>
+                <Outer>
+                  <Colour>Transparent</Colour>
+                  <Width>0</Width>
+                </Outer>
+              </Style>
+            </PointObject>
+          </MapObjects>
+        </MidStyle>
+      </Style>
+    </LineSymbol>
+    <LineSymbol id="0170533c-de90-42ea-8185-164633b3fcac" name="Erosion Gully or Trench" description="An erosion gully or trench which is too small to be represented with 104, 101, 102 or 103" number="107-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+        <Width>0.37</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </LineSymbol>
+    <LineSymbol id="bdedb20e-f625-4bce-bd31-8fe3666bdccd" name="Small Erosion Gully" description="A small erosion gully or trench. Contour lines should be broken around this symbol" number="108-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>Transparent</Colour>
+        <Width>0</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+        <MidStyle gapLength="0.6" requireMid="True" initialOffset="0" endOffset="0">
+          <MapObjects>
+            <PointObject id="1fe377b7-63d9-48cf-ae27-8bc1036df75d">
+              <Style>
+                <Inner>
+                  <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+                  <Width>0.185</Width>
+                </Inner>
+                <Outer>
+                  <Colour>Transparent</Colour>
+                  <Width>0</Width>
+                </Outer>
+              </Style>
+            </PointObject>
+          </MapObjects>
+        </MidStyle>
+      </Style>
+    </LineSymbol>
+    <PointSymbol id="2d512afa-debc-4761-a7a6-bed9015343ef" name="Small Knoll" description="A small obvious mound or rocky knoll which cannot be drawn to scale with 101, 102 or 103" number="109-0-0" isUncrossable="False" isHelper="False">
+      <MapObjects>
+        <PointObject id="1e075809-3aae-4603-9080-7f84f781fd29">
+          <Style>
+            <Inner>
+              <Colour>5d4257d1-2341-445f-a452-ad390a06f38a</Colour>
+              <Width>0.375</Width>
+            </Inner>
+            <Outer>
+              <Colour>Transparent</Colour>
+              <Width>0</Width>
+            </Outer>
+          </Style>
+        </PointObject>
+      </MapObjects>
+      <Style isRotatable="False"></Style>
+    </PointSymbol>
+    <PointSymbol id="07a0e6eb-692b-4bfb-a35d-4b9bad31ffad" name="Small Elongated Knoll" description="A small obvious elongated mound or rocky knoll which cannot be drawn to scale with 101, 102 or 103" number="110-0-0" isUncrossable="False" isHelper="False">
+      <MapObjects></MapObjects>
+      <Style isRotatable="True"></Style>
+    </PointSymbol>
+    <PointSymbol id="9a2de0ab-a327-4888-bd54-73cc23f38968" name="Small Depression" description="A small shallow natural depression or hollow which cannot be represented by 101, 103" number="111-0-0" isUncrossable="False" isHelper="False">
+      <MapObjects></MapObjects>
+      <Style isRotatable="False"></Style>
+    </PointSymbol>
+    <PointSymbol id="591aaf03-4809-43fd-a92f-4976daba6c1b" name="Pit or Hole" description="A pit or hole with distinct steep side which cannot be represented to scale with 104" number="112-0-0" isUncrossable="False" isHelper="False">
+      <MapObjects></MapObjects>
+      <Style isRotatable="False"></Style>
+    </PointSymbol>
+    <AreaSymbol id="2deb579b-2a44-4b5d-9c80-5c0ecd2b7ae8" name="Broken Ground" description="An area of pits and/or knolls, which is too complex to be represented in detail" number="113-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <SolidFill>Transparent</SolidFill>
+        <Outline>
+          <Colour>Transparent</Colour>
+          <Width>0</Width>
+        </Outline>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </AreaSymbol>
+    <PointSymbol id="25d7dee9-d518-4187-ba22-79c68abb89f5" name="Prominent Landform  Feature" description="A small landform feature which is significant or prominent" number="115-0-0" isUncrossable="False" isHelper="False">
+      <MapObjects></MapObjects>
+      <Style isRotatable="False"></Style>
+    </PointSymbol>
+    <LineSymbol id="27192443-1314-4f50-960f-71c9582c73d4" name="Uncrossable Cliff" description="An uncrossable cliff, quarry or earth bank. For vertical rock faces the tags mayy be omitted if space is short" number="201-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>a5feb757-b3fa-4f8d-b1da-bc57783f47d0</Colour>
+        <Width>0.5</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </LineSymbol>
+    <LineSymbol id="cebf3e36-6463-4c79-ab0e-d3b6cc4acfc2" name="Passable rock face" description="An passable cliff or quarry. For vertical rock faces the tags mayy be omitted if space is short" number="202-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <Colour>a5feb757-b3fa-4f8d-b1da-bc57783f47d0</Colour>
+        <Width>0.3</Width>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </LineSymbol>
+    <PointSymbol id="f0f3ac02-9863-4a5c-8071-39862bb52eb0" name="Rocky Pit or Cave" description="A rocky pit, hole, cave or mineshaft which may constitute a danger to the competitor" number="203-0-0" isUncrossable="False" isHelper="False">
+      <MapObjects></MapObjects>
+      <Style isRotatable="True"></Style>
+    </PointSymbol>
+    <PointSymbol id="a0488364-878b-4e1d-bb7a-21f16e98311c" name="Boulder" description="A small distinct boulder" number="204-0-0" isUncrossable="False" isHelper="False">
+      <MapObjects>
+        <PointObject id="6c9f19ab-684b-40f0-be68-119592349762">
+          <Style>
+            <Inner>
+              <Colour>a5feb757-b3fa-4f8d-b1da-bc57783f47d0</Colour>
+              <Width>0.3</Width>
+            </Inner>
+            <Outer>
+              <Colour>Transparent</Colour>
+              <Width>0</Width>
+            </Outer>
+          </Style>
+        </PointObject>
+      </MapObjects>
+      <Style isRotatable="False"></Style>
+    </PointSymbol>
+    <AreaSymbol id="47b0d33b-4e8a-42a3-b3c2-d8091e27247c" name="Purple OOB Fill" description="" number="900-0-0" isUncrossable="False" isHelper="False">
+      <Style>
+        <SolidFill>fa323a33-f9c7-4dea-97c2-775c4bbb597c</SolidFill>
+        <Outline>
+          <Colour>Transparent</Colour>
+          <Width>0</Width>
+        </Outline>
+        <LineStyle Join="0" Cap="0"></LineStyle>
+      </Style>
+    </AreaSymbol>
+  </Symbols>
+  <Instances>
+	<AreaInstance id="a9cd3252-f3b5-4faf-8d22-8431cd66f24c" layer="0" isClosed="True">
+			<Symbol>47b0d33b-4e8a-42a3-b3c2-d8091e27247c</Symbol>
+			<Segments>
+				<LinearPath>
+					<Point x="10" y="150"/>
+					<Point x="310" y="150"/>
+					<Point x="310" y="450"/>
+					<Point x="10" y="450"/>
+				</LinearPath>
+			</Segments>
+			<Holes>
+				<Hole>
+					<LinearPath>
+						<Point x="60" y="210"/>
+						<Point x="110" y="210"/>
+						<Point x="110" y="260"/>
+						<Point x="60" y="260"/>
+					</LinearPath>
+				</Hole>
+				<Hole>
+					<LinearPath>
+						<Point x="80" y="230"/>
+						<Point x="130" y="230"/>
+						<Point x="130" y="280"/>
+						<Point x="80" y="280"/>
+					</LinearPath>
+				</Hole>
+			</Holes>
+		</AreaInstance>
+  <AreaInstance id="46cdbc00-0f78-49a2-980b-50dbe30ca0e4" layer="0" isClosed="True" patternRotation="0">
+			<Symbol>47b0d33b-4e8a-42a3-b3c2-d8091e27247c</Symbol>
+			<Segments>
+				<LinearPath>
+					<Point x="600" y="100"/>
+					<Point x="700" y="100"/>
+					<Point x="800" y="200"/>
+					<Point x="800" y="400"/>
+					<Point x="500" y="200"/>
+				</LinearPath>
+			</Segments>
+		</AreaInstance>
+  </Instances>
+</Map>

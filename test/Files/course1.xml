@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Event title="Test Event" version="1">
+  <Metadata></Metadata>
+  <Controls>
+    <Control id="92019526-381d-4366-9faa-549a66698b58" code="31" type="1" score="0">
+      <Description>16492942791439</Description>
+      <Position x="24.555681" y="50.233727"></Position>
+    </Control>
+    <Control id="a4a8154d-e800-4850-84c8-8addc7377df6" code="32" type="1" score="10">
+      <Description>16492942791439</Description>
+      <Position x="3.8700085" y="46.56001"></Position>
+    </Control>
+    <Control id="20488b44-946d-4d2c-b256-a3d2ba97f5be" code="33" type="1" score="20">
+      <Description>16492942791439</Description>
+      <Position x="27.154535" y="25.67173"></Position>
+    </Control>
+    <Control id="6eb1fc96-0afd-44c2-b19c-755383a82146" code="34" type="1" score="30">
+      <Description>16492942791439</Description>
+      <Position x="22.572672" y="52.727283"></Position>
+    </Control>
+    <Control id="944b40a7-2e6e-4f73-ba18-3305901d7d63" code="35" type="1" score="40">
+      <Description>16492942791439</Description>
+      <Position x="40.229954" y="24.055765"></Position>
+    </Control>
+    <Control id="22f277ae-953a-4e5e-8711-3f8179f995ed" code="36" type="1" score="50">
+      <Description>16492942791439</Description>
+      <Position x="52.103474" y="18.054174"></Position>
+    </Control>
+    <Control id="9b01cdf8-848d-4877-ad7c-bfdfd47c89a5" code="37" type="1" score="60">
+      <Description>16492942791439</Description>
+      <Position x="24.842482" y="56.27546"></Position>
+    </Control>
+    <Control id="4928f094-2c47-4092-850f-b354933f73a6" code="38" type="1" score="70">
+      <Description>16492942791439</Description>
+      <Position x="64.86581" y="43.602863"></Position>
+    </Control>
+    <Control id="427f7d37-58a3-4985-94a2-9217fc8b1b4a" code="39" type="1" score="80">
+      <Description>16492942791439</Description>
+      <Position x="88.515045" y="55.702877"></Position>
+    </Control>
+    <Control id="6374df32-a9d5-4505-b51c-bff384b17b60" code="40" type="1" score="90">
+      <Description>16492942791439</Description>
+      <Position x="86.81705" y="98.47781"></Position>
+    </Control>
+    <Control id="a003c56e-4a47-4c6b-965b-f42515c75a33" code="1" type="4" score="-1">
+      <Description>17588159512335</Description>
+      <Position x="10" y="10"></Position>
+    </Control>
+    <Control id="6c8d65c6-9e76-47ed-8b28-13c14f73834d" code="1" type="2" score="-1">
+      <Description>17588159512335</Description>
+      <Position x="10" y="20"></Position>
+    </Control>
+  </Controls>
+  <Courses>
+    <ScoreCourse id="4a6911be-5874-4348-9f2f-86c10d4782a1" name="Course 1" description="" displayFormat="%c">
+      <Controls>
+        <Control id="92019526-381d-4366-9faa-549a66698b58"></Control>
+        <Control id="a4a8154d-e800-4850-84c8-8addc7377df6"></Control>
+        <Control id="20488b44-946d-4d2c-b256-a3d2ba97f5be"></Control>
+        <Control id="6eb1fc96-0afd-44c2-b19c-755383a82146"></Control>
+        <Control id="944b40a7-2e6e-4f73-ba18-3305901d7d63"></Control>
+        <Control id="22f277ae-953a-4e5e-8711-3f8179f995ed"></Control>
+        <Control id="9b01cdf8-848d-4877-ad7c-bfdfd47c89a5"></Control>
+        <Control id="4928f094-2c47-4092-850f-b354933f73a6"></Control>
+        <Control id="427f7d37-58a3-4985-94a2-9217fc8b1b4a"></Control>
+        <Control id="6374df32-a9d5-4505-b51c-bff384b17b60"></Control>
+        <Control id="a003c56e-4a47-4c6b-965b-f42515c75a33"></Control>
+        <Control id="6c8d65c6-9e76-47ed-8b28-13c14f73834d"></Control>
+      </Controls>
+    </ScoreCourse>
+    <LinearCourse id="7d714401-900e-4d24-b942-bf2dab6efac4" name="Course 2" description="" displayFormat="%c" distance="-1" climb="-1">
+      <CourseParts>
+        <LinearCoursePart>
+          <Control id="6c8d65c6-9e76-47ed-8b28-13c14f73834d"></Control>
+          <Control id="92019526-381d-4366-9faa-549a66698b58"></Control>
+          <Control id="6eb1fc96-0afd-44c2-b19c-755383a82146"></Control>
+          <Control id="9b01cdf8-848d-4877-ad7c-bfdfd47c89a5"></Control>
+          <Control id="20488b44-946d-4d2c-b256-a3d2ba97f5be"></Control>
+          <Control id="a003c56e-4a47-4c6b-965b-f42515c75a33"></Control>
+        </LinearCoursePart>
+      </CourseParts>
+    </LinearCourse>
+  </Courses>
+  <Items>
+    <Colours></Colours>
+    <Symbols></Symbols>
+    <Instances></Instances>
+  </Items>
+</Event>

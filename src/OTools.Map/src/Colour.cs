@@ -1,5 +1,8 @@
 ﻿using OTools.Common;
 using ownsmtp.logging;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using System.Xml.XPath;
 
 namespace OTools.Maps;
 
@@ -91,6 +94,8 @@ public abstract class Colour : IStorable
     public static bool operator !=(Colour lhs, Colour rhs)
         => !(lhs == rhs);
 
+    public static ColourLUT Lut { get; set; } = new();
+
     public static implicit operator uint(Colour colour)
         => colour.HexValue;
 
@@ -119,11 +124,21 @@ public sealed class SpotColour : Colour
     {
         get
         {
-            (float c, float m, float y, float k) = ToCMYK();
+            var (c, m, y, k) = ToCMYK();
+            byte r, g, b;
 
-            byte r = (byte)(255 * (1 - c) * (1 - k)),
-                 g = (byte)(255 * (1 - m) * (1 - k)),
-                 b = (byte)(255 * (1 - y) * (1 - k));
+            if (Lut.TryGetValue((c, m, y, k), out var result))
+            {
+                r = result.Item1;
+                g = result.Item2;
+                b = result.Item3;
+            }
+            else 
+            {
+                r = (byte)(255 * (1 - c) * (1 - k));
+                g = (byte)(255 * (1 - m) * (1 - k));
+                b = (byte)(255 * (1 - y) * (1 - k));
+            }
 
             return (uint)(b + (g << 8) + (r << 16) + ((byte)(Opacity * 255) << 24));
         }
@@ -221,15 +236,22 @@ public sealed class CmykColour : Colour
     {
         get
         {
+            byte r, g, b;
 
-            byte r = (byte)(255 * (1 - Cyan) * (1 - Key)),
-                 g = (byte)(255 * (1 - Magenta) * (1 - Key)),
-                 b = (byte)(255 * (1 - Yellow) * (1 - Key));
+            if (Lut.TryGetValue((Cyan, Magenta, Yellow, Key), out var result))
+            {
+                r = result.Item1;
+                g = result.Item2;
+                b = result.Item3;
+            }
+            else
+            {
+                r = (byte)(255 * (1 - Cyan) * (1 - Key));
+                g = (byte)(255 * (1 - Magenta) * (1 - Key));
+                b = (byte)(255 * (1 - Yellow) * (1 - Key));
+            }
 
-            uint outp = (uint)(b + (g << 8) + (r << 16) + ((byte)(Opacity * 255) << 24));
-
-            ODebugger.Warn($"This is happening: {outp}");
-            return outp;
+            return (uint)(b + (g << 8) + (r << 16) + ((byte)(Opacity * 255) << 24));
         }
     }
 
@@ -258,4 +280,104 @@ public sealed class SpotCol : IStorable
     }
 }
 
-public enum ColourFormat { CMYK, RGB, Spot }
+public enum ColourSpace { RGB, CMYK }
+
+public sealed class ColourLUT : Dictionary<(float, float, float, float), (byte, byte, byte)>, IParsable<ColourLUT>
+{
+    public bool IsLutEnabled { get; set; } = true;
+
+    public (byte r, byte g, byte b) this[float c, float m, float y, float k]
+        => this[(c, m, y, k)];
+    public new (byte r, byte g, byte b) this[(float, float, float, float) col]
+        => this[col];
+
+    public new bool TryGetValue((float, float, float, float) key, out (byte r, byte g, byte b) result)
+    {
+        if (IsLutEnabled)
+            return base.TryGetValue(key, out result);
+        result = default;
+        return false;
+    }
+
+    public static ColourLUT Create(IEnumerable<Colour> colours)
+    {
+        ColourLUT lut = new();
+
+        foreach (Colour colour in colours)
+        {
+            if (colour is RgbColour) continue;
+
+            var cmyk = colour.ToCMYK();
+            var rgb = ColourConverter.Convert(cmyk);
+
+            lut.TryAdd(cmyk, rgb);
+        }
+
+        return lut;
+    }
+
+    public static ColourLUT Parse(string s, IFormatProvider? provider)
+    {
+        if (TryParse(s, provider, out ColourLUT? result))
+            return result;
+        throw new Exception();
+    }
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out ColourLUT result)
+    {
+        ColourLUT lut = new();
+
+        result = null;
+        if (string.IsNullOrEmpty(s)) return false;
+
+        var lines = s.Split('\n');
+
+        foreach (string line in lines)
+        {
+            var split = line.Split(':');
+
+            if (split.Length != 2) return false;
+
+            var c = split[0].Split(',');
+            if (c.Length != 4) return false;
+
+
+            (float, float, float, float) cmyk = (0, 0, 0, 0);
+
+            if (!(
+                c[0].TryParse(out cmyk.Item1) &&
+                c[1].TryParse(out cmyk.Item2) &&
+                c[2].TryParse(out cmyk.Item3) &&
+                c[3].TryParse(out cmyk.Item4)
+                ))
+                return false;
+
+            var r = split[1].Split(',');
+            if (r.Length != 3) return false;
+
+            (byte, byte, byte) rgb = (0, 0, 0);
+
+            if (!(
+                r[0].TryParse(out rgb.Item1) &&
+                r[1].TryParse(out rgb.Item2) &&
+                r[2].TryParse(out rgb.Item3)
+                ))
+                return false;
+
+            lut.Add(cmyk, rgb);
+        }
+
+        result = lut;
+        return true;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder sb = new();
+
+        foreach (var (key, value) in this)
+            sb.AppendLine($"{key.Item1 * 100}, {key.Item2 * 100}, {key.Item3 * 100}, {key.Item4 * 100} : {value.Item1}, {value.Item2}, {value.Item3}");
+
+        return sb.ToString();
+    }
+}

@@ -32,10 +32,12 @@ public interface IMapRenderer2D : IVisualRenderer
 public class MapRenderer2D : IMapRenderer2D
 {
 	protected Map? _activeMap;
+	protected ColourLUT? _lut;
     
 	public MapRenderer2D(Map? map = null)
 	{
 		_activeMap = map;
+		_lut = map?.MapInfo.ColourLUT;
 	}
 
 	public virtual IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap()
@@ -1276,6 +1278,13 @@ internal static partial class _Utils
 		}
 
 		return newBez;
+    }
+
+	public static uint ToHex(this (byte, byte, byte, byte) cmyk, ColourLUT lut)
+	{
+		var (r, g, b) = lut[cmyk];
+
+        return (uint)(b + (g << 8) + (r << 16) + (255 << 24));
     }
 }
 

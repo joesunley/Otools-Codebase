@@ -4,20 +4,23 @@ public class MapInfo
 {
     public LayerInfo LayerInfo { get; set; }
     public string FilePath { get; set; }
-    public ColourFormat ColourFormat { get; set; }
-
+    public ColourSpace ColourSpace { get; set; }
+    public ColourLUT ColourLUT { get; set; }
+    
     public MapInfo()
     {
         LayerInfo = new LayerInfo();
         FilePath = "";
-        ColourFormat = ColourFormat.RGB;
+        ColourSpace = ColourSpace.RGB;
+        ColourLUT = new();
     }
 
-    public MapInfo(LayerInfo layerInfo, string filePath, ColourFormat colourFormat)
+    public MapInfo(LayerInfo layerInfo, string filePath, ColourSpace colourSpace, ColourLUT colourLut)
     {
         LayerInfo = layerInfo;
         FilePath = filePath;
-        ColourFormat = colourFormat;
+        ColourSpace = colourSpace;
+        ColourLUT = colourLut;
     }
 }
 

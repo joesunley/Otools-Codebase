@@ -1,8 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using OTools.AvaCommon;
+using OTools.Common;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
+using OTools.Symbols;
 
 namespace OTools.MapMaker
 {
@@ -16,8 +18,12 @@ namespace OTools.MapMaker
 
 			Manager.PaintBox = paintBox;
 
-			Map map = MapLoader.Load(@"C:\Dev\Phanes\tests\Files\map1.xml");
+			Map map = MapLoader.Load(@"I:\OTools\test\Files\map4.xml");
+			//Map map = OfficialSymbols.Create().CreateMap("ISOM");
 			map.Colours.UpdatePrecendences(0);
+
+			//var outp = MapLoader.Save(map, 2);
+			//outp.Serialize(@"I:\OTools\test\Files\map4.xml");
 
 			Manager.MapRenderer = new MapRenderer2D(map);
 
@@ -27,9 +33,19 @@ namespace OTools.MapMaker
 			Manager.MapDraw = MapDraw.Create();
 
 			Manager.Map = map;
-			Manager.Symbol = map.Symbols["Course Line"];
+			Manager.Symbol = map.Symbols["Contour"];
+
+			string profileLocation = @"I:\OTools\lib\PSOcoated_v3.icc";
+			ColourConverter.SetUri(profileLocation);
+
+			if (map.MapInfo.ColourLUT.Count == 0)
+				map.MapInfo.ColourLUT = ColourLUT.Create(map.Colours);
+
+			Colour.Lut = map.MapInfo.ColourLUT;
 
 			symbolPane.Load(map);
+
+			btnColour.Click += (_, _) => Colour.Lut.IsLutEnabled = !Colour.Lut.IsLutEnabled;
 
 			paintBox.MouseMoved += e =>
 			{ // Dangerous

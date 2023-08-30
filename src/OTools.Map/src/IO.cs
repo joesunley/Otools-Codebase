@@ -1482,6 +1482,7 @@ public class MapLoaderV1 : IMapLoaderV1
  *  - Added new layer model
  *  - Added support for new colour system
  *  - Added support for closed line objects
+ *  - Added support for ColourLUT's
  */
 
 public interface IMapLoaderV2 : IMapLoaderV1
@@ -1580,6 +1581,8 @@ public class MapLoaderV2 : IMapLoaderV2
 
                 col.AddAttribute("colour", kvp.Key.Id.ToString());
                 col.AddAttribute("factor", kvp.Value.ToString());
+
+                node.Children.Add(col);
             }
         }
 
@@ -1626,6 +1629,7 @@ public class MapLoaderV2 : IMapLoaderV2
             SpacedObjectFill o => SaveSpacedObjectFill(o),
             PatternFill p => SavePatternFill(p),
             CombinedFill c => SaveCombinedFill(c),
+            null => SaveSolidFill(new(Colour.Transparent)), // Shouldn't really happen???
             _ => throw new InvalidOperationException("Invalid fill type"),
         };
     }
@@ -1744,7 +1748,7 @@ public class MapLoaderV2 : IMapLoaderV2
         XMLNode node = new XMLNode("Symbol");
         node.AddAttribute("id", sym.Id.ToString());
         node.AddAttribute("name", sym.Name);
-        node.AddAttribute("description", sym.Description);
+        node.AddAttribute("description", sym.Description ?? string.Empty);
         node.AddAttribute("number", $"{sym.Number.First}-{sym.Number.Second}-{sym.Number.Third}");
         node.AddAttribute("isUncrossable", sym.IsUncrossable.ToString());
         node.AddAttribute("isHelper", sym.IsHelperSymbol.ToString());
@@ -2308,9 +2312,17 @@ public class MapLoaderV2 : IMapLoaderV2
     {
         XMLNode node = new("MapInfo");
 
-        node.AddAttribute("colourFormat", mapInfo.ColourFormat.ToString());
+        node.AddAttribute("colourSpace", mapInfo.ColourSpace.ToString());
 
         node.AddChild(SaveLayerInfo(mapInfo.LayerInfo));
+
+        if (mapInfo.ColourLUT.Count > 0)
+        {
+            XMLNode colLut = new("LUT");
+            colLut.InnerText = mapInfo.ColourLUT.ToString();
+
+            node.AddChild(colLut);
+        }
 
         return node;
     }
@@ -3067,15 +3079,17 @@ public class MapLoaderV2 : IMapLoaderV2
     public MapInfo LoadMapInfo(XMLNode node)
     {
         LayerInfo layerInfo = LoadLayerInfo(node.Children["LayerInfo"]);
-        ColourFormat colourFormat = node.Attributes["colourFormat"] switch
+        ColourSpace colourSpace = node.Attributes["colourSpace"] switch
         {
-            "RGB" => ColourFormat.RGB,
-            "CMYK" => ColourFormat.CMYK,
-            "Spot" => ColourFormat.Spot,
+            "RGB" => ColourSpace.RGB,
+            "CMYK" => ColourSpace.CMYK,
             _ => throw new InvalidOperationException(),
         };
+        ColourLUT colourLut = node.Children.Exists("LUT") ? ColourLUT.Parse(node.Children["LUT"].InnerText, null) : new();
 
-        return new(layerInfo, string.Empty, colourFormat);
+        Colour.Lut = colourLut;
+
+        return new(layerInfo, string.Empty, colourSpace, colourLut);
     }
 
     public LayerInfo LoadLayerInfo(XMLNode node)

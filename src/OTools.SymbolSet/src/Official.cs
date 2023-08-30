@@ -6,7 +6,6 @@ public static class OfficialSymbols
 {
     public static SymbolSet Create()
     {
-        SpotColourStore spotCols = new();
 
         CmykColour black = new("Spot: Black", 0, 0, 0, 1);
         CmykColour blue = new("Spot: Blue", 1, 0, 0, 0);
@@ -26,6 +25,7 @@ public static class OfficialSymbols
         SpotCol purpleS = new("Purple", purple);
         SpotCol whiteS = new("White", white); // Easier Assigning
 
+        SpotColourStore spotCols = new() { blackS, blueS, yellowS, greenS, darkGreenS, brownS, purpleS, whiteS };
 
         SpotColour upperPurple = ColourBuilder.SpotColour("Upper purple for course overprint")
             .AddColour(purpleS, 1f);
@@ -89,10 +89,10 @@ public static class OfficialSymbols
         SpotColour black60Buildings = ColourBuilder.SpotColour("Black 60% for buildings")
             .AddColour(blackS, .6f);
 
-        SpotColour black50tramway = ColourBuilder.SpotColour("Black 50% for large buildings and tramway")
+        SpotColour black50Tramway = ColourBuilder.SpotColour("Black 50% for large buildings and tramway")
             .AddColour(blackS, .5f);
 
-        SpotColour black20canopy = ColourBuilder.SpotColour("Black 20% for canopy")
+        SpotColour black20Canopy = ColourBuilder.SpotColour("Black 20% for canopy")
             .AddColour(blackS, .2f);
 
         SpotColour blue100Area = ColourBuilder.SpotColour("Blue 100% area symbols")
@@ -151,6 +151,16 @@ public static class OfficialSymbols
 
         SpotColour yellow50 = ColourBuilder.SpotColour("Yellow 50% area symbols")
             .AddColour(yellowS, .5f);
+
+        ColourStore colours = new() { black, blue, yellow, green, darkGreen, brown, purple, white,
+                upperPurple, whiteForOver, purple50, greenSki, whiteRail, 
+                black100, blue100Point, brown100Point, green100Point, blue100Line, darkGreenLineISOM, brown100Line, lowerPurple,
+                darkGreenLine, blue100Both, brown100, whiteStripes, brown50Road, brown30Road, black100Road, black60Buildings, black50Tramway, black20Canopy ,
+                blue100Area, blue70Area, blue50Area, blue30Area, whiteOver, brown50Paved, brown30Paved,
+                yellowGreen, darkGreenArea, green100Area, green60Area, green30Area, black30Area, whiteYellow, blackCultivated, orangeMtb, yellow100, yellow75, yellow50
+        };
+
+        
 
         LineSymbol contour = SymbolBuilder.Start("Contour", 101)
             .SetDescription("A line joining points of equal heights")
@@ -246,7 +256,21 @@ public static class OfficialSymbols
             .AddMapObj(new PointObject(black100, Colour.Transparent, .3f, 0f))
             .CreatePoint();
 
-        PointSymbol largeBoulder = 
+        AreaSymbol purpleOOBFill = SymbolBuilder.Start("Purple OOB Fill", 900)
+            .SetFill(new SolidFill(upperPurple))
+            .CreateArea();
+
+        //PointSymbol largeBoulder = 
+
+        SymbolStore isom = new()
+        {
+            contour, indexContour, formLine, earthBank, smallEarthWall, erosionGully, smallErosionGully, smallKnoll, smallElongatedKnoll, smallDepression, pitOrHole, brokenGround, prominentLandformFeature,
+            uncrossableCliff, passableRockFace, rockPitOrCave, boulder,
+            purpleOOBFill
+        };
+
+        SymbolSet set = new(colours, spotCols, new() { { "ISOM", isom } });
+        return set;
     }
 }
 

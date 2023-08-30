@@ -110,6 +110,7 @@
 
 		<StackPanel Orientation="Horizontal" Grid.Row="2">
 			<Button x:Name="btnDebug" Content="Show Debug" Click="OnDebugClicked" Padding="2"/>
+			<Button x:Name="btnColour" Content="Show Colour" Padding="2" />
 			<TextBlock x:Name="statusBar" Text="Hello World" VerticalAlignment="Center" Padding="10 0 0 0"/>
 		</StackPanel>
 	</Grid>
