@@ -3,8 +3,10 @@ using OTools.Common;
 
 namespace OTools.Maps;
 
-public sealed class Map
+public sealed class Map : IStorable
 {
+    public Guid Id { get; }
+
     public string Title { get; set; }
 
     public Metadata Metadata { get; set; }
@@ -17,6 +19,8 @@ public sealed class Map
 
     public Map(string title = "")
     {
+        Id = Guid.NewGuid();
+
         Title = title;
 
         Metadata = new();
@@ -30,6 +34,8 @@ public sealed class Map
 
     public Map(ColourStore colours, SpotColourStore spotColours, SymbolStore symbols, InstanceStore instances, string title = "")
     {
+        Id = Guid.NewGuid(); // Don't think it needs to be persistent
+
         Title = title;
 
         Metadata = new();

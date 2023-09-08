@@ -65,27 +65,30 @@ namespace OTools.AvaCommon
 		public vec2 MousePosition { get; private set; }
 		public event Action<MouseMovedEventArgs>? MouseMoved;
 
-		public void Load(Map map)
+		public void Load(Map map, IMapRenderer2D? mapRenderer = null)
 		{
 			canvas.Children.Clear();
 
-			var render = new MapRenderer2D(map).RenderMap();
+			var render = (mapRenderer ?? new MapRenderer2D(map)).RenderMap();
 
 			foreach (var (inst, els) in render)
 			{
 				var conv = ObjConvert.ConvertCollection(els);
 
-				Add(inst.Id, conv);
+				Add(new Tag() { inst.Id, map.Id}, conv);
 			}
 		}
-		public void Load(IEnumerable<(Guid, IEnumerable<IShape>)> objects)
+		public void Load(IEnumerable<(Guid, IEnumerable<IShape>)> objects, Guid? oId = null)
 		{
 			Clear();
 
-			foreach (var (id, els) in objects)
-			{
-				Add(id, els.ConvertCollection());
-			}
+			if (oId is null)
+				foreach (var (id, els) in objects)
+					Add(id, els.ConvertCollection());
+			else
+				foreach (var (id, els) in objects)
+                    Add(new Tag() { id, oId.Value }, els.ConvertCollection());
+			
 		}
 
 
@@ -113,6 +116,19 @@ namespace OTools.AvaCommon
 			canvas.Children.AddRange(objects);
 			_ids.Add(id);
 		}
+		public void Add(Tag tag, IEnumerable<Control> objects)
+		{
+			ODebugger.Info($"Added {tag}");
+
+			objects = objects.Select(x =>
+			{
+                x.Tag = tag;
+                return x;
+            });
+
+			canvas.Children.AddRange(objects);
+			_ids.AddRange(tag);
+		}
 
 		public void Update(Guid id, IEnumerable<Control> objects)
 		{
@@ -128,10 +144,24 @@ namespace OTools.AvaCommon
                 return x;
             });
 
-			var els = canvas.Children.Where(x => (x.ToString() ?? string.Empty).Contains(id.ToString()));
+			var els = canvas.Children.Where(x => (x.Tag.ToString() ?? string.Empty).Contains(id.ToString()));
 			canvas.Children.RemoveAll(els);   
 			
 			canvas.Children.AddRange(objects);
+		}
+		public void Update(Guid id, Tag tag, IEnumerable<Control> objects)
+		{
+			// Check only one id occurs
+			ODebugger.Assert(_ids.Where(x => x == id).Count() == 1);
+			ODebugger.Info($"Updated {tag}");
+
+			objects = objects.Select(x =>
+			{
+                x.Tag = tag;
+                return x;
+            });
+
+			var els = canvas.Children.Where(x => (x.Tag?.ToString() ?? string.Empty).Contains(id.ToString()));
 		}
 
 		public void AddOrUpdate(Guid id, IEnumerable<Control> objects)
@@ -147,7 +177,7 @@ namespace OTools.AvaCommon
 			ODebugger.Assert(_ids.Contains(id));
 			ODebugger.Info($"Removed {id}");
 
-            var els = canvas.Children.Where(x => (x.ToString() ?? string.Empty).Contains(id.ToString()));
+            var els = canvas.Children.Where(x => (x.Tag?.ToString() ?? string.Empty).Contains(id.ToString()));
             canvas.Children.RemoveAll(els);
 			
 			_ids.Remove(id);
@@ -159,12 +189,21 @@ namespace OTools.AvaCommon
 
 			foreach (Guid id in _ids)
 			{
-				var els = canvas.Children.Where(x => x.Tag is string s && s.Contains(id.ToString()));
-				canvas.Children.RemoveAll(els);
+                var els = canvas.Children.Where(x => (x.Tag?.ToString() ?? string.Empty).Contains(id.ToString()));
+                canvas.Children.RemoveAll(els);
 
 			}
 
 			_ids.Clear();
+		}
+		public void Clear(Guid id)
+		{
+			ODebugger.Info($"Cleared {id}");
+
+			var els = canvas.Children.Where(x => (x.Tag?.ToString() ?? string.Empty).Contains(id.ToString()));
+
+			canvas.Children.RemoveAll(els);
+			_ids.RemoveAll(x => x == id);
 		}
 
 		#endregion

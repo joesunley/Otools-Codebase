@@ -20,12 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="src\SymbolPane.axaml.cs">
+    <Compile Update="src\Controls\SymbolPane.axaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\Controls\" />
   </ItemGroup>
 </Project>

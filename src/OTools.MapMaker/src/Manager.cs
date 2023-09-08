@@ -25,6 +25,13 @@ public static class Manager
         {
             _activeSymbol = value;
             ActiveSymbolChanged?.Invoke(_activeSymbol!);
+
+            Tool = _activeSymbol switch
+            {
+                PointSymbol => Tool.Point,
+                IPathSymbol => Tool.Path,
+                _ => Tool.Edit,
+            };
         }
     }
 
@@ -56,11 +63,11 @@ public static class Manager
 
     public static void ReRender()
     {
-        if (PaintBox is null || MapRenderer is null)
+        if (PaintBox is null || MapRenderer is null || Map is null)
             return;
 
         var render = MapRenderer.RenderMap();
-        PaintBox.Load(render.Select(x => (x.Item1.Id, x.Item2)));
+        PaintBox.Load(render.Select(x => (x.Item1.Id, x.Item2)), Map!.Id);
     }
 }
 

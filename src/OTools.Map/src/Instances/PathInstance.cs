@@ -113,7 +113,10 @@ public sealed class PathCollection : IList<IPath>
 	}
 
     public void Clear()
-		=> _segments.Clear();
+	{
+		_segments.Clear();
+		_gaps.Clear();
+	}
 
     public bool Contains(IPath item)
 		=> _segments.Contains(item);

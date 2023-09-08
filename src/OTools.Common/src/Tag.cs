@@ -2,15 +2,15 @@
 
 namespace OTools.Common;
 
-public sealed class Tag : List<object>
+public sealed class Tag : List<Guid>
 {
     public override string ToString()
     {
         StringBuilder sb = new();
 
-        foreach (object obj in this)
+        foreach (Guid id in this)
         {
-            sb.Append(obj.ToString());
+            sb.Append(id.ToString());
             sb.Append(',');
         }
 

@@ -48,6 +48,7 @@
 				<MenuItem Header="Show Colour Pane" Click="MenuItemClicked" />
 				<MenuItem Header="Show Symbol Pane" Click="MenuItemClicked" />
 				<MenuItem Header="Show Template Pane" Click="MenuItemClicked" />
+				<Separator/>
 			</MenuItem>
 			<MenuItem Header="Tools" Click="MenuItemClicked">
 				<MenuItem Header="Select" Click="MenuItemClicked"/>

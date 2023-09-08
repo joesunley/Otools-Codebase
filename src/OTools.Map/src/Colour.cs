@@ -127,7 +127,7 @@ public sealed class SpotColour : Colour
             var (c, m, y, k) = ToCMYK();
             byte r, g, b;
 
-            if (Lut.TryGetValue((c, m, y, k), out var result))
+            if (Lut.TryGetValue((c*100, m*100, y*100, k*100), out var result))
             {
                 r = result.Item1;
                 g = result.Item2;
@@ -139,6 +139,7 @@ public sealed class SpotColour : Colour
                 g = (byte)(255 * (1 - m) * (1 - k));
                 b = (byte)(255 * (1 - y) * (1 - k));
             }
+
 
             return (uint)(b + (g << 8) + (r << 16) + ((byte)(Opacity * 255) << 24));
         }
@@ -243,6 +244,7 @@ public sealed class CmykColour : Colour
                 r = result.Item1;
                 g = result.Item2;
                 b = result.Item3;
+
             }
             else
             {
@@ -251,6 +253,8 @@ public sealed class CmykColour : Colour
                 b = (byte)(255 * (1 - Yellow) * (1 - Key));
             }
 
+            WriteLine($"{r}, {g}, {b}");
+            
             return (uint)(b + (g << 8) + (r << 16) + ((byte)(Opacity * 255) << 24));
         }
     }
@@ -330,10 +334,12 @@ public sealed class ColourLUT : Dictionary<(float, float, float, float), (byte, 
         result = null;
         if (string.IsNullOrEmpty(s)) return false;
 
-        var lines = s.Split('\n');
+        var lines = s.Split(';');
 
         foreach (string line in lines)
         {
+            if (string.IsNullOrEmpty(line)) continue;
+
             var split = line.Split(':');
 
             if (split.Length != 2) return false;
@@ -376,7 +382,7 @@ public sealed class ColourLUT : Dictionary<(float, float, float, float), (byte, 
         StringBuilder sb = new();
 
         foreach (var (key, value) in this)
-            sb.AppendLine($"{key.Item1 * 100}, {key.Item2 * 100}, {key.Item3 * 100}, {key.Item4 * 100} : {value.Item1}, {value.Item2}, {value.Item3}");
+            sb.Append($"{key.Item1 * 100},{key.Item2 * 100},{key.Item3 * 100},{key.Item4 * 100}:{value.Item1},{value.Item2},{value.Item3};");
 
         return sb.ToString();
     }

@@ -62,7 +62,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.AvaCommon", "src\OTo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.SymbolSet", "src\OTools.SymbolSet\OTools.SymbolSet.csproj", "{E9F561B7-236D-4C35-9E51-3166C7ECA10D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColourSwop", "test\ColourSwop\ColourSwop.csproj", "{E762267B-0191-498B-A8BC-D328304EC2AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColourSwop", "test\ColourSwop\ColourSwop.csproj", "{E762267B-0191-498B-A8BC-D328304EC2AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.WinMap", "src\OTools.WinMap\OTools.WinMap.csproj", "{793DCBAB-F0B3-4C09-A759-3CD07F1296CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -154,6 +156,10 @@ Global
 		{E762267B-0191-498B-A8BC-D328304EC2AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E762267B-0191-498B-A8BC-D328304EC2AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E762267B-0191-498B-A8BC-D328304EC2AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{793DCBAB-F0B3-4C09-A759-3CD07F1296CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{793DCBAB-F0B3-4C09-A759-3CD07F1296CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{793DCBAB-F0B3-4C09-A759-3CD07F1296CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{793DCBAB-F0B3-4C09-A759-3CD07F1296CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Map title="" version="2">
+  <MapInfo colourSpace="RGB">
+    <LayerInfo>
+      <Layer name="Main" opacity="1"></Layer>
+    </LayerInfo>
+    <LUT>0, 0, 0, 100 : 35, 31, 32
+100, 0, 0, 0 : 0, 173, 238
+0, 27.000002, 79, 0 : 253, 190, 79
+76, 0, 91, 0 : 45, 179, 86
+100, 0, 80, 30.000002 : 0, 127, 83
+0, 56, 100, 18 : 206, 116, 23
+35, 85, 0, 0 : 170, 73, 155
+0, 0, 0, 0 : 254, 254, 254
+91, 0, 83, 0 : 0, 171, 102
+0, 60.000004, 100, 0 : 244, 129, 31
+</LUT>
+  </MapInfo>
+  <Colours>
+    <Colour id="294b5793-824e-4b40-afdd-b5e88c98240c" name="Spot: Black" precedence="0">
+      <CMYK c="0" m="0" y="0" k="1"></CMYK>
+    </Colour>
+    <Colour id="c1554607-f183-4615-b588-c39962c2d05d" name="Spot: Blue" precedence="0">
+      <CMYK c="1" m="0" y="0" k="0"></CMYK>
+    </Colour>
+    <Colour id="41006464-7129-41b9-8ef1-1fc89207ac54" name="Spot: Yellow" precedence="0">
+      <CMYK c="0" m="0.27" y="0.79" k="0"></CMYK>
+    </Colour>
+    <Colour id="7e5bf69f-4985-4e29-b4ac-0ad2f28722fd" name="Spot: Green" precedence="0">
+      <CMYK c="0.76" m="0" y="0.91" k="0"></CMYK>
+    </Colour>
+    <Colour id="ced7c4af-7c3b-475c-8e05-da542dc7a7f1" name="Spot: Dark Green" precedence="0">
+      <CMYK c="1" m="0" y="0.8" k="0.3"></CMYK>
+    </Colour>
+    <Colour id="f9bdb07e-69c6-44dc-81dc-ab08404f5559" name="Spot: Brown" precedence="0">
+      <CMYK c="0" m="0.56" y="1" k="0.18"></CMYK>
+    </Colour>
+    <Colour id="ccd5e816-c345-4e31-9f48-44b76bd69069" name="Spot: Purple" precedence="0">
+      <CMYK c="0.35" m="0.85" y="0" k="0"></CMYK>
+    </Colour>
+    <Colour id="ecc86df3-6055-4a8a-bf19-b0e7ac21d529" name="Spot: White" precedence="0">
+      <CMYK c="0" m="0" y="0" k="0"></CMYK>
+    </Colour>
+  </Colours>
+  <SpotColours>
+    <SpotColour id="fde9772e-b24d-4ef5-86bd-ee1ca1e345f7" name="Black" colour="294b5793-824e-4b40-afdd-b5e88c98240c"></SpotColour>
+    <SpotColour id="6d57fd62-a658-4d7f-bb03-cb937ace7201" name="Blue" colour="c1554607-f183-4615-b588-c39962c2d05d"></SpotColour>
+    <SpotColour id="39f5159d-c964-422d-969e-b24b5455edec" name="Yellow" colour="41006464-7129-41b9-8ef1-1fc89207ac54"></SpotColour>
+    <SpotColour id="d23ea01a-79b4-4909-b013-946f816043d3" name="Green" colour="7e5bf69f-4985-4e29-b4ac-0ad2f28722fd"></SpotColour>
+    <SpotColour id="8cf4fb97-a59a-4799-8397-934f5e2181f2" name="Dark Green" colour="ced7c4af-7c3b-475c-8e05-da542dc7a7f1"></SpotColour>
+    <SpotColour id="fb3aa9da-3454-41e8-8b83-da0e2fce6c4a" name="Brown" colour="f9bdb07e-69c6-44dc-81dc-ab08404f5559"></SpotColour>
+    <SpotColour id="cccb0243-8f06-41bb-8f5d-91634b24015d" name="Purple" colour="ccd5e816-c345-4e31-9f48-44b76bd69069"></SpotColour>
+    <SpotColour id="98f53635-5962-4745-b6a5-0e0cee96c79c" name="White" colour="ecc86df3-6055-4a8a-bf19-b0e7ac21d529"></SpotColour>
+  </SpotColours>
+  <Symbols>
+  </Symbols>
+  <Instances>
+  </Instances>
+</Map>

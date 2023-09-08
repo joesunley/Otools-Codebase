@@ -2383,8 +2383,9 @@ public class MapLoaderV2 : IMapLoaderV2
         _map.MapInfo = LoadMapInfo(node.Children["MapInfo"]);
         _map.MapInfo.FilePath = filePath;
 
-        _map.Colours = new(LoadColours(node.Children["Colours"]));
         _map.SpotColours = new(LoadSpotColours(node.Children["SpotColours"]));
+        _map.Colours = new(LoadColours(node.Children["Colours"]));
+        FixSpotColours(ref _map);
         _map.Symbols = new(LoadSymbols(node.Children["Symbols"]));
         _map.Instances = new(LoadInstances(node.Children["Instances"]));
 
@@ -2436,10 +2437,10 @@ public class MapLoaderV2 : IMapLoaderV2
             {
                 Dictionary<SpotCol, float> kvps = new();
 
-                foreach (XMLNode child in colNode.Children)
+                foreach (XMLNode child in node.Children)
                 {
                     Guid colId = child.Attributes["colour"].Parse<Guid>();
-                    float val = child.Attributes["value"].Parse<float>();
+                    float val = child.Attributes["factor"].Parse<float>();
 
                     kvps.Add(_map.SpotColours[colId], val);
                 }
@@ -2465,12 +2466,19 @@ public class MapLoaderV2 : IMapLoaderV2
     {
         Guid id = Guid.Parse(node.Attributes["id"]);
         string name = node.Attributes["name"];
-        Colour colour = ColourId(node.Attributes["colour"]);
+        // Does this to avoid circular reference
+        CmykColour colour = new (node.Attributes["colour"], 0, 0, 0, 0);
 
-        if (colour is not CmykColour)
-            throw new InvalidOperationException("Spot Colour is not CMYK");
+        return new SpotCol(id, name, colour);
+    }
 
-        return new SpotCol(id, name, (CmykColour)colour);
+    private static void FixSpotColours(ref Map map)
+    {
+        foreach (SpotCol col in map.SpotColours)
+        {
+            col.Colour = map.Colours[col.Colour.Name.Parse<Guid>()] as CmykColour
+                ?? throw new Exception();
+        }
     }
 
     #endregion

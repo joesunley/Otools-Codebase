@@ -9,7 +9,7 @@ public class MapDraw
 {
 	private (PointDraw point, SimplePathDraw sPath) draws;
 
-	private bool isActive;
+	public bool IsActive { get; private set; }
 	private Active active;
 
 	private readonly PaintBox paintBox;
@@ -17,7 +17,7 @@ public class MapDraw
 	public MapDraw()
 	{
 		Manager.ActiveSymbolChanged += SymbolChanged;
-		Manager.ActiveToolChanged += args => isActive = (args != Tool.Edit);
+		Manager.ActiveToolChanged += args => IsActive = (args != Tool.Edit);
 
 		Assert(Manager.PaintBox != null);
 		paintBox = Manager.PaintBox!;
@@ -31,7 +31,7 @@ public class MapDraw
 	
 	public void SymbolChanged(Symbol sym)
 	{
-		if (!isActive) return;
+		if (!IsActive) return;
 
 		switch (sym)
 		{
@@ -49,12 +49,12 @@ public class MapDraw
 
 	public void MouseDown(MouseButton mouse)
 	{
-		if (!isActive) return;
+		if (!IsActive) return;
 	}
 
 	public void MouseUp(MouseButton mouse)
 	{
-		if (!isActive) return;
+		if (!IsActive) return;
 
 		switch (active)
 		{
@@ -76,7 +76,7 @@ public class MapDraw
 
 	public void MouseMove()
 	{
-		if (!isActive) return;
+		if (!IsActive) return;
 
 		switch (active)
 		{
@@ -90,7 +90,7 @@ public class MapDraw
 
 	public void KeyUp(Key key)
 	{
-		if (!isActive) return;
+		if (!IsActive) return;
 
 		switch (active)
 		{
@@ -108,8 +108,8 @@ public class MapDraw
 		}
 	}
 
-	public void Start() => isActive = true;
-	public void Stop() => isActive = false;
+	public void Start() => IsActive = true;
+	public void Stop() => IsActive = false;
 
 	public static MapDraw Create() => new();
 	

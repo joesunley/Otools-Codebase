@@ -1510,7 +1510,7 @@ public static class PolygonTools
         return (intersections % 2) == 1;
     }
 
-    private static bool DoLinesIntersect(vec4 l1, vec4 l2)
+    public static bool DoLinesIntersect(vec4 l1, vec4 l2)
 	{
 		int o1 = Orientation(l1.XY, l1.ZW, l2.XY),
 			o2 = Orientation(l1.XY, l1.ZW, l2.ZW),

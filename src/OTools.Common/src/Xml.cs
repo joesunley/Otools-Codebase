@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using System.Xml.Linq;
 using Sys = System.Xml;
 
@@ -31,6 +32,18 @@ public sealed class XMLDocument
 
     public void Serialize(string filePath)
         => Marshall.OutSerDoc(this, filePath);
+
+    public static void Flatten(string filePath)
+    {
+        string[] lines = File.ReadAllLines(filePath);
+
+        StringBuilder sb = new();
+
+        foreach (string line in lines)
+            sb.Append(line.Trim());
+
+        File.WriteAllText(filePath, sb.ToString());
+    }
 }
 
 [DebuggerDisplay("{Name} : {Children.Count}, {Attributes.Count}")]

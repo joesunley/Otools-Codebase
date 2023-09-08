@@ -4,7 +4,6 @@ using OTools.AvaCommon;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using ownsmtp.logging;
-using System.Diagnostics;
 
 namespace OTools.MapMaker;
 
@@ -13,7 +12,7 @@ public class MapEdit
     private PointEdit? pointEdit;
     private PathEdit? pathEdit;
 
-    private bool isActive;
+    public bool IsActive { get; private set; }
     private Active active;
 
     private Instance? selectedInstance;
@@ -22,7 +21,13 @@ public class MapEdit
 
     public MapEdit()
     {
-        Manager.ActiveToolChanged += args => isActive = (args == Tool.Edit);
+        Manager.ActiveToolChanged += args =>
+        {
+            IsActive = (args == Tool.Edit);
+
+            if (!IsActive && selectedInstance != null)
+                Deselect();
+        };
 
         Assert(Manager.PaintBox != null);
         paintBox = Manager.PaintBox!;
@@ -35,7 +40,7 @@ public class MapEdit
 
     public void MouseDown(PointerPressedEventArgs args)
     {
-        if (!isActive) return;
+        if (!IsActive) return;
 
         if (args.GetCurrentPoint(paintBox.canvas).Properties.IsLeftButtonPressed)
             pathEdit?.LMouseDown(); 
@@ -43,7 +48,7 @@ public class MapEdit
 
     public void MouseUp(MouseButton mouse, KeyModifiers modifiers)
     {
-        if (!isActive) return;
+        if (!IsActive) return;
 
         switch (mouse)
         {
@@ -63,7 +68,7 @@ public class MapEdit
 
     public void MouseMove(MouseMovedEventArgs args)
     {
-        if (!isActive) return;
+        if (!IsActive) return;
 
         if (args.Properties.IsLeftButtonPressed)
         {
@@ -74,7 +79,7 @@ public class MapEdit
 
     public void KeyUp(Key key)
     {
-        if (!isActive) return;
+        if (!IsActive) return;
 
         switch (key)
         {
@@ -179,8 +184,8 @@ public class MapEdit
     }
 
 
-    public void Start() => isActive = true;
-    public void Stop() => isActive = false;
+    public void Start() => IsActive = true;
+    public void Stop() => IsActive = false;
 
     public static MapEdit Create() => new();
     
