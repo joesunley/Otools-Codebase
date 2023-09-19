@@ -2,337 +2,293 @@
 using OTools.AvaCommon;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
+using System.Security.Permissions;
 
 namespace OTools.MapMaker;
 
 public class MapDraw
 {
-	private (PointDraw point, SimplePathDraw sPath) draws;
+    private MapMakerInstance _instance;
 
-	public bool IsActive { get; private set; }
-	private Active active;
+    public MapDraw(MapMakerInstance instance)
+    {
+        _instance = instance;
 
-	private readonly PaintBox paintBox;
+        _instance.ActiveSymbolChanged += SymbolChanged;
+        _instance.ActiveToolChanged += args => IsActive = (args != Tool.Edit);
 
-	public MapDraw()
-	{
-		Manager.ActiveSymbolChanged += SymbolChanged;
-		Manager.ActiveToolChanged += args => IsActive = (args != Tool.Edit);
+        _instance.PaintBox.PointerMoved += (_, _) => MouseMove();
+        _instance.PaintBox.PointerReleased += (_, args) => MouseUp(args.InitialPressMouseButton);
+        _instance.PaintBox.KeyUp += (_, args) => KeyUp(args.Key);
+    }
 
-		Assert(Manager.PaintBox != null);
-		paintBox = Manager.PaintBox!;
+    private PointDraw? _pointDraw;
+    private SimplePathDraw? _simplePathDraw;
 
-		//ViewManager.MouseDown += args => MouseDown(args.)
+    public bool IsActive { get; set; }
 
-		paintBox.PointerReleased += (_, args) => MouseUp(args.InitialPressMouseButton);
-		paintBox.MouseMoved += _ => MouseMove();
-		paintBox.KeyUp += (_, args) => KeyUp(args.Key);
-	}
-	
-	public void SymbolChanged(Symbol sym)
-	{
-		if (!IsActive) return;
+    private void SymbolChanged(Symbol symbol)
+    {
+        if (!IsActive) return;
 
-		switch (sym)
-		{
-			case PointSymbol point:
-				active = Active.Point;
-				draws.point = new(point, paintBox);
-				draws.point.Start();
-				break;
-			case IPathSymbol path:
-				active = Active.SimplePath;
-				draws.sPath = new(path, paintBox);
-				break;
-		}
-	}
+        switch (symbol)
+        {
+            case PointSymbol point:
+                _pointDraw = new(_instance, point);
+                _simplePathDraw = null;
+                _pointDraw.Start();
+                break;
+            case IPathSymbol path:
+                _pointDraw = null;
+                _simplePathDraw = new(_instance, path);
+                break;
+        }
+    }
+    private void MouseUp(MouseButton mouse)
+    {
+        if (!IsActive) return;
 
-	public void MouseDown(MouseButton mouse)
-	{
-		if (!IsActive) return;
-	}
+        switch (mouse)
+        {
+            case MouseButton.Left:
+                _pointDraw?.End();
 
-	public void MouseUp(MouseButton mouse)
-	{
-		if (!IsActive) return;
+                _simplePathDraw?.Start();
+                _simplePathDraw?.NewPoint();
 
-		switch (active)
-		{
-			case Active.Point: if (mouse == MouseButton.Left) draws.point.End(); break;
-			case Active.SimplePath:
-				if (mouse == MouseButton.Left)
-				{
-					draws.sPath.Start();
-					draws.sPath.NewPoint();
-				}
-				else if (mouse == MouseButton.Right)
-				{
-					draws.sPath.End();
-				}
+                break;
+            case MouseButton.Right:
+                _simplePathDraw?.End();
+                break;
+        }
+    }
+    private void MouseMove()
+    {
+        if (!IsActive) return;
 
-				break;
-		}
-	}
+        _pointDraw?.Update();
 
-	public void MouseMove()
-	{
-		if (!IsActive) return;
+        _simplePathDraw?.Update();
+        _simplePathDraw?.Idle();
+    }
+    private void KeyUp(Key key)
+    {
+        switch (key)
+        {
+            case Key.Enter:
+                _simplePathDraw?.Complete();
+                break;
+            case Key.Escape:
+                _simplePathDraw?.Cancel();
+                break;
+        }
+    }
 
-		switch (active)
-		{
-			case Active.Point: draws.point.Update(); break;
-			case Active.SimplePath: 
-				draws.sPath.Update(); 
-				draws.sPath.Idle(); 
-				break;  
-		}
-	}
-
-	public void KeyUp(Key key)
-	{
-		if (!IsActive) return;
-
-		switch (active)
-		{
-			case Active.SimplePath:
-				switch (key)
-				{
-					case Key.Enter:
-						draws.sPath.Complete();
-						break;
-					case Key.Escape:
-						draws.sPath.Cancel();
-						break;
-				}
-				break;
-		}
-	}
-
-	public void Start() => IsActive = true;
-	public void Stop() => IsActive = false;
-
-	public static MapDraw Create() => new();
-	
-	private enum Active { None, Point, SimplePath, ComplexPath }
+    public void Start() => IsActive = true;
+    public void Stop() => IsActive = false;
 }
 
 public class PointDraw
 {
-	private PointInstance _inst;
-	private IMapRenderer2D _renderer;
+    private MapMakerInstance _mInstance;
+    private PointInstance _inst;
 
-	private bool _active;
+    private bool _active;
 
-	private readonly PaintBox paintBox;
+    public PointDraw(MapMakerInstance mInstance, PointSymbol pSym)
+    {
+        _inst = new(mInstance.Layer, pSym, vec2.Zero, 0f);
 
-	public PointDraw(PointSymbol sym, PaintBox paintBox)
-	{
-		_inst = new(Manager.Layer, sym, vec2.Zero, 0f);
+        _mInstance = mInstance;
 
-		if (Manager.MapRenderer is null)
-			Manager.MapRenderer = new MapRenderer2D(Manager.Map!);
-		_renderer = Manager.MapRenderer;
+        _active = false;
+    }
 
-		_active = false;
-		this.paintBox = paintBox;
-	}
+    public void Start()
+    {
+        if (_active) return;
+        _active = true;
 
-	public void Start()
-	{
-		if (_active) return;
-		_active = true;
+        _inst.Centre = _mInstance.PaintBox.MousePosition;
+        _inst.Opacity = _mInstance.Settings.Draw_Opacity;
 
-		_inst.Centre = paintBox.MousePosition;
-		_inst.Opacity = Manager.Settings.Draw_Opacity;
+        var render = _mInstance.MapRenderer.RenderPointInstance(_inst).ConvertCollection();
+        _mInstance.PaintBox.Add(_inst.Id, render);
+    }
 
-		var render = _renderer.RenderPointInstance(_inst).ConvertCollection();
-		paintBox.Add(_inst.Id, render);
-	}
+    public void Update()
+    {
+        if (!_active) return;
 
-	public void Update()
-	{
-		if (!_active) return;
+        _inst.Centre = _mInstance.PaintBox.MousePosition;
 
-		_inst.Centre = paintBox.MousePosition;
+        var render = _mInstance.MapRenderer.RenderPointInstance(_inst).ConvertCollection();
+        _mInstance.PaintBox.Add(_inst.Id, render);
+    }
 
-		//if (ViewManager.IsMouseOutsideBounds())
-		//    _inst.Opacity = 0f;
-		//else _inst.Opacity = 1f;
+    public void End()
+    {
+        if (!_active) return;
+        _active = false;
 
-		var render = _renderer.RenderPointInstance(_inst).ConvertCollection();
-		paintBox.Update(_inst.Id, render);
-	}
+        _inst.Centre = _mInstance.PaintBox.MousePosition;
+        _inst.Opacity = 1f;
 
-	public void End()
-	{
-		if (!_active) return;
-		_active = false;
+        _mInstance.Map.Instances.Add(_inst);
 
-		_inst.Centre = paintBox.MousePosition;
-		_inst.Opacity = 1f;
+        var render = _mInstance.MapRenderer.RenderPointInstance(_inst).ConvertCollection();
+        _mInstance.PaintBox.Add(_inst.Id, render);
 
-		Manager.Map!.Instances.Add(_inst);
-
-		var render = _renderer.RenderPointInstance(_inst).ConvertCollection();
-		paintBox.Update(_inst.Id, render);
-
-		_inst = new(_inst.Layer, _inst.Symbol, _inst.Centre, _inst.Rotation);
-		Start();
-	}
+        _inst = new(_inst.Layer, _inst.Symbol, _inst.Centre, _inst.Rotation);
+        Start();
+    }
 }
 
 public class SimplePathDraw
 {
-	private PathInstance _inst;
-	private IMapRenderer2D _renderer;
+    private MapMakerInstance _mInstance;
+    private PathInstance _inst;
 
-	private bool _active;
-	private List<vec2> _points;
+    private bool _active;
+    private List<vec2> _points;
+    private bool _drawGuide;
 
-	private bool _drawGuide;
+    public SimplePathDraw(MapMakerInstance mInstance, IPathSymbol pSym)
+    {
+        _inst = pSym switch
+        {
+            LineSymbol l => new LineInstance(mInstance.Layer, l, new(), false),
+            AreaSymbol a => new AreaInstance(mInstance.Layer, a, new(), false, 0f, null),
+            _ => throw new InvalidOperationException()
+        };
 
-	private readonly PaintBox paintBox;
+        _mInstance = mInstance;
 
-	public SimplePathDraw(IPathSymbol sym, PaintBox paintBox)
-	{
-		_inst = sym switch
-		{
-			LineSymbol l => new LineInstance(Manager.Layer, l, new(), false),
-			AreaSymbol a => new AreaInstance(Manager.Layer, a, new(), false, 0f),
-			_ => throw new InvalidOperationException(),
-		};
+        _active = false;
+        _points = new();
+    }
 
-		if (Manager.MapRenderer is null)
-			Manager.MapRenderer = new MapRenderer2D(Manager.Map!);
-		_renderer = Manager.MapRenderer;
+    public void Start()
+    {
+        if (_active) return;
+        _active = true;
 
-		_active = false;
-		_points = new();
-		this.paintBox = paintBox;
-	}
+        _inst = _inst.Clone();
+        _points = new() { _mInstance.PaintBox.MousePosition, _mInstance.PaintBox.MousePosition };
 
-	public void Start()
-	{
-		if (_active) return;
-		_active = true;
+        _inst.Segments.Reset(_points);
+        _inst.Opacity = _mInstance.Settings.Draw_Opacity;
+        _inst.IsClosed = false;
 
-		_inst = _inst.Clone();
-		_points = new() { paintBox.MousePosition, paintBox.MousePosition };
+        _drawGuide = _inst is AreaInstance area &&
+            (area.Symbol.Width == 0 || area.Symbol.Colour == Colour.Transparent);
 
-		_inst.Segments.Reset(_points);
-		_inst.Opacity = Manager.Settings.Draw_Opacity;
-		_inst.IsClosed = false;
+        var render = _mInstance.MapRenderer.RenderPathInstance(_inst)
+            .Concat(!_drawGuide ? 
+                Enumerable.Empty<IShape>() :
+                new IShape[] { new Line { Colour = _mInstance.Settings.Draw_BorderColour, Points = _points, Width = 1, ZIndex = 999 } })
+            .ConvertCollection();
 
-		_drawGuide = _inst is AreaInstance area &&
-					 (area.Symbol.Width == 0 || area.Symbol.Colour == Colour.Transparent);
+        _mInstance.PaintBox.Add(_inst.Id, render);
+    }
 
-		var render = _renderer.RenderPathInstance(_inst).Concat(!_drawGuide ? Enumerable.Empty<IShape>() :
-			new IShape[] { new Line {Colour = 0xffff8a00, Points = _points, Width = 1, ZIndex = 999}})
-			.ConvertCollection();
-		paintBox.Add(_inst.Id, render);
-	}
+    public void Update()
+    {
+        if (!_active) return;
 
-	public void Update()
-	{
-		if (!_active) return;
+        _points[^1] = _mInstance.PaintBox.MousePosition;
+        _inst.Segments.Reset(_points);
 
-		_points[^1] = paintBox.MousePosition;
+        var render = _mInstance.MapRenderer.RenderPathInstance(_inst)
+            .Concat(!_drawGuide ?
+                Enumerable.Empty<IShape>() :
+                new IShape[] { new Line { Colour = _mInstance.Settings.Draw_BorderColour, Points = _points, Width = 1, ZIndex = 999 } })
+            .ConvertCollection();
 
-		_inst.Segments.Reset(_points);
-		
-		var render = _renderer.RenderPathInstance(_inst).Concat(!_drawGuide ? Enumerable.Empty<IShape>() :
-			new IShape[] { new Area {BorderColour = Manager.Settings.Draw_BorderColour, Points = _points, BorderWidth = Manager.Settings.Draw_BorderWidth, ZIndex = Manager.Settings.Draw_BorderZIndex }})
-			.ConvertCollection();
-		paintBox.Update(_inst.Id, render);
-	}
+        _mInstance.PaintBox.Update(_inst.Id, render);
+    }
 
-	public void NewPoint()
-	{
-		if (!_active) return;
+    public void NewPoint()
+    {
+        if (!_active) return;
 
-		WriteLine("New Point");
+        _points.Add(_mInstance.PaintBox.MousePosition);
+        _inst.Segments.Reset(_points);
 
-		_points.Add(paintBox.MousePosition);
+        var render = _mInstance.MapRenderer.RenderPathInstance(_inst).ConvertCollection();
+        _mInstance.PaintBox.Update(_inst.Id, render);
+    }
 
-		_inst.Segments.Reset(_points);
+    public void End()
+    {
+        if (!_active) return;
+        _active = false;
 
-		var render = _renderer.RenderPathInstance(_inst).ConvertCollection();
-		paintBox.Update(_inst.Id, render);
-	}
+        _points.Add(_mInstance.PaintBox.MousePosition);
 
-	public void End()
-	{
-		if (!_active) return;
-		_active = false;
+        if (vec2.Mag(_points[0], _points[^1]) < 1)
+        {
+            _active = true;
+            Complete();
+            return;
+        }
 
-		_points.Add(paintBox.MousePosition);
+        if (_points[0] == _points[1])
+            _points.RemoveAt(1);
 
-		if (vec2.Mag(_points[0], _points[^1]) < 1)
-		{
-			_active = true;
-			Complete();
-			return;
-		}
+        _inst.Segments.Reset(_points);
+        _inst.Opacity = 1f;
 
-		if (_points[0] == _points[1])
-			_points.RemoveAt(1);
+        _mInstance.Map.Instances.Add(_inst);
 
-		_inst.Segments.Reset(_points);
-		_inst.Opacity = 1f;
+        var render = _mInstance.MapRenderer.RenderPathInstance(_inst).ConvertCollection();
+        _mInstance.PaintBox.Update(_inst.Id, render);
+    }
 
-		Manager.Map!.Instances.Add(_inst);
+    public void Complete()
+    {
+        if (!_active) return;
+        _active = false;
 
-		var render = _renderer.RenderPathInstance(_inst).ConvertCollection();
-		paintBox.Update(_inst.Id, render);
+        _points.Remove(_points[^1]);
 
-		
-	}
+        if (_points[0] == _points[1])
+            _points.RemoveAt(1);
 
-	public void Complete()
-	{
-		if (!_active) return;
-		_active = false;
+        _inst.Segments.Reset(_points);
+        _inst.Opacity = 1f;
+        _inst.IsClosed = true;
 
-		_points.Remove(_points[^1]);
-		//_points.Add(ViewManager.MousePosition);
+        _mInstance.Map.Instances.Add(_inst);
 
-		if (_points[0] == _points[1])
-			_points.RemoveAt(1);
+        var render = _mInstance.MapRenderer.RenderPathInstance(_inst).ConvertCollection();
+        _mInstance.PaintBox.Update(_inst.Id, render);
+    }
 
-		_inst.Segments.Reset(_points);
-		_inst.Opacity = 1f;
-		_inst.IsClosed = true;
+    public void Idle()
+    {
 
-		Manager.Map!.Instances.Add(_inst);
+    }
 
-		var render = _renderer.RenderPathInstance(_inst).ConvertCollection();
-		paintBox.Update(_inst.Id, render);
-	}
+    public void Cancel()
+    {
+        if (!_active) return;
+        _active = false;
 
-	public void Idle()
-	{
-		
-	}
+        _points = new();
 
-	public void Cancel()
-	{
-		if (!_active) return;
-		_active = false;
+        _inst = _inst.Clone();
+        _inst.Segments.Clear();
 
-		_points = new();
-
-		_inst = _inst.Clone();
-		_inst.Segments.Clear();
-
-		paintBox.Remove(_inst.Id);
-	}
+        _mInstance.PaintBox.Remove(_inst.Id);
+    }
 }
 
 file static class Extension
 {
-	public static void Reset(this PathCollection pC, IEnumerable<vec2> points)
-	{
-		pC.Clear();
-		pC.Add(new LinearPath(points));
-	}
+    internal static void Reset(this PathCollection pc, IEnumerable<vec2> points)
+    {
+        pc.Clear();
+        pc.Add(new LinearPath(points));
+    }
 }

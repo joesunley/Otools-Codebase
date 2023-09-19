@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Controls.PanAndZoom;
-using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using OTools.Common;
@@ -11,7 +10,7 @@ using System.Diagnostics;
 
 namespace OTools.AvaCommon
 {
-	public partial class PaintBox : UserControl
+    public partial class PaintBox : UserControl
 	{
 		public PaintBox()
 		{
@@ -19,11 +18,11 @@ namespace OTools.AvaCommon
 
 			zoomBorder.ZoomChanged += (_, e) => ZoomChanged?.Invoke(e);
 
-			canvas.PointerMoved += (_, args) =>
+			canvas.PointerMoved += (sender, args) =>
 			{
 				var point = args.GetCurrentPoint(canvas);
 				MousePosition = (point.Position.X, point.Position.Y);
-				MouseMoved?.Invoke(new()
+				PointerMoved?.Invoke(sender, new()
 				{
 					Position = MousePosition,
 					Modifiers = args.KeyModifiers,
@@ -63,7 +62,7 @@ namespace OTools.AvaCommon
 		public event Action<ZoomChangedEventArgs>? ZoomChanged;
 
 		public vec2 MousePosition { get; private set; }
-		public event Action<MouseMovedEventArgs>? MouseMoved;
+		public new event EventHandler<MouseMovedEventArgs>? PointerMoved;
 
 		public void Load(Map map, IMapRenderer2D? mapRenderer = null)
 		{

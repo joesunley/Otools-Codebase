@@ -143,10 +143,10 @@ namespace OTools.MapMaker
             ComboBox cb = new();
             cb.SetValue(Grid.ColumnProperty, 0);
 
-            var spotCols = Manager.Map?.SpotColours.Select(x => x.Name).ToList()
-                ?? new List<string>();
+            //var spotCols = Manager.Map?.SpotColours.Select(x => x.Name).ToList()
+            //    ?? new List<string>();
 
-            cb.ItemsSource = spotCols;
+            //cb.ItemsSource = spotCols;
 
             NumericUpDown nud = new()
             {

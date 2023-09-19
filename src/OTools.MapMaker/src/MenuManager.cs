@@ -5,7 +5,13 @@ namespace OTools.MapMaker;
 
 public class MenuManager
 {
+    private MapMakerInstance _instance;
     private MenuItem? _active;
+
+    public MenuManager(MapMakerInstance instance)
+    {
+        _instance = instance;
+    }
 
     public bool Call(MenuItem m)
     {
@@ -33,16 +39,16 @@ public class MenuManager
     {
         if (_isWireframe)
         {
-            Manager.MapRenderer = new MapRenderer2D(Manager.Map!);
-            Manager.ReRender();
+            _instance.MapRenderer = new MapRenderer2D(_instance.Map);
+            _instance.ReRender();
             _isWireframe = false;
 
             _active!.Icon = CreateCheckBox();
         }
         else
         {
-            Manager.MapRenderer = new WireframeMapRenderer2D(Manager.Map!);
-            Manager.ReRender();
+            _instance.MapRenderer = new WireframeMapRenderer2D(_instance.Map);
+            _instance.ReRender();
             _isWireframe = true;
 
             _active!.Icon = CreateCheckBox(true);
@@ -55,16 +61,16 @@ public class MenuManager
     {
         if (_isUncrossable)
         {
-            Manager.MapRenderer = new MapRenderer2D(Manager.Map!);
-            Manager.ReRender();
+            _instance.MapRenderer = new MapRenderer2D(_instance.Map!);
+            _instance.ReRender();
             _isUncrossable = false;
 
             _active!.Icon = CreateCheckBox();
         }
         else
         {
-            Manager.MapRenderer = new UncrossableMapRenderer2D(Manager.Map!);
-            Manager.ReRender();
+            _instance.MapRenderer = new UncrossableMapRenderer2D(_instance.Map!);
+            _instance.ReRender();
             _isUncrossable = true;
 
             _active!.Icon = CreateCheckBox(true);
@@ -77,18 +83,18 @@ public class MenuManager
 
     private bool SetEdit()
     {
-        Manager.Tool = Tool.Edit;
-        Manager.MapEdit!.Start();
-        Manager.MapDraw!.Stop();
+        _instance.ActiveTool = Tool.Edit;
+        _instance.MapEdit.Start();
+        _instance.MapDraw.Stop();
 
         return true;
     }
 
     private bool SetPathDraw()
     {
-        Manager.Tool = Tool.Path;
-        Manager.MapDraw!.Start();
-        Manager.MapEdit!.Stop();
+        _instance.ActiveTool = Tool.Path;
+        _instance.MapDraw!.Start();
+        _instance.MapEdit!.Stop();
 
         return true;
     }

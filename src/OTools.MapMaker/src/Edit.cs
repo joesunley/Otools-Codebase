@@ -1,90 +1,93 @@
-﻿using Avalonia.Input;
+﻿using Avalonia.Controls.Utils;
+using Avalonia.Input;
 using OneOf.Types;
 using OTools.AvaCommon;
+using OTools.Common;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
 using ownsmtp.logging;
+using Svg.Model.Drawables.Elements;
+using System.Diagnostics.Contracts;
+using System.Dynamic;
 
 namespace OTools.MapMaker;
 
 public class MapEdit
 {
-    private PointEdit? pointEdit;
-    private PathEdit? pathEdit;
+    private MapMakerInstance _instance;
 
-    public bool IsActive { get; private set; }
-    private Active active;
-
-    private Instance? selectedInstance;
-
-    private readonly PaintBox paintBox;
-
-    public MapEdit()
+    public MapEdit(MapMakerInstance instance)
     {
-        Manager.ActiveToolChanged += args =>
+        _instance = instance;
+
+        _instance.ActiveToolChanged += args =>
         {
             IsActive = (args == Tool.Edit);
 
-            if (!IsActive && selectedInstance != null)
+            if (!IsActive && _selectedInstance != null)
+            {
                 Deselect();
+            }
         };
 
-        Assert(Manager.PaintBox != null);
-        paintBox = Manager.PaintBox!;
-
-        paintBox.PointerReleased += (_, args) => MouseUp(args.InitialPressMouseButton, args.KeyModifiers);
-        paintBox.PointerPressed += (_, args) => MouseDown(args);
-        paintBox.MouseMoved += MouseMove;
-        paintBox.KeyUp += (_, args) => KeyUp(args.Key);
+        _instance.PaintBox.PointerPressed += (_, args) => MouseDown(args);
+        _instance.PaintBox.PointerReleased += (_, args) => MouseUp(args.InitialPressMouseButton, args.KeyModifiers);
+        _instance.PaintBox.PointerMoved += (_, args) => MouseMove(args);
+        _instance.PaintBox.KeyUp += (_, args) => KeyUp(args.Key);
     }
 
-    public void MouseDown(PointerPressedEventArgs args)
+    private PointEdit? _pointEdit;
+    private PathEdit? _pathEdit;
+
+    public bool IsActive { get; set; }
+
+    private Instance? _selectedInstance;
+
+    private void MouseDown(PointerPressedEventArgs args)
     {
         if (!IsActive) return;
 
-        if (args.GetCurrentPoint(paintBox.canvas).Properties.IsLeftButtonPressed)
-            pathEdit?.LMouseDown(); 
+        if (args.GetCurrentPoint(_instance.PaintBox.canvas).Properties.IsLeftButtonPressed)
+            _pathEdit?.LeftMouseDown();
     }
 
-    public void MouseUp(MouseButton mouse, KeyModifiers modifiers)
+    private void MouseUp(MouseButton mouse, KeyModifiers modifiers)
     {
         if (!IsActive) return;
 
         switch (mouse)
         {
             case MouseButton.Left:
-            {
-
-                if (selectedInstance is null)
-                    SelectInstance12();
-
+                if (_selectedInstance is null)
+                    Select();
                 if (modifiers.HasFlag(KeyModifiers.Control))
-                    pathEdit?.CtrlClick();
+                    _pathEdit?.CtrlClick();
 
-                pathEdit?.LMouseUp();
-            } break;
+                _pathEdit?.LeftMouseUp();
+                break;
         }
     }
 
-    public void MouseMove(MouseMovedEventArgs args)
+    private void MouseMove(MouseMovedEventArgs args)
     {
         if (!IsActive) return;
 
         if (args.Properties.IsLeftButtonPressed)
         {
-            pointEdit?.Move();
-            pathEdit?.MovePoint();
+            _pointEdit?.Move();
+            _pathEdit?.MovePoint();
         }
     }
 
-    public void KeyUp(Key key)
+    private void KeyUp(Key key)
     {
         if (!IsActive) return;
 
         switch (key)
         {
             case Key.Delete:
-                pointEdit?.Delete();
+                _pointEdit?.Delete();
+                _pathEdit?.Delete();
                 break;
             case Key.Escape:
                 Deselect();
@@ -92,7 +95,6 @@ public class MapEdit
         }
     }
 
-    private void SelectInstance()
     {
         var (instance, dist) = _Utils.NearestInstance(Manager.Map!.Instances, paintBox.MousePosition);
 
@@ -122,97 +124,71 @@ public class MapEdit
         }
     }
 
-    private (vec2 p, IList<Instance> inst, int i) _activeInsts = (vec2.Zero, Array.Empty<Instance>(), -1);
-    private void SelectInstance12()
+    private void Select()
     {
-        if (_activeInsts.i != -1)
-        {
-            if (vec2.Mag(paintBox.MousePosition, _activeInsts.p) <= 1)
-            {
-                SelectInstance(_activeInsts.inst[_activeInsts.i]);
-                _activeInsts.i++;
+        var (inst, dist) = _Utils.NearestInstance(_instance.Map.Instances, _instance.PaintBox.MousePosition);
 
-                if (_activeInsts.i >= _activeInsts.inst.Count)
-                    _activeInsts.i = 0;
+        if (inst is null || dist > _instance.Settings.Select_ObjectTolerance)
+            return;
 
-                return;
-            }
-        }
-
-        var instances = _Utils.SelectableInstances(Manager.Map!.Instances, paintBox.MousePosition, Manager.Settings.Select_PointTolerance).ToList();
-
-        instances = instances.OrderBy(x => x.Item2).ToList();
-
-        _activeInsts = (paintBox.MousePosition, instances.Select(x => x.Item1).ToList(), 1);
-
-        SelectInstance(_activeInsts.inst[0]);
-    }
-    private void SelectInstance(Instance inst)
-    {
         Deselect();
 
-        selectedInstance = inst;
+        _selectedInstance = inst;
+        ODebugger.Debug($"Selected: {_selectedInstance.Id} at {_instance.PaintBox.MousePosition}");
 
-        ODebugger.Debug($"Selected {inst} at {paintBox.MousePosition}");
-
-        switch (inst)
+        if (inst is PathInstance path)
         {
-            case PathInstance pathInst:
-                active = Active.Path;
-                pathEdit = new(paintBox, pathInst);
-                pathEdit.Select();
-                break;
-            case PointInstance pointInst:
-                active = Active.Point;
-                pointEdit = new(paintBox, pointInst);
-                pointEdit.Select();
-                break;
+            _pointEdit = null;
+            _pathEdit = new(_instance, path);
+
+            _pathEdit.Select();
+        }
+        else if (inst is PointInstance point)
+        {
+            _pointEdit = new(_instance, point);
+            _pathEdit = null;
+
+            _pointEdit.Select();
         }
     }
+    private void Select_Range()
+    {
 
+    }
+    private void Select(Instance inst)
+    {
+
+    }
     private void Deselect()
     {
-        selectedInstance = null;
+        _selectedInstance = null;
 
-        pathEdit?.Deselect();
-        pointEdit?.Deselect();
+        _pointEdit?.Deselect();
+        _pathEdit?.DeSelect();
 
-        pointEdit = null;
-        pathEdit = null;
-
-        active = Active.None;
+        _pointEdit = null;
+        _pathEdit = null;
     }
-
 
     public void Start() => IsActive = true;
     public void Stop() => IsActive = false;
-
-    public static MapEdit Create() => new();
-    
-    private enum Active { None, Point, Path }
 }
 
 public class PointEdit
 {
-    private PointInstance _instance;
-    private PaintBox paintBox;
-    private IMapRenderer2D _renderer;
+    private MapMakerInstance _mInstance;
+    private PointInstance _pInstance;
 
     private Guid _helperId;
-
     private bool _active;
 
-    public PointEdit(PaintBox paintBox, PointInstance instance)
+    public PointEdit(MapMakerInstance mInstance, PointInstance pInstance)
     {
-        _instance = instance;
-        this.paintBox = paintBox;
+        _mInstance = mInstance;
+        _pInstance = pInstance;
 
-        _active = false;    
         _helperId = Guid.NewGuid();
-
-        if (Manager.MapRenderer is null)
-            Manager.MapRenderer = new MapRenderer2D(Manager.Map!);
-        _renderer = Manager.MapRenderer;
+        _active = false;
     }
 
     public void Select()
@@ -222,97 +198,77 @@ public class PointEdit
 
         DrawHelpers();
     }
-
     public void Deselect()
     {
         if (!_active) return;
         _active = false;
 
-        paintBox.Remove(_helperId);
-    }   
+        _mInstance.PaintBox.Remove(_helperId);
+    }
 
     public void Move()
     {
-        _instance.Centre = paintBox.MousePosition;
+        _pInstance.Centre = _mInstance.PaintBox.MousePosition;
 
-        paintBox.Update(_instance.Id, _renderer.RenderInstance(_instance).ConvertCollection());
+        _mInstance.PaintBox.Update(_pInstance.Id,
+            _mInstance.MapRenderer.RenderPointInstance(_pInstance).ConvertCollection());
+
         DrawHelpers();
     }
 
     public void Delete()
     {
-        paintBox.Remove(_instance.Id);
-        paintBox.Remove(_helperId);
+        _mInstance.PaintBox.Remove(_pInstance.Id);
+        _mInstance.PaintBox.Remove(_helperId);
 
-        Manager.Map!.Instances.Remove(_instance);
+        _mInstance.Map.Instances.Remove(_pInstance);
     }
 
-    void DrawHelpers()
+    public void DrawHelpers()
     {
-        IShape[] objs = { DrawBBox(), DrawHandle() };
+        vec4 bBOx = BoundingBox.OfInstance(_pInstance);
 
-        paintBox.AddOrUpdate(_helperId, objs.ConvertCollection());
-    }
-
-    private Rectangle DrawBBox()
-    {
-        vec4 bBox = BoundingBox.OfInstance(_instance);
-        float offset = Manager.Settings.Select_BBoxOffset;
-
-        WriteLine($"BBox: {bBox}");
-
-        return new()
+        IShape[] objs =
         {
-            TopLeft = bBox.XY,
-            Size = (bBox.ZW - bBox.XY).Abs(),
+            new Circle()
+            {
+                TopLeft = _pInstance.Centre,
 
-            BorderColour = Manager.Settings.Select_BBoxColour,
-            BorderWidth = Manager.Settings.Select_BBoxLineWidth,
-            DashArray = Manager.Settings.Select_BBoxDashArray,
+                BorderColour = _mInstance.Settings.Select_HandleAnchorColour,
 
-            ZIndex = Manager.Settings.Select_BBoxZIndex,
+                ZIndex = _mInstance.Settings.Select_HandleZIndex,
+            },
+
+            new Rectangle()
+            {
+                TopLeft = bBOx.XY,
+                Size = (bBOx.ZW - bBOx.XY).Abs(),
+
+                BorderColour = _mInstance.Settings.Select_BBoxColour,
+
+                ZIndex = _mInstance.Settings.Select_BBoxZIndex,
+            }
         };
 
-    }
-
-    private Circle DrawHandle()
-    {
-        float radius = Manager.Settings.Select_HandleRadius;
-
-        return new()
-        {
-            TopLeft = _instance.Centre,
-            Diameter = 2 * radius,
-
-            BorderColour = Manager.Settings.Select_HandleAnchorColour,
-            BorderWidth = Manager.Settings.Select_HandleLineWidth,
-
-            ZIndex = Manager.Settings.Select_HandleZIndex,
-        };
+        _mInstance.PaintBox.AddOrUpdate(_helperId, objs.ConvertCollection());
     }
 }
 
 public class PathEdit
 {
-    private PathInstance _instance;
-    private PaintBox paintBox;
-    private IMapRenderer2D _renderer;
+    private MapMakerInstance _mInstance;
+    private PathInstance _pInstance;
 
     private Guid _helperId;
-
     private bool _active;
 
-    public PathEdit(PaintBox paintBox, PathInstance instance)
+    public PathEdit(MapMakerInstance mInstance, PathInstance pInstance)
     {
-        _instance = instance;
-        this.paintBox = paintBox;
+        _mInstance = mInstance;
+        _pInstance = pInstance;
 
-        _active = false;    
         _helperId = Guid.NewGuid();
-
-        if (Manager.MapRenderer is null)
-            Manager.MapRenderer = new MapRenderer2D(Manager.Map!);
-        _renderer = Manager.MapRenderer;
+        _active = false;
     }
 
     public void Select()
@@ -322,92 +278,110 @@ public class PathEdit
 
         DrawHelpers();
     }
-
-    public void Deselect()
+    public void DeSelect()
     {
         if (!_active) return;
         _active = false;
 
-        paintBox.Remove(_helperId);
+        _mInstance.PaintBox.Remove(_helperId);
     }
 
     private (int, int, sbyte) _index;
 
-    public void LMouseDown()
+    public void LeftMouseDown()
     {
-        var (point, dist) = _Utils.NearestPoint(_instance.GetAllPoints(), paintBox.MousePosition);
-        if (dist > Manager.Settings.Select_PointTolerance) return;
+        var (point, dist) = _Utils.NearestPoint(_pInstance.GetAllPoints(), _mInstance.PaintBox.MousePosition);
 
-        _index = _Utils.FindPoint(_instance.Segments, point);
+        if (dist > _mInstance.Settings.Select_PointTolerance)
+            return;
+
+        _index = _Utils.FindPoint(_pInstance.Segments, point);
+
+        if (_index.Item1 == -1)
+            ODebugger.Error($"Couldn't find point: {point}");
+    }
+    public void LeftMouseUp()
+    {
+        _index = (-1, -1, -2);
     }
 
     public void MovePoint()
     {
-        if (_index.Item1 == -1)
-        {
-            ODebugger.Error("Couldn't Find Point");
-            return;
-        }
+        if (_index.Item1 == -1) return;
 
         switch (_index.Item3)
         {
-            case -1: 
-                LinearPath linear = (LinearPath)_instance.Segments[_index.Item1];
+            case -1:
+            {
+                LinearPath linear = (LinearPath)_pInstance.Segments[_index.Item1];
 
                 if (_index.Item2 == 0 && _index.Item1 != 0)
                 {
-                    IPath prev = _instance.Segments[_index.Item1 - 1];
+                    IPath prev = _pInstance.Segments[_index.Item1 - 1];
+
                     if (prev is LinearPath line && line[^1] == linear[_index.Item2])
-                        line[^1] = paintBox.MousePosition;
+                        line[^1] = _mInstance.PaintBox.MousePosition;
+
                     else if (prev is BezierPath bez && bez[^1].Anchor == linear[_index.Item2])
                     {
                         BezierPoint bezier = bez[^1];
-                        vec2 delta = paintBox.MousePosition - bezier.Anchor;
+                        vec2 delta = _mInstance.PaintBox.MousePosition - bezier.Anchor;
 
                         bezier = new()
                         {
-                            Anchor = paintBox.MousePosition,
-                            EarlyControl = bezier.EarlyControl.IsT0 ? (bezier.EarlyControl.AsT0 + delta) : new None(),
-                            LateControl = bezier.LateControl.IsT0 ? (bezier.LateControl.AsT0 + delta) : new None(),
+                            Anchor = _mInstance.PaintBox.MousePosition,
+                            EarlyControl = bezier.EarlyControl.IsT0 ?
+                                bezier.EarlyControl.AsT0 + delta :
+                                new None(),
+                            LateControl = bezier.LateControl.IsT0 ?
+                                bezier.LateControl.AsT0 + delta :
+                                new None(),
                         };
 
                         bez[^1] = bezier;
                     }
                 }
-                else if (_index.Item2 == linear.Count - 1 && _index.Item1 != _instance.Segments.Count - 1)
+                else if (_index.Item2 == linear.Count - 1 && _index.Item1 != _pInstance.Segments.Count - 1)
                 {
-                    IPath next = _instance.Segments[_index.Item1 + 1];
+                    IPath next = _pInstance.Segments[_index.Item1 + 1];
+
                     if (next is LinearPath line && line[0] == linear[_index.Item2])
-                        line[0] = paintBox.MousePosition;
+                        line[0] = _mInstance.PaintBox.MousePosition;
+
                     else if (next is BezierPath bez && bez[0].Anchor == linear[_index.Item2])
                     {
                         BezierPoint bezier = bez[0];
-                        vec2 delta = paintBox.MousePosition - bezier.Anchor;
+                        vec2 delta = _mInstance.PaintBox.MousePosition - bezier.Anchor;
 
                         bezier = new()
                         {
-                            Anchor = paintBox.MousePosition,
-                            EarlyControl = bezier.EarlyControl.IsT0 ? (bezier.EarlyControl.AsT0 + delta) : new None(),
-                            LateControl = bezier.LateControl.IsT0 ? (bezier.LateControl.AsT0 + delta) : new None(),
+                            Anchor = _mInstance.PaintBox.MousePosition,
+                            EarlyControl = bezier.EarlyControl.IsT0 ?
+                                bezier.EarlyControl.AsT0 + delta :
+                                new None(),
+                            LateControl = bezier.LateControl.IsT0 ?
+                                bezier.LateControl.AsT0 + delta :
+                                new None(),
                         };
 
                         bez[0] = bezier;
                     }
                 }
 
-                linear[_index.Item2] = paintBox.MousePosition;
-                _instance.Segments[_index.Item1] = linear;
-                break;
+                linear[_index.Item2] = _mInstance.PaintBox.MousePosition;
+                _pInstance.Segments[_index.Item1] = linear;
+            } break;
+
             case 0: // Early Control
             {
-                BezierPath path = (BezierPath)_instance.Segments[_index.Item1];
+                BezierPath path = (BezierPath)_pInstance.Segments[_index.Item1];
                 BezierPoint bezier = path[_index.Item2];
 
-                Assert(bezier.EarlyControl.IsT0, "Nearest Point is non-existent EarlyControl");
+                ODebugger.Assert(bezier.EarlyControl.IsT0, "Nearest Point is non-existent EarlyControl");
+
+                bezier.EarlyControl = _mInstance.PaintBox.MousePosition;
 
                 vec2 normal = (bezier.Anchor - bezier.EarlyControl.AsT0).Normalise();
-                bezier.EarlyControl = paintBox.MousePosition;
-
                 if (bezier.LateControl.IsT0)
                 {
                     vec2 late = bezier.LateControl.AsT0;
@@ -417,68 +391,82 @@ public class PathEdit
                 }
 
                 path[_index.Item2] = bezier;
-                _instance.Segments[_index.Item1] = path;
-            }
-            break;
+                _pInstance.Segments[_index.Item1] = path;
+
+            } break;
             case 1: // Anchor
             {
-                BezierPath path = (BezierPath)_instance.Segments[_index.Item1];
+                BezierPath path = (BezierPath)_pInstance.Segments[_index.Item1];
                 BezierPoint bezier = path[_index.Item2];
 
-                vec2 delta = paintBox.MousePosition - bezier.Anchor;
+                vec2 delta = _mInstance.PaintBox.MousePosition - bezier.Anchor;
 
                 bezier = new()
                 {
-                    Anchor = paintBox.MousePosition,
-                    EarlyControl = bezier.EarlyControl.IsT0 ? (bezier.EarlyControl.AsT0 + delta) : new None(),
-                    LateControl = bezier.LateControl.IsT0 ? (bezier.LateControl.AsT0 + delta) : new None(),
+                    Anchor = _mInstance.PaintBox.MousePosition,
+                    EarlyControl = bezier.EarlyControl.IsT0 ?
+                        bezier.EarlyControl.AsT0 + delta :
+                        new None(),
+                    LateControl = bezier.LateControl.IsT0 ?
+                        bezier.LateControl.AsT0 + delta :
+                        new None(),
                 };
+
+                path[_index.Item2] = bezier;
 
                 if (_index.Item2 == 0 && _index.Item1 != 0)
                 {
-                    IPath prev = _instance.Segments[_index.Item1 - 1];
+                    IPath prev = _pInstance.Segments[_index.Item1 - 1];
+
                     if (prev is LinearPath line && line[^1] == path[_index.Item2].Anchor)
-                        line[^1] = paintBox.MousePosition;
+                        line[^1] = _mInstance.PaintBox.MousePosition;
+
                     else if (prev is BezierPath bez && bez[^1].Anchor == path[_index.Item2].Anchor)
                     {
-                        BezierPoint prevBezier = bez[^1];
-                        prevBezier.Anchor = paintBox.MousePosition;
-                        bez[^1] = prevBezier;
+                        BezierPoint prevBez = bez[^1];
+                        prevBez.Anchor = _mInstance.PaintBox.MousePosition;
+                        bez[^1] = prevBez;
                     }
                 }
-                else if (_index.Item2 == path.Count - 1 && _index.Item1 != _instance.Segments.Count - 1)
+                else if (_index.Item2 == path.Count - 1 && _index.Item1 != _pInstance.Segments.Count - 1)
                 {
-                    IPath next = _instance.Segments[_index.Item1 + 1];
+                    IPath next = _pInstance.Segments[_index.Item1 + 1];
+
                     if (next is LinearPath line && line[0] == path[_index.Item2].Anchor)
-                        line[0] = paintBox.MousePosition;
+                        line[0] = _mInstance.PaintBox.MousePosition;
+
                     else if (next is BezierPath bez && bez[0].Anchor == path[_index.Item2].Anchor)
                     {
-                        BezierPoint b = bez[0];
-                        vec2 delta2 = paintBox.MousePosition - b.Anchor;
+                        BezierPoint nextBez = bez[0];
+                        vec2 delta2 = _mInstance.PaintBox.MousePosition - nextBez.Anchor;
 
-                        b = new()
+                        nextBez = new()
                         {
-                            Anchor = paintBox.MousePosition,
-                            EarlyControl = b.EarlyControl.IsT0 ? (b.EarlyControl.AsT0 + delta2) : new None(),
-                            LateControl = b.LateControl.IsT0 ? (b.LateControl.AsT0 + delta2) : new None(),
+                            Anchor = _mInstance.PaintBox.MousePosition,
+                            EarlyControl = nextBez.EarlyControl.IsT0 ?
+                                nextBez.EarlyControl.AsT0 + delta2 :
+                                new None(),
+                            LateControl = nextBez.LateControl.IsT0 ?
+                                nextBez.LateControl.AsT0 + delta2 :
+                                new None(),
                         };
 
-                        bez[0] = b;
+                        bez[0] = nextBez;
                     }
                 }
 
-                path[_index.Item2] = bezier;
-                _instance.Segments[_index.Item1] = path;
+                _pInstance.Segments[_index.Item1] = path;
             } break;
             case 2: // Late Control
             {
-                BezierPath path = (BezierPath)_instance.Segments[_index.Item1];
+                BezierPath path = (BezierPath)_pInstance.Segments[_index.Item1];
                 BezierPoint bezier = path[_index.Item2];
 
-                Assert(bezier.LateControl.IsT0, "Nearest Point is non-existent LateControl");
+                ODebugger.Assert(bezier.LateControl.IsT0, "Nearest Point is non-existent LateControl");
+
+                bezier.LateControl = _mInstance.PaintBox.MousePosition;
 
                 vec2 normal = (bezier.Anchor - bezier.LateControl.AsT0).Normalise();
-                bezier.LateControl = paintBox.MousePosition;
 
                 if (bezier.EarlyControl.IsT0)
                 {
@@ -489,170 +477,155 @@ public class PathEdit
                 }
 
                 path[_index.Item2] = bezier;
-                _instance.Segments[_index.Item1] = path;
+                _pInstance.Segments[_index.Item1] = path;
             }
             break;
         }
 
-        paintBox.Update(_instance.Id, _renderer.RenderInstance(_instance).ConvertCollection());
-        DrawHelpers();
-    }
+        _mInstance.PaintBox.Update(_pInstance.Id,
+            _mInstance.MapRenderer.RenderPathInstance(_pInstance).ConvertCollection());
 
-    public void LMouseUp()
-    {
-        _index = (-1, -1, -2);
+        DrawHelpers();
     }
 
     public void CtrlClick()
     {
-        var (_, dist) = _Utils.NearestPoint(_instance.GetAllPoints(), paintBox.MousePosition);
+        var (_, dist) = _Utils.NearestPoint(_pInstance.GetAllPoints(), _mInstance.PaintBox.MousePosition);
 
-        if (dist < Manager.Settings.Select_PointTolerance)
+        if (dist < _mInstance.Settings.Select_PointTolerance)
             RemovePoint();
         else
             InsertPoint();
     }
 
-    public void InsertPoint()
+    private void InsertPoint()
     {
-        var (segIndex, pointIndex, dist) = _Utils.NearestSegmentOnPathInstance(_instance, paintBox.MousePosition);
+        var (segIndex, pointIndex, dist) = _Utils.NearestSegmentOnPathInstance(_pInstance, _mInstance.PaintBox.MousePosition);
 
-        if (dist < Manager.Settings.Select_PointTolerance)
+        if (dist > _mInstance.Settings.Select_PointTolerance || segIndex == -1 || pointIndex == -1)
+            return;
+
+        switch (_pInstance.Segments[segIndex])
         {
-            if (segIndex == -1 || pointIndex == -1)
-                return;
-
-            switch (_instance.Segments[segIndex])
+            case LinearPath linear:
             {
-                case LinearPath linear:
-                    var list = linear.ToList();
-                    list.Insert(pointIndex, paintBox.MousePosition);
+                var points = linear.ToList();
+                points.Insert(pointIndex, _mInstance.PaintBox.MousePosition);
 
-                    _instance.Segments[segIndex] = new LinearPath(list);
-                    break;
-                case BezierPath bezier:
-                    var cubics = bezier.AsCubicBezier();
-                    CubicBezier bez = cubics[pointIndex];
+                _pInstance.Segments[segIndex] = new LinearPath(points);
+            } break;
+            case BezierPath bezier:
+            {
+                var cubics = bezier.AsCubicBezier();
+                CubicBezier bez = cubics[pointIndex];
 
-                    var (nearest, _) = _Utils.NearestContinuousPointOnPathInstance(_instance, paintBox.MousePosition);
-                    float t = _Utils.EstimateTValue(bez, nearest);
+                var (nearest, _) = _Utils.NearestContinuousPointOnPathInstance(_pInstance, _mInstance.PaintBox.MousePosition);
+                float t = _Utils.EstimateTValue(bez, nearest, _mInstance.Settings.Select_PointTolerance);
 
-                    var (e, l) = BezierUtils.Subdivision(bez, t);
+                var (e, l) = BezierUtils.Subdivision(bez, t);
 
-                    cubics[pointIndex] = e;
-                    cubics.Insert(pointIndex + 1, l);
+                cubics[pointIndex] = e;
+                cubics.Insert(pointIndex + 1, l);
 
-                    var newBez = BezierPath.FromCubicBeziers(cubics);
-                    _instance.Segments[segIndex] = newBez;
-
-                    break;
-            }
-
-            paintBox.Update(_instance.Id, _renderer.RenderInstance(_instance).ConvertCollection()); 
-            DrawHelpers();
+                var newBez = BezierPath.FromCubicBeziers(cubics);
+                _pInstance.Segments[segIndex] = newBez;
+            } break;
         }
+
+        _mInstance.PaintBox.Update(_pInstance.Id,
+            _mInstance.MapRenderer.RenderPathInstance(_pInstance).ConvertCollection());
+
+        DrawHelpers();
     }
 
-    public void RemovePoint()
+    private void RemovePoint()
     {
-        var (point, _) = _Utils.NearestPoint(_instance.GetAllPoints(), paintBox.MousePosition);
+        var (point, _) = _Utils.NearestPoint(_pInstance.GetAllPoints(), _mInstance.PaintBox.MousePosition);
 
-        var _index = _Utils.FindPoint(_instance.Segments, point);
+        var index = _Utils.FindPoint(_pInstance.Segments, point);
 
-        if (_index.Item3 == -1)
-            ((LinearPath)_instance.Segments[_index.Item1]).RemoveAt(_index.Item2);
-        else if (_index.Item3 == 1)
-            ((BezierPath)_instance.Segments[_index.Item1]).RemoveAt(_index.Item2);
+        if (index.Item3 == -1)
+            ((LinearPath)_pInstance.Segments[_index.Item1]).RemoveAt(_index.Item2);
+        else if (index.Item3 == 1)
+            ((BezierPath)_pInstance.Segments[_index.Item1]).RemoveAt(_index.Item2);
 
-        paintBox.Update(_instance.Id, _renderer.RenderInstance(_instance).ConvertCollection());
+        _mInstance.PaintBox.Update(_pInstance.Id,
+            _mInstance.MapRenderer.RenderPathInstance(_pInstance).ConvertCollection());
+
         DrawHelpers();
-    }   
+    }
 
     public void Delete()
     {
 
     }
 
-    private void DrawHelpers()
+    public void DrawHelpers()
     {
-        List<IShape> objs = new() { DrawBBox() };
-        objs.AddRange(DrawHandles());
+        vec4 bBox = BoundingBox.OfInstance(_pInstance);
+        var handles = _pInstance.GetAllPoints();
+        var bezs = _pInstance.GetAllBeziers();
 
-        paintBox.AddOrUpdate(_helperId, objs.ConvertCollection());
-    }
-
-    private Rectangle DrawBBox()
-    {
-        vec4 bBox = BoundingBox.OfInstance(_instance);
-        
-        return new()
+        List<IShape> objs = new()
         {
-            TopLeft = bBox.XY - Manager.Settings.Select_BBoxOffset,
-            Size = (bBox.ZW - bBox.XY).Abs() + (2 * Manager.Settings.Select_BBoxOffset),
-
-            BorderColour = Manager.Settings.Select_BBoxColour,
-            BorderWidth = Manager.Settings.Select_BBoxLineWidth,
-            DashArray = Manager.Settings.Select_BBoxDashArray,
-
-            ZIndex = Manager.Settings.Select_BBoxZIndex,
-        };
-    }
-
-    private IEnumerable<IShape> DrawHandles()
-    {
-        var handles = _instance.GetAllPoints();
-
-        foreach (vec2 v2 in handles)
-        {
-            yield return new Circle()
+            new Rectangle()
             {
-                TopLeft = v2,
-                Diameter = 2 * Manager.Settings.Select_HandleRadius,
+                TopLeft = bBox.XY - _mInstance.Settings.Select_BBoxOffset,
+                Size = (bBox.ZW - bBox.XY).Abs() + (2 * _mInstance.Settings.Select_BBoxOffset),
 
-                BorderColour = Manager.Settings.Select_HandleAnchorColour,
-                BorderWidth = Manager.Settings.Select_HandleLineWidth,
+                BorderColour = _mInstance.Settings.Select_BBoxColour,
+                DashArray = _mInstance.Settings.Select_BBoxDashArray,
 
-                ZIndex = Manager.Settings.Select_HandleZIndex,
-            };
+                ZIndex = _mInstance.Settings.Select_BBoxZIndex,
+            }
+        };
+
+        foreach (vec2 handle in handles)
+        {
+            objs.Add(new Circle()
+            {
+                TopLeft = handle,
+
+                BorderColour = _mInstance.Settings.Select_HandleAnchorColour,
+
+                ZIndex = _mInstance.Settings.Select_HandleZIndex,
+            });
         }
-
-        var bezs = _instance.GetAllBeziers();
 
         foreach (var bez in bezs)
         {
             if (bez.EarlyControl.IsT0)
             {
                 vec4 line = (bez.EarlyControl.AsT0, bez.Anchor);
-                line = _Utils.RemoveCircleFromLine(line, Manager.Settings.Select_HandleRadius);
 
-                yield return new Line()
+                objs.Add(new Line()
                 {
                     Points = new() { line.XY, line.ZW },
 
-                    Colour = Manager.Settings.Select_HandleAnchorColour,
-                    Width = Manager.Settings.Select_HandleLineWidth,
+                    Colour = _mInstance.Settings.Select_HandleControlColour,
 
-                    ZIndex = Manager.Settings.Select_HandleZIndex,
                     Opacity = 1f,
-                };
+                    ZIndex = _mInstance.Settings.Select_HandleZIndex,
+                });
             }
+
             if (bez.LateControl.IsT0)
             {
                 vec4 line = (bez.LateControl.AsT0, bez.Anchor);
-                line = _Utils.RemoveCircleFromLine(line, Manager.Settings.Select_HandleRadius);
 
-                yield return new Line()
+                objs.Add(new Line()
                 {
                     Points = new() { line.XY, line.ZW },
 
-                    Colour = Manager.Settings.Select_HandleAnchorColour,
-                    Width = Manager.Settings.Select_HandleLineWidth,
+                    Colour = _mInstance.Settings.Select_HandleControlColour,
 
-                    ZIndex = Manager.Settings.Select_HandleZIndex,
                     Opacity = 1f,
-                };
+                    ZIndex = _mInstance.Settings.Select_HandleZIndex,
+                });
             }
         }
+
+        _mInstance.PaintBox.AddOrUpdate(_helperId, objs.ConvertCollection());
     }
 }
 
@@ -682,7 +655,8 @@ internal static class _Utils
                         closest = instance;
                         closestDist = mag - extrusion;
                     }
-                } break;
+                }
+                break;
 
                 case LineInstance path:
                 {
@@ -693,7 +667,8 @@ internal static class _Utils
                         closest = instance;
                         closestDist = dist;
                     }
-                } break;
+                }
+                break;
 
                 case AreaInstance area:
                 {
@@ -704,7 +679,8 @@ internal static class _Utils
                         closest = instance;
                         closestDist = dist;
                     }
-                } break;
+                }
+                break;
             }
         }
 
@@ -729,14 +705,16 @@ internal static class _Utils
 
                     if ((mag - extrusion) <= radius)
                         instances.Add((inst, mag - extrusion));
-                } break;
+                }
+                break;
                 case LineInstance line:
                 {
                     var (_, dist) = _Utils.NearestContinuousPointOnPathInstance(line, pos);
 
                     if (dist <= radius)
                         instances.Add((inst, dist));
-                } break;
+                }
+                break;
                 case AreaInstance area:
                 {
                     var (_, dist) = _Utils.NearestContinuousPointOnPathInstance(area, pos);
@@ -747,7 +725,8 @@ internal static class _Utils
                     if (PolygonTools.IsPointInPoly(PolygonTools.ToPolygon(area), Enumerable.Empty<IList<vec2>>(), pos))
                         instances.Add((inst, 0));
 
-                } break;
+                }
+                break;
             }
         }
 
@@ -766,7 +745,8 @@ internal static class _Utils
                 {
                     if (pObj.InnerRadius + pObj.OuterRadius > dist)
                         dist = pObj.InnerRadius + pObj.OuterRadius;
-                } break;
+                }
+                break;
                 case LineObject lObj:
                 {
                     foreach (vec2 p in lObj.Segments.LinearApproximation())
@@ -776,7 +756,8 @@ internal static class _Utils
                         if (mag > dist)
                             dist = mag;
                     }
-                } break;
+                }
+                break;
                 case AreaObject aObj:
                 {
                     foreach (vec2 p in aObj.Segments.LinearApproximation())
@@ -786,7 +767,8 @@ internal static class _Utils
                         if (mag > dist)
                             dist = mag;
                     }
-                } break;
+                }
+                break;
                 case TextObject tObj: break;
             }
         }
@@ -816,7 +798,8 @@ internal static class _Utils
                             dist = distPToP;
                         }
                     }
-                } break;
+                }
+                break;
                 case BezierPath bez: // Not sure if most efficient
                 {
                     var linearised = bez.LinearApproximation();
@@ -832,7 +815,8 @@ internal static class _Utils
                             dist = distPToP;
                         }
                     }
-                } break;
+                }
+                break;
             }
         }
 
@@ -866,7 +850,7 @@ internal static class _Utils
 
         return output;
     }
-    
+
     public static vec2 NearestPointOnLine(IList<vec2> line, vec2 pos)
     {
         vec2 nearest = vec2.Zero;
@@ -924,7 +908,7 @@ internal static class _Utils
 
         return points;
     }
-    
+
     public static (int, int, sbyte) FindPoint(PathCollection pC, vec2 v2)
     {
         for (int i = 0; i < pC.Count; i++)
@@ -935,21 +919,23 @@ internal static class _Utils
                 {
                     if (line.Contains(v2))
                         return (i, line.IndexOf(v2), -1);
-                } break;
+                }
+                break;
                 case BezierPath bez:
                 {
                     foreach (var b in bez)
                     {
                         if (b.EarlyControl.IsT0 && b.EarlyControl.AsT0 == v2)
                             return (i, bez.IndexOf(b), 0);
-                     
+
                         if (b.Anchor == v2)
                             return (i, bez.IndexOf(b), 1);
 
                         if (b.LateControl.IsT0 && b.LateControl.AsT0 == v2)
                             return (i, bez.IndexOf(b), 2);
                     }
-                } break;
+                }
+                break;
             }
         }
 
@@ -979,7 +965,8 @@ internal static class _Utils
                             dist = d;
                         }
                     }
-                } break;
+                }
+                break;
                 case BezierPath bez:
                 {
                     var cubics = bez.AsCubicBezier();
@@ -996,7 +983,8 @@ internal static class _Utils
                             dist = d;
                         }
                     }
-                } break;
+                }
+                break;
             }
         }
 
@@ -1017,10 +1005,10 @@ internal static class _Utils
         return new(xy, zw);
     }
 
-    public static float EstimateTValue(CubicBezier bez, vec2 v2)
+    public static float EstimateTValue(CubicBezier bez, vec2 v2, float pointTolerance)
     {
         const float resolution = 1f / 200;
-        float error = Manager.Settings.Select_PointTolerance;
+        float error = pointTolerance;
 
         for (float t = 0; t <= 1; t += resolution)
         {

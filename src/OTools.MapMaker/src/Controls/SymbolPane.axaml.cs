@@ -5,14 +5,18 @@ namespace OTools.MapMaker
 {
     public partial class SymbolPane : UserControl
     {
+        private MapMakerInstance _instance;
+
         public SymbolPane()
         {
             InitializeComponent();
         }
 
-        public void Load(Map map)
+        public void Load(MapMakerInstance instance)
         {
-            foreach (var symbol in map.Symbols)
+            _instance = instance;
+
+            foreach (var symbol in _instance.Map.Symbols)
                 stack.Children.Add(CreateButton(symbol));
         }
 
@@ -20,7 +24,7 @@ namespace OTools.MapMaker
         {
             Button btn = new Button() { Content = sym.Name };
 
-            btn.Click += (s, e) => Manager.Symbol = sym;
+            btn.Click += (s, e) => _instance.ActiveSymbol = sym;
 
             return btn;
         }

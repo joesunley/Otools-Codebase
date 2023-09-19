@@ -1,53 +1,45 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using OTools.AvaCommon;
-using OTools.Common;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
-using OTools.Symbols;
 
 namespace OTools.MapMaker
 {
 	public partial class MainWindow : Window
 	{
+		private MapMakerInstance _instance;
+
 		public MainWindow()
 		{
 			InitializeComponent();
 
-			paintBox.PanTo(vec2.Zero);
-
-			Manager.PaintBox = paintBox;
-
 			Map map = MapLoader.Load(@"C:\Dev\OTools\test\Files\map2.xml");
-			//Map map = OfficialSymbols.Create().CreateMap("ISOM");
-			map.Colours.UpdatePrecendences(0);
+			MapRenderer2D mapRenderer = new(map);
 
-			Manager.MapRenderer = new MapRenderer2D(map);
-
-			Manager.MapEdit = MapEdit.Create();
-			Manager.MapDraw = MapDraw.Create();
-
-            Manager.Map = map;
-			Manager.Symbol = map.Symbols["Contour"];
-
-			paintBox.Load(Manager.Map, Manager.MapRenderer);
+			_instance = new(paintBox, map, mapRenderer, default, default, default);
 
 			Colour.Lut = map.MapInfo.ColourLUT;
 
-			symbolPane.Load(map);
+			paintBox.ZoomChanged   += _      => StatusBarUpdate();
+			paintBox.PointerMoved  += (_, _) => StatusBarUpdate();
+
+			paintBox.KeyDown += (_, args) => WriteLine("Key Down: " + args.Key.ToString());
 
 			btnColour.Click += (_, _) =>
 			{
 				Colour.Lut.IsLutEnabled = !Colour.Lut.IsLutEnabled;
 
-				paintBox.Clear(Manager.Map.Id);
-				paintBox.Load(Manager.Map, Manager.MapRenderer);
+				paintBox.Clear(map.Id);
+				paintBox.Load(map, mapRenderer);
 			};
 
-			paintBox.ZoomChanged += _ => StatusBarUpdate();
-			paintBox.MouseMoved += _ => StatusBarUpdate();
+			_instance.ActiveSymbol = map.Symbols[0];
 
-			KeyDown += (_, args) => WriteLine("Key Down: " + args.Key.ToString());
+			paintBox.Load(map, mapRenderer);
+			symbolPane.Load(_instance);
+
+			paintBox.PanTo(vec2.Zero);
 		}
 
 		private bool _isDebug = false;
@@ -72,13 +64,12 @@ namespace OTools.MapMaker
 			MenuItem s = sender as MenuItem
 				?? throw new InvalidOperationException();
 
-			// Invoke Handler
-			Manager.MenuClickHandle(s);
+			_instance.MenuManager.Call(s);
 		}
 
 		void StatusBarUpdate()
 		{
-			statusBar.Text = $"Position: {paintBox.MousePosition.X:F2}, {paintBox.MousePosition.Y:F2}\tZoom: {paintBox.Zoom.X:F2}, {paintBox.Zoom.Y:F2}\tOffset: {paintBox.Offset.X:F2}, {paintBox.Offset.Y:F2}\tActive: {Manager.Tool}, {Manager.Symbol?.Name ?? "None"}";
+			statusBar.Text = $"Position: {paintBox.MousePosition.X:F2}, {paintBox.MousePosition.Y:F2}\tZoom: {paintBox.Zoom.X:F2}, {paintBox.Zoom.Y:F2}\tOffset: {paintBox.Offset.X:F2}, {paintBox.Offset.Y:F2}\tActive: {_instance.ActiveTool}, {_instance.ActiveSymbol?.Name ?? "None"}";
 		}
 	}
 }
