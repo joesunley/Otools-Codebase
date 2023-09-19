@@ -36,7 +36,7 @@ public class MapMakerSettings
 
 		Select_BBoxOffset = 2f,
 		Select_BBoxLineWidth = .5f,
-		Select_BBoxDashArray = new double[] { 6, 1 },
+		Select_BBoxDashArray = new double[] { 30, 5 },
 		Select_BBoxColour = 0xffffa600,
 		Select_BBoxZIndex = 998,
 

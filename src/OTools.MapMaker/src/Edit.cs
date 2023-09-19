@@ -34,6 +34,7 @@ public class MapEdit
         _instance.PaintBox.PointerReleased += (_, args) => MouseUp(args.InitialPressMouseButton, args.KeyModifiers);
         _instance.PaintBox.PointerMoved += (_, args) => MouseMove(args);
         _instance.PaintBox.KeyUp += (_, args) => KeyUp(args.Key);
+        _instance.PaintBox.ZoomChanged += (_) => Zoom();
     }
 
     private PointEdit? _pointEdit;
@@ -95,33 +96,10 @@ public class MapEdit
         }
     }
 
+    private void Zoom()
     {
-        var (instance, dist) = _Utils.NearestInstance(Manager.Map!.Instances, paintBox.MousePosition);
-
-        if (instance is null) return;   
-
-        if (dist < Manager.Settings.Select_ObjectTolerance)
-        {
-            Deselect();
-
-            selectedInstance = instance;
-
-            ODebugger.Debug($"Selected {instance} at {paintBox.MousePosition}");
-
-            switch (instance)
-            {
-                case PathInstance pathInst:
-                    active = Active.Path;
-                    pathEdit = new(paintBox, pathInst);
-                    pathEdit.Select();
-                    break;
-                case PointInstance pointInst:
-                    active = Active.Point;
-                    pointEdit = new(paintBox, pointInst);
-                    pointEdit.Select();
-                    break;
-            }
-        }
+        _pointEdit?.DrawHelpers();
+        _pathEdit?.DrawHelpers();
     }
 
     private void Select()
@@ -233,8 +211,10 @@ public class PointEdit
             new Circle()
             {
                 TopLeft = _pInstance.Centre,
+                Diameter = 2 * _mInstance.Settings.Select_HandleRadius * (1 / _mInstance.PaintBox.Zoom.X),
 
                 BorderColour = _mInstance.Settings.Select_HandleAnchorColour,
+                BorderWidth = _mInstance.Settings.Select_HandleLineWidth * (1 / _mInstance.PaintBox.Zoom.X),
 
                 ZIndex = _mInstance.Settings.Select_HandleZIndex,
             },
@@ -245,6 +225,8 @@ public class PointEdit
                 Size = (bBOx.ZW - bBOx.XY).Abs(),
 
                 BorderColour = _mInstance.Settings.Select_BBoxColour,
+                BorderWidth = _mInstance.Settings.Select_BBoxLineWidth *(1 / _mInstance.PaintBox.Zoom.X),
+                DashArray = _mInstance.Settings.Select_BBoxDashArray.Select(x => x * (1 / _mInstance.PaintBox.Zoom.X)),
 
                 ZIndex = _mInstance.Settings.Select_BBoxZIndex,
             }
@@ -574,6 +556,7 @@ public class PathEdit
                 Size = (bBox.ZW - bBox.XY).Abs() + (2 * _mInstance.Settings.Select_BBoxOffset),
 
                 BorderColour = _mInstance.Settings.Select_BBoxColour,
+                BorderWidth = _mInstance.Settings.Select_BBoxLineWidth * (1 / _mInstance.PaintBox.Zoom.X),
                 DashArray = _mInstance.Settings.Select_BBoxDashArray,
 
                 ZIndex = _mInstance.Settings.Select_BBoxZIndex,
@@ -585,8 +568,10 @@ public class PathEdit
             objs.Add(new Circle()
             {
                 TopLeft = handle,
+                Diameter = 2 * _mInstance.Settings.Select_HandleRadius * (1 / _mInstance.PaintBox.Zoom.X),
 
                 BorderColour = _mInstance.Settings.Select_HandleAnchorColour,
+                BorderWidth = _mInstance.Settings.Select_HandleLineWidth * (1 / _mInstance.PaintBox.Zoom.X),
 
                 ZIndex = _mInstance.Settings.Select_HandleZIndex,
             });
@@ -597,12 +582,14 @@ public class PathEdit
             if (bez.EarlyControl.IsT0)
             {
                 vec4 line = (bez.EarlyControl.AsT0, bez.Anchor);
+                line = _Utils.RemoveCircleFromLine(line, _mInstance.Settings.Select_HandleRadius * (1 / _mInstance.PaintBox.Zoom.X));
 
                 objs.Add(new Line()
                 {
                     Points = new() { line.XY, line.ZW },
 
                     Colour = _mInstance.Settings.Select_HandleControlColour,
+                    Width = _mInstance.Settings.Select_HandleLineWidth * (1 / _mInstance.PaintBox.Zoom.X),
 
                     Opacity = 1f,
                     ZIndex = _mInstance.Settings.Select_HandleZIndex,
@@ -612,12 +599,14 @@ public class PathEdit
             if (bez.LateControl.IsT0)
             {
                 vec4 line = (bez.LateControl.AsT0, bez.Anchor);
+                line = _Utils.RemoveCircleFromLine(line, _mInstance.Settings.Select_HandleRadius * (1 / _mInstance.PaintBox.Zoom.X));
 
                 objs.Add(new Line()
                 {
                     Points = new() { line.XY, line.ZW },
 
                     Colour = _mInstance.Settings.Select_HandleControlColour,
+                    Width = _mInstance.Settings.Select_HandleLineWidth * (1 / _mInstance.PaintBox.Zoom.X),
 
                     Opacity = 1f,
                     ZIndex = _mInstance.Settings.Select_HandleZIndex,
