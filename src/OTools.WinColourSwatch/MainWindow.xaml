@@ -34,7 +34,7 @@
 
                 </StackPanel>
 
-                <Button Grid.Row="1" Content="Add New" BorderThickness="0.5" />
+                <Button Grid.Row="1" x:Name="btnNew" Content="Add New" BorderThickness="0.5" />
             </Grid>
 
             <Rectangle Grid.Column="1" Fill="Black" Width="1" />
@@ -64,8 +64,8 @@
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="7*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="5*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -74,10 +74,10 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <Slider x:Name="sliderC" Grid.Row="0" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
-                        <Slider x:Name="sliderM" Grid.Row="1" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
-                        <Slider x:Name="sliderY" Grid.Row="2" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
-                        <Slider x:Name="sliderK" Grid.Row="3" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
+                        <Slider x:Name="sliderC" Grid.Row="0" Grid.Column="2" Minimum="0" Maximum="100" Value="0" />
+                        <Slider x:Name="sliderM" Grid.Row="1" Grid.Column="2" Minimum="0" Maximum="100" Value="0" />
+                        <Slider x:Name="sliderY" Grid.Row="2" Grid.Column="2" Minimum="0" Maximum="100" Value="0" />
+                        <Slider x:Name="sliderK" Grid.Row="3" Grid.Column="2" Minimum="0" Maximum="100" Value="0" />
 
                         <TextBox x:Name="txtC" Grid.Row="0" Grid.Column="1" Text="50" />
                         <TextBox x:Name="txtM" Grid.Row="1" Grid.Column="1" Text="50" />
@@ -99,9 +99,33 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Background="Red"/>
-                        <TextBlock Grid.Row="1" Background="Green"/>
+                        <TextBlock x:Name="blConv" Grid.Row="0" Background="Red"/>
+                        <TextBlock x:Name="blCorr" Grid.Row="1" Background="Green"/>
                         
+                    </Grid>
+
+                    <Grid Grid.Row="0" Grid.Column="1">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="CMYK" Grid.Column="0" />
+                        <TextBox x:Name="txtCMYK" Grid.Column="1"/>
+
+                    </Grid>
+                    
+                    <Grid Grid.Row="1" Grid.Column="1">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="RGB" Grid.Column="0"/>
+                        <TextBox x:Name="txtRGB" Grid.Column="1"/>
+
                     </Grid>
                     
                 </Grid>
