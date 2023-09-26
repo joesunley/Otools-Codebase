@@ -14,8 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\OTools.Common\OTools.Common.csproj" />
-    <ProjectReference Include="..\..\src\OTools.FileFormatConverter\OTools.FileFormatConverter.csproj" />
-    <ProjectReference Include="..\..\src\OTools.SymbolSet\OTools.SymbolSet.csproj" />
   </ItemGroup>
 
 </Project>

@@ -552,8 +552,8 @@ public class PathEdit
         {
             new Rectangle()
             {
-                TopLeft = bBox.XY - _mInstance.Settings.Select_BBoxOffset,
-                Size = (bBox.ZW - bBox.XY).Abs() + (2 * _mInstance.Settings.Select_BBoxOffset),
+                TopLeft = bBox.XY - (_mInstance.Settings.Select_BBoxOffset * (1 / _mInstance.PaintBox.Zoom.X)),
+                Size = (bBox.ZW - bBox.XY).Abs() + (2 * (_mInstance.Settings.Select_BBoxOffset * (1 / _mInstance.PaintBox.Zoom.X))),
 
                 BorderColour = _mInstance.Settings.Select_BBoxColour,
                 BorderWidth = _mInstance.Settings.Select_BBoxLineWidth * (1 / _mInstance.PaintBox.Zoom.X),

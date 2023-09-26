@@ -23,7 +23,7 @@ namespace OTools.Routechoice
             Manager.PaintBox = PaintBox;
             Manager.Tool = Tool.Course;
 
-            PaintBox.MouseMoved += _ => SetStatusText();
+            PaintBox.PointerMoved += (_, _) => SetStatusText();
             PaintBox.ZoomChanged += _ => SetStatusText();
 
             _inputMonitor = new(PaintBox);

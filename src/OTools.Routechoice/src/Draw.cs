@@ -24,7 +24,7 @@ public class Draw
 		_paintBox = Manager.PaintBox!;
 
 		_paintBox.PointerReleased += (_, args) => MouseUp(args.InitialPressMouseButton);
-		_paintBox.MouseMoved += _ => MouseMove();
+		_paintBox.PointerMoved += (_, _) => MouseMove();
 		_paintBox.KeyUp += (_, args) => KeyUp(args.Key);
 
 		_draws.rc = new(_paintBox, 0xFF0000FF);

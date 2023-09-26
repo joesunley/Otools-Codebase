@@ -81,7 +81,7 @@ namespace OTools.WinColourSwatch
             blConv.Background = new SolidColorBrush(Color.FromRgb(r, g, b));
             blCorr.Background = new SolidColorBrush(col);
 
-            txtCMYK.Text = $"{c*100:0f}, {m*100:0f}, {y*100:0f}, {k*100:0f}";
+            txtCMYK.Text = $"{c*100:0}, {m*100:0}, {y*100:0}, {k*100:0}";
             txtRGB.Text = $"{col.R}, {col.G}, {col.B}";
         }
 
