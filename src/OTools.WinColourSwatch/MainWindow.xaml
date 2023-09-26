@@ -1,0 +1,115 @@
+﻿<Window x:Class="OTools.WinColourSwatch.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OTools.WinColourSwatch"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Rectangle Grid.Row="1" Fill="Black" Height="1" />
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="4*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="25" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Vertical"
+                            x:Name="stack">
+
+                </StackPanel>
+
+                <Button Grid.Row="1" Content="Add New" BorderThickness="0.5" />
+            </Grid>
+
+            <Rectangle Grid.Column="1" Fill="Black" Width="1" />
+
+            <Grid Grid.Column="2">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <TextBox x:Name="txtColour" Grid.Row="0" Text="Colour Name" FontSize="50"/>
+
+                <Grid Grid.Row="1">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0" Grid.Column="0" Height="100" Width="300">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="7*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Slider x:Name="sliderC" Grid.Row="0" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
+                        <Slider x:Name="sliderM" Grid.Row="1" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
+                        <Slider x:Name="sliderY" Grid.Row="2" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
+                        <Slider x:Name="sliderK" Grid.Row="3" Grid.Column="2" Minimum="0" Maximum="100" Value="50" />
+
+                        <TextBox x:Name="txtC" Grid.Row="0" Grid.Column="1" Text="50" />
+                        <TextBox x:Name="txtM" Grid.Row="1" Grid.Column="1" Text="50" />
+                        <TextBox x:Name="txtY" Grid.Row="2" Grid.Column="1" Text="50" />
+                        <TextBox x:Name="txtK" Grid.Row="3" Grid.Column="1" Text="50" />
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Cyan" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Magenta" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Yellow" />
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Key" />
+
+
+                    </Grid>
+
+
+                    <Grid Grid.Row="1" Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Background="Red"/>
+                        <TextBlock Grid.Row="1" Background="Green"/>
+                        
+                    </Grid>
+                    
+                </Grid>
+
+            </Grid>
+            
+            
+
+        </Grid>
+    </Grid>
+</Window>
