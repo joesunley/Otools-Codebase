@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace OTools.Common;
 
-public interface IStorable { Guid Id { get; }}
+public interface IStorable { Guid Id { get; } }
 
 public abstract class Store<T> : IList<T> where T : IStorable
 {

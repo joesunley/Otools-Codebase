@@ -3,6 +3,7 @@ using OTools.Maps;
 using Sunley.Mathematics;
 using System.Diagnostics;
 using System.Transactions;
+using System.Xml;
 
 namespace OTools.Courses;
 
@@ -125,7 +126,6 @@ public class CourseLoaderV1 : ICourseLoaderV1
         node.AddAttribute("id", control.Id.ToString());
         node.AddAttribute("code", control.Code.ToString());
         node.AddAttribute("type", ((byte)control.Type).ToString());
-		node.AddAttribute("score", control.Score?.ToString() ?? "-1");
 
         node.AddChild(SaveDescription(control.Description));
 
@@ -148,10 +148,12 @@ public class CourseLoaderV1 : ICourseLoaderV1
         byte[] byteArr = { c, d, e, f, g, h, 0x0, 0x0 };
         ulong num = BitConverter.ToUInt64(byteArr, 0);
 
-        var det = desc.ColumnFDetail;
         string ret;
-        if (det != null)
+        if (desc.ColumnFDetail.HasValue)
+        {
+            var det = desc.ColumnFDetail.Value;
             ret = $"{num}-{det.Start}/{det.Operator}/{det.End}";
+        }
         else ret = num.ToString();
 
         return new XMLNode("Description") { InnerText = ret };
@@ -174,6 +176,8 @@ public class CourseLoaderV1 : ICourseLoaderV1
         node.AddAttribute("name", course.Name);
         node.AddAttribute("description", course.Description);
         node.AddAttribute("displayFormat", course.DisplayFormat);
+        node.AddAttribute("distance", (course.Distance ?? -1u).ToString());
+        node.AddAttribute("climb", (course.Climb ?? -1u).ToString());
 
         if (course is ScoreCourse s)
         {
@@ -194,11 +198,7 @@ public class CourseLoaderV1 : ICourseLoaderV1
         else if (course is LinearCourse l)
         {
             node.Name = "LinearCourse";
-
-            node.AddAttribute("distance", (l.Distance ?? -1f).ToString());
-            node.AddAttribute("climb", (l.Climb ?? -1f).ToString());
-
-            node.AddChild(SaveCourseParts(l.Parts));
+            node.AddChild(SaveCoursePart(l.Parts));
         }
 
         return node;
@@ -293,9 +293,6 @@ public class CourseLoaderV1 : ICourseLoaderV1
     public XMLNode SaveVariationCoursePart(VariationCoursePart vcp)
     {
         XMLNode node = new("VariationCoursePart");
-
-        node.AddAttribute("first", vcp.First.Id.ToString());
-        node.AddAttribute("last", vcp.Last.Id.ToString());
 
         foreach (ICoursePart part in vcp.Parts)
             node.AddChild(SaveCoursePart(part));
@@ -480,10 +477,8 @@ public class CourseLoaderV1 : ICourseLoaderV1
         vec2 pos = LoadVec2(node.Children["Position"]);
         ControlType type = (ControlType)node.Attributes["type"].Parse<byte>();
         Description desc = LoadDescription(node.Children["Description"]);
-		ushort? score = node.Attributes["score"] == "-1" 
-			? null : node.Attributes["score"].Parse<ushort>();
 
-        return new(id, code, pos, type, desc, score);
+        return new(id, code, pos, type, desc, default);
     }
     public Description LoadDescription(XMLNode node)
     {
@@ -529,6 +524,8 @@ public class CourseLoaderV1 : ICourseLoaderV1
         string name = node.Attributes["name"],
             description = node.Attributes["description"],
             displayFormat = node.Attributes["displayFormat"];
+        uint? distance = node.Attributes["distance"] == "-1" ? null : node.Attributes["distance"].Parse<uint>();
+        uint? climb = node.Attributes["climb"] == "-1" ? null : node.Attributes["climb"].Parse<uint>();
 
         switch (node.Name)
         {
@@ -542,18 +539,15 @@ public class CourseLoaderV1 : ICourseLoaderV1
 					controls.Add(_event.Controls[cId]);
 				}
 
-                return new ScoreCourse(_event, id, name, description, displayFormat, controls);
+                return new ScoreCourse(id, name, description, displayFormat, controls, distance, climb);
             }
             case "LinearCourse":
             {
-                float dist = float.Parse(node.Attributes["distance"]);
-                uint? climb = node.Attributes["climb"] != "-1" ? uint.Parse(node.Attributes["climb"]) : null;
+                ICoursePart parts = LoadCoursePart(node.Children[0]);
 
-                IEnumerable<ICoursePart> courseParts = LoadCourseParts(node);
-
-                return new LinearCourse(_event, id, name, description, displayFormat, courseParts, null, null, dist != -1 ? dist : null, climb);
+                return new LinearCourse(id, name, description, displayFormat, parts, distance, climb);
             }
-            default: throw new Exception(); // TODO
+            default: throw new XmlException($"Invalid Node Name {node.Name}"); // TODO
         }
     }
 
@@ -605,7 +599,7 @@ public class CourseLoaderV1 : ICourseLoaderV1
             "VariationCoursePart" => LoadVariationCoursePart(node),
             "ButterflyCoursePart" => LoadButterflyCoursePart(node),
             "PhiLoopCoursePart" => LoadPhiLoopCoursePart(node),
-            _ => throw new Exception(), // TODO
+            _ => throw new XmlException($"Invalid Node Name {node.Name}"),
         };
     }
     public CombinedCoursePart LoadCombinedCoursePart(XMLNode node)
@@ -631,14 +625,11 @@ public class CourseLoaderV1 : ICourseLoaderV1
     }
     public VariationCoursePart LoadVariationCoursePart(XMLNode node)
     {
-        Guid f = Guid.Parse(node.Attributes["first"]),
-            l = Guid.Parse(node.Attributes["last"]);
-
         List<ICoursePart> parts = new();
         foreach (XMLNode child in node.Children)
             parts.Add(LoadCoursePart(child));
 
-        return new VariationCoursePart(_event.Controls[f], _event.Controls[l], parts);
+        return new VariationCoursePart(parts);
     }
     public ButterflyCoursePart LoadButterflyCoursePart(XMLNode node)
     {

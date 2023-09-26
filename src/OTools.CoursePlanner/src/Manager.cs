@@ -9,6 +9,6 @@ public static class Manager
 	public static PaintBox? PaintBox { get; set; }
 	public static Event Event { get; set; }
 	
-	public static ICourseRenderer2D? CourseRenderer { get; set; }
+	//public static ICourseRenderer2D? CourseRenderer { get; set; }
 	public static CoursePlannerSettings Settings { get; set; } = CoursePlannerSettings.Default;
 }
