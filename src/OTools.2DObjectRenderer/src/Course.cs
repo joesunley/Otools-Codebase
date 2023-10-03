@@ -27,5 +27,31 @@ public class CourseRenderer2D : IVisualRenderer
         return shapes.Select(x => { x.TopLeft = control.Position; return x; });
     }
 
-    
+    public IEnumerable<IShape> RenderLinearCourse(LinearCourse course)
+    {
+
+    }
+
+    public IEnumerable<IShape> RenderItems(ItemStore items, Course activeCourse)
+    {
+        List<IShape> shapes = new();
+
+        foreach (var item in items)
+        {
+            if (item.VisibleCourses.Contains(activeCourse.Id))
+                shapes.AddRange(RenderItem(item));
+        }
+
+        return shapes;
+    }
+    public IEnumerable<IShape> RenderItem(Item item)
+    {
+        throw new NotImplementedException();
+    }
 }
+
+internal static partial class _Utils
+{
+
+}
+    

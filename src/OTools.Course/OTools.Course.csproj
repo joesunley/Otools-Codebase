@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src2\**" />
+    <EmbeddedResource Remove="src2\**" />
+    <None Remove="src2\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OTools.Common\OTools.Common.csproj" />
     <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
   </ItemGroup>
@@ -14,10 +20,6 @@
   <ItemGroup>
     <Using Include="Sunley.Mathematics" />
     <Using Include="System.Diagnostics" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src2\" />
   </ItemGroup>
 
 </Project>

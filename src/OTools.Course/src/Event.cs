@@ -10,7 +10,7 @@ public sealed class Event
 	
 	public Metadata Metadata { get; set; }
 	
-	public CourseMap? Map { get; set; }
+	public CourseMap Map { get; set; }
 	public CourseSymbols Symbols { get; set; }
 
 	public ControlStore Controls { get; set; }
@@ -19,28 +19,18 @@ public sealed class Event
 	
 	public EventSettings Settings { get; set; }
 
-	public Event(string title = "")
+	public Event(string title, CourseMap map, CourseSymbols symbols, ControlStore? controls, CourseStore? courses, ItemStore? items, EventSettings? settings, Metadata? metadata)
 	{
 		Title = title;
 
-		Metadata = new();
+		Metadata = metadata ?? new();
 
-		Controls = new();
-		Courses = new();
-		Items = new();
-		
-		Settings = EventSettings.Default;
-	}
+		Map = map;
+		Symbols = symbols;
 
-	public Event(string title, ControlStore controls, CourseStore courses, ItemStore items, EventSettings? settings = null)
-	{
-		Title = title;
-
-		Metadata = new();
-
-		Controls = controls;
-		Courses = courses;
-		Items = items;
+		Controls = controls ?? new();
+		Courses = courses ?? new();
+		Items = items ?? new();
 
 		Settings = settings ?? EventSettings.Default;
 	}
@@ -72,4 +62,6 @@ public sealed class CourseSymbols
 
         Extras = extras ?? new();
     }
+
+	//public static CourseSymbols Default;
 }

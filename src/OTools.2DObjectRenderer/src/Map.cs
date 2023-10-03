@@ -1,4 +1,5 @@
-﻿using OTools.Maps;
+﻿using OTools.Common;
+using OTools.Maps;
 using ownsmtp.logging;
 using Sunley.Mathematics;
 using System.Data;
@@ -19,12 +20,14 @@ public interface IMapRenderer2D : IVisualRenderer
 	IEnumerable<IShape> RenderSymbol(Symbol sym);
 	IEnumerable<IShape> RenderPointSymbol(PointSymbol sym);
 	IEnumerable<IShape> RenderPathSymbol(IPathSymbol sym);
+	IEnumerable<IShape> RenderFileSymbol(FileSymbol sym);
 
 	IEnumerable<IShape> RenderInstances(IEnumerable<Instance> insts);
 	IEnumerable<IShape> RenderInstance(Instance inst);
 	IEnumerable<IShape> RenderPointInstance(PointInstance inst);
 	IEnumerable<IShape> RenderPathInstance(PathInstance inst);
 	IEnumerable<IShape> RenderTextInstance(TextInstance inst);
+	IEnumerable<IShape> RenderFileInstance(FileSymbol sym);
 
 	IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap();
 }
@@ -273,6 +276,32 @@ public class MapRenderer2D : IMapRenderer2D
 		var shapes = new IShape[] { path };
 		return shapes;
 	}
+	public IEnumerable<IShape> RenderFileSymbol(FileSymbol sym)
+	{
+		if (sym is BitmapSymbol bit)
+		{
+			BitmapImage img = new()
+			{
+				Uri = sym.FilePath,
+
+				Resolution = bit.Resolution,
+			};
+
+			return new IShape[] { img };
+		}
+		else if (sym is VectorSymbol vec)
+		{
+			VectorImage img = new()
+			{
+				Uri = sym.FilePath,
+
+				Scaling = vec.Scale,
+			};
+
+			return new IShape[] { img };
+		}
+		else throw new InvalidOperationException();
+	}
 
 	public IEnumerable<IShape> RenderInstances(IEnumerable<Instance> insts)
 	{
@@ -427,6 +456,15 @@ public class MapRenderer2D : IMapRenderer2D
 
 		return new IShape[] { text };
 
+	}
+	public IEnumerable<IShape> RenderFileInstances(FileInstance inst)
+	{
+		var sym = RenderFileSymbol(inst.Symbol);
+
+		if (inst.Symbol is BitmapSymbol)
+		{
+
+		}
 	}
 
 	private VisualFill VisualFill(IEnumerable<IShape> shapes, vec4 aabb)
@@ -1186,51 +1224,55 @@ internal static partial class _Utils
 
 	public static vec2 PointOfIntersectionOfTwoLines(vec4 l1, vec4 l2)
 	{
+		if (!TryPointOfIntersectionOfTwoLines(l1, l2, out vec2 result))
+			throw new Exception();
+		return result;
+	}
+
+	public static bool TryPointOfIntersectionOfTwoLines(vec4 l1, vec4 l2, out vec2 result)
+	{
+		result = vec2.Zero;
+
 		// Check if parallel
 		if ((l1.ZW - l1.XY).Normalise() == (l2.ZW - l2.XY).Normalise())
-			throw new DivideByZeroException("Lines are parallel");
+			return false;
 
 		// Get start/end points are the same
 		if (l1.XY == l2.XY || l1.XY == l2.ZW)
-			return l1.XY;
-		if (l1.ZW == l2.XY || l1.ZW == l2.ZW)
-			return l1.ZW;
-
-		// Get the intersection point
-
-		vec2 p = l1.XY, r = l1.ZW - l1.XY,
-			 q = l2.XY, s = l2.ZW - l2.XY;
-
-		float rxs = Cross(r, s), qpxr = Cross(q - p, r);
-
-		if (rxs == 0 && qpxr == 0)
-			throw new Exception("Lines are collinear");
-
-		if (rxs == 0 && qpxr != 0)
-			throw new Exception("Lines are parallel");
-
-		float t = Cross(q - p, s) / rxs,
-			  u = qpxr / rxs;
-
-		if (rxs != 0 && 0 <= t && t <= 1 && 0 <= u && u <= 1)
-			return p + r * t;
-
-		throw new Exception("Lines do not intersect");
-	}
-
-	public static bool TryPointOfIntersectionOfTwoLines(vec4 l1, vec4 l2, out vec2 output)
-	{
-		try
 		{
-			output = PointOfIntersectionOfTwoLines(l1, l2);
+			result = l1.XY;
 			return true;
 		}
-		catch
+		if (l1.ZW == l2.XY || l1.ZW == l2.ZW)
 		{
-			output = vec2.Zero;
-			return false;
+            result = l1.ZW;
+			return true;
 		}
-	}
+
+        // Get the intersection point
+
+        vec2 p = l1.XY, r = l1.ZW - l1.XY,
+             q = l2.XY, s = l2.ZW - l2.XY;
+
+        float rxs = Cross(r, s), qpxr = Cross(q - p, r);
+
+		if (rxs == 0 && qpxr == 0)
+			return false;
+
+        if (rxs == 0 && qpxr != 0)
+            return false;
+
+        float t = Cross(q - p, s) / rxs,
+              u = qpxr / rxs;
+
+        if (rxs != 0 && 0 <= t && t <= 1 && 0 <= u && u <= 1)
+		{
+            result = p + r * t;
+			return true;
+		}
+
+		return false;
+    }
 
 	public static float Cross(vec2 a, vec2 b) => (a.X * b.Y) - (a.Y * b.X);
 

@@ -243,6 +243,37 @@ public struct Text : IShape
     public int ZIndex { get; set; }
 }
 
+public struct BitmapImage : IShape
+{
+    public vec2 TopLeft { get; set; }
+
+    public Uri Uri { get; set; }
+
+    public float Resolution { get; set; }
+
+    public vec2 Scaling { get; set; }
+
+    public float Rotation { get; set; }
+    
+    public float Opacity { get; set; }
+
+    public int ZIndex { get; set; }
+}
+public struct VectorImage : IShape
+{
+    public vec2 TopLeft { get; set; }
+
+    public Uri Uri { get; set; }
+
+    public vec2 Scaling { get; set; }
+
+    public float Rotation { get; set; }
+    
+    public float Opacity { get; set; }
+
+    public int ZIndex { get; set; }
+}
+
 public struct VisualFill
 {
     public List<IShape> Shapes { get; set; }
