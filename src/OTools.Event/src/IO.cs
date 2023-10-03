@@ -35,7 +35,7 @@ public interface IEventLoaderV1
     XMLNode SaveResult(Result result);
 }
 
-public class EventLoaderV1 : IEventLoaderV1
+public class EventLoaderV1 
 {
 
 
