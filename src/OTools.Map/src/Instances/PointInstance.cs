@@ -1,8 +1,6 @@
-using OTools.Maps;
-
 namespace OTools.Maps;
 
-public sealed class PointInstance : Instance<PointSymbol>
+public class PointInstance : Instance<PointSymbol>
 {
     public vec2 Centre { get; set; }
 
