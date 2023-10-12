@@ -66,7 +66,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColourSwop", "test\ColourSw
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.WinMap", "src\OTools.WinMap\OTools.WinMap.csproj", "{793DCBAB-F0B3-4C09-A759-3CD07F1296CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.WinColourSwatch", "src\OTools.WinColourSwatch\OTools.WinColourSwatch.csproj", "{17481029-1850-4E82-BC1D-7F0B7FB9E0AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.WinColourSwatch", "src\OTools.WinColourSwatch\OTools.WinColourSwatch.csproj", "{17481029-1850-4E82-BC1D-7F0B7FB9E0AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.BofLevee", "src\OTools.BofLevee\OTools.BofLevee.csproj", "{27CC5CF9-760C-4DB3-A48E-BCB1F68A51E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -166,6 +170,10 @@ Global
 		{17481029-1850-4E82-BC1D-7F0B7FB9E0AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17481029-1850-4E82-BC1D-7F0B7FB9E0AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17481029-1850-4E82-BC1D-7F0B7FB9E0AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27CC5CF9-760C-4DB3-A48E-BCB1F68A51E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27CC5CF9-760C-4DB3-A48E-BCB1F68A51E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27CC5CF9-760C-4DB3-A48E-BCB1F68A51E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27CC5CF9-760C-4DB3-A48E-BCB1F68A51E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +181,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A145A962-E9DE-4BEB-AF60-0632151E4782} = {4CCA9DF2-7BBB-45C8-8C1E-17DB6A1F2D24}
 		{E762267B-0191-498B-A8BC-D328304EC2AF} = {4CCA9DF2-7BBB-45C8-8C1E-17DB6A1F2D24}
+		{27CC5CF9-760C-4DB3-A48E-BCB1F68A51E7} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5827591C-8AF3-43EE-AD3F-8E7FBE7C7EC9}

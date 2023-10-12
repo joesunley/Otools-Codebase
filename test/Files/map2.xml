@@ -342,34 +342,34 @@
     </AreaSymbol>
   </Symbols>
   <Instances>
-  		<AreaInstance id="a9cd3252-f3b5-4faf-8d22-8431cd66f24c" layer="0">
-			<Symbol>7ec93755-d689-4a31-8c7f-1a9f290d34c3</Symbol>
-			<Segments>
-				<LinearPath>
-					<Point x="10" y="150"/>
-					<Point x="310" y="150"/>
-					<Point x="310" y="450"/>
-					<Point x="10" y="450"/>
-				</LinearPath>
-			</Segments>
-			<Holes>
-				<Hole>
-					<LinearPath>
-						<Point x="60" y="210"/>
-						<Point x="110" y="210"/>
-						<Point x="110" y="260"/>
-						<Point x="60" y="260"/>
-					</LinearPath>
-				</Hole>
-				<Hole>
-					<LinearPath>
-						<Point x="80" y="230"/>
-						<Point x="130" y="230"/>
-						<Point x="130" y="280"/>
-						<Point x="80" y="280"/>
-					</LinearPath>
-				</Hole>
-			</Holes>
-		</AreaInstance>
+    <AreaInstance id="a9cd3252-f3b5-4faf-8d22-8431cd66f24c" layer="0">
+      <Symbol>7ec93755-d689-4a31-8c7f-1a9f290d34c3</Symbol>
+      <Segments>
+        <LinearPath>
+          <Point x="10" y="150"></Point>
+          <Point x="310" y="150"></Point>
+          <Point x="310" y="450"></Point>
+          <Point x="10" y="450"></Point>
+        </LinearPath>
+      </Segments>
+      <Holes>
+        <Hole>
+          <LinearPath>
+            <Point x="60" y="210"></Point>
+            <Point x="110" y="210"></Point>
+            <Point x="110" y="260"></Point>
+            <Point x="60" y="260"></Point>
+          </LinearPath>
+        </Hole>
+        <Hole>
+          <LinearPath>
+            <Point x="80" y="230"></Point>
+            <Point x="130" y="230"></Point>
+            <Point x="130" y="280"></Point>
+            <Point x="80" y="280"></Point>
+          </LinearPath>
+        </Hole>
+      </Holes>
+    </AreaInstance>
   </Instances>
 </Map>

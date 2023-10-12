@@ -1,6 +1,7 @@
 ﻿using OTools.Common;
 using OTools.Maps;
 using Spectre.Console;
+using System.IO;
 
 /*
  * 0 -> MapFile
@@ -13,8 +14,22 @@ using Spectre.Console;
 //string mapFile = args[0];
 //ColourConverter.SetUri(args[1]);
 
-string mapFile = @"C:\Dev\OTools\test\Files\map2.xml";
-ColourConverter.SetUri(@"C:\Program Files (x86)\Purple Pen\USWebCoatedSWOP.icc");
+string mapFile;
+
+if (args.Length == 0)
+{
+    Console.Write("Filepath: ");
+    mapFile = Console.ReadLine() ?? string.Empty;
+}
+else mapFile = args[0];
+
+string iccLoc;
+
+if (args.Length == 2)
+    iccLoc = args[1];
+else iccLoc = @"C:\Program Files (x86)\Purple Pen\USWebCoatedSWOP.icc";
+
+ColourConverter.SetUri(iccLoc);
 
 Map map = MapLoader.Load(mapFile);
 
@@ -51,4 +66,3 @@ foreach (var kvp in Colour.Lut)
 AnsiConsole.Write(grid);
 
 MapLoader.Save(map, 2).Serialize(mapFile);
-//XMLDocument.Flatten(mapFile);
