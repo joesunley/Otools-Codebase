@@ -8,18 +8,18 @@ public sealed class Result : IStorable
 {
     public Guid Id { get; set; }
 
-    public OneOf<Entry, Unknown> Entry { get; set; }
+    public OneOf<Person, Unknown> Entry { get; set; }
 
     public List<Punch> Punches { get; set; } 
 
-    public Result(OneOf<Entry, Unknown> entry, List<Punch>? punches)
+    public Result(OneOf<Person, Unknown> entry, List<Punch>? punches)
     {
         Id = Guid.NewGuid();
         Entry = entry;
         Punches = punches ?? new();
     }
 
-    public Result(Guid id, OneOf<Entry, Unknown> entry, List<Punch> punches)
+    public Result(Guid id, OneOf<Person, Unknown> entry, List<Punch> punches)
     {
         Id = id;
         Entry = entry;

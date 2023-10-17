@@ -1,73 +1,27 @@
-﻿using OneOf;
-using OTools.Common;
-using OTools.Courses;
+﻿using OTools.Common;
 
 namespace OTools.Events;
 
-public class Entry : IStorable
+public sealed class Entry : IStorable
 {
     public Guid Id { get; init; }
 
-    public string CardNo { get; set; }
-    public Name Name { get; set; }
-    public DateOnly DateOfBirth { get; set; }
-    public string Club { get; set; }
-    public string Notes { get; set; }
-    public Course? Course { get; set; }
-    public OneOf<DateTime, StartTimeType> StartTime { get; set; }
+    public Person Person { get; set; }
+    public Result? Result { get; set; }
 
-
-    public Entry(string cardNo, Name name, DateOnly dateOfBirth, string club, string notes, Course? course, OneOf<DateTime, StartTimeType> startTime)
+    public Entry(Person person, Result? result)
     {
         Id = Guid.NewGuid();
-        CardNo = cardNo;
-        Name = name;
-        DateOfBirth = dateOfBirth;
-        Club = club;
-        Notes = notes;
-        Course = course;
-        StartTime = startTime;
+
+        Person = person;
+        Result = result;
     }
 
-    public Entry(Guid id, string cardNo, Name name, DateOnly dateOfBirth, string club, string notes, Course? course, OneOf<DateTime, StartTimeType> startTime)
+    public Entry(Guid id, Person person, Result? result)
     {
         Id = id;
-        CardNo = cardNo;
-        Name = name;
-        DateOfBirth = dateOfBirth;
-        Club = club;
-        Notes = notes;
-        Course = course;
-        StartTime = startTime;
+
+        Person = person;
+        Result = result;
     }
-}
-
-public class BofEntry : Entry
-{
-    public string BofNumber { get; set; }
-
-    public BofEntry(string cardNo, Name name, DateOnly dateOfBirth, string club, string notes, Course? course, OneOf<DateTime, StartTimeType> startTime, string bofNumber)
-        : base(cardNo, name, dateOfBirth, club, notes, course, startTime)
-    {
-        BofNumber = bofNumber;
-    }
-
-    public BofEntry(Guid id, string cardNo, Name name, DateOnly dateOfBirth, string club, string notes, Course? course, OneOf<DateTime, StartTimeType> startTime, string bofNumber)
-        : base(id, cardNo, name, dateOfBirth, club, notes, course, startTime)
-    {
-        BofNumber = bofNumber;
-    }
-}
-
-[Flags]
-public enum EntryFlag
-{
-    Disqualified   = 0b01,
-    NonCompetitive = 0b10,
-}
-
-public enum StartTimeType
-{
-    Punching,
-    MassStart,
 }

@@ -14,7 +14,7 @@ public sealed class Event : IEvent
     public DateOnly Date { get; set; }
     public Configuration Configuration { get; set; }
 
-    public EntryStore Entries { get; set; }
+    public PersonStore Entries { get; set; }
     public ResultStore Results { get; set; }
     public PunchStore Punches { get; set; }
 }

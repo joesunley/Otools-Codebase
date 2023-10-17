@@ -6,11 +6,11 @@ public class Team : IStorable
 {
     public Guid Id { get; private set; }
 
-    public List<Entry> Members { get; set; }
+    public List<Person> Members { get; set; }
 
     public bool AllowReruns { get; set; } // Allow the same runner to run 2 legs
 
-    public Team(IEnumerable<Entry> members, bool allowReruns)
+    public Team(IEnumerable<Person> members, bool allowReruns)
     {
         Id = Guid.NewGuid();
 
@@ -18,7 +18,7 @@ public class Team : IStorable
         AllowReruns = allowReruns;
     }
 
-    public Team(Guid id, IEnumerable<Entry> members, bool allowReruns)
+    public Team(Guid id, IEnumerable<Person> members, bool allowReruns)
     {
         Id = id;
         Members = new(members);

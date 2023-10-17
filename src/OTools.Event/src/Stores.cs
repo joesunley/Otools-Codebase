@@ -2,11 +2,11 @@
 
 namespace OTools.Events;
 
-public sealed class EntryStore : Store<Entry>
+public sealed class PersonStore : Store<Person>
 {
-    public Entry this[Name name] => this.First(e => e.Name == name);
+    public Person this[Name name] => this.First(e => e.Name == name);
     
-    public Entry this[string name]
+    public Person this[string name]
     {
         get
         {
@@ -26,10 +26,14 @@ public sealed class EntryStore : Store<Entry>
     }
 }
 
+public sealed class EntryStore : Store<Entry>
+{
+    public Entry this[Person person] => this.First(e => e.Person == person);
+    public Entry this[Name name] => this.First(e => e.Person.Name == name);
+}
+
 public sealed class ResultStore : Store<Result>
 {
-    public Result this[Entry entry] => this.First(r => r.Entry == entry);
-    public Result this[Name name] => this.First(r => r.Entry?.Name == name);
 }   
 
 public sealed class PunchStore : Store<Punch>

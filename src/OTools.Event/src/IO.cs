@@ -9,14 +9,14 @@ public static class EventLoader
 
     public static Event Load(string filePath)
     {
-
+        throw new NotImplementedException();
     }
 
     public static XMLDocument Save(Event ev, ushort version = 0)
     {
         ushort versionToUse = version == 0 ? CURRENT_VERSION : version;
 
-
+        throw new NotImplementedException();
     }
 }
 
@@ -25,8 +25,8 @@ public interface IEventLoaderV1
     XMLNode SaveEvent(Event ev);
     Event LoadEvent(XMLNode node);
 
-    XMLNode SaveEntries(IEnumerable<Entry> entries);
-    XMLNode SaveEntry(Entry entry);
+    XMLNode SaveEntries(IEnumerable<Person> entries);
+    XMLNode SaveEntry(Person entry);
 
     XMLNode SavePunches(IEnumerable<Punch> punches);
     XMLNode SavePunch(Punch punch);
