@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Svg" Version="3.4.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OTools.Course\OTools.Course.csproj" />
     <ProjectReference Include="..\OTools.Map\OTools.Map.csproj" />
   </ItemGroup>

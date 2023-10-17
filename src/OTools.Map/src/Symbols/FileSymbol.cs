@@ -1,6 +1,4 @@
-﻿using Svg.Skia;
-
-namespace OTools.Maps;
+﻿namespace OTools.Maps;
 
 public abstract class FileSymbol : Symbol
 {

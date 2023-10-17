@@ -27,7 +27,7 @@ public interface IMapRenderer2D : IVisualRenderer
 	IEnumerable<IShape> RenderPointInstance(PointInstance inst);
 	IEnumerable<IShape> RenderPathInstance(PathInstance inst);
 	IEnumerable<IShape> RenderTextInstance(TextInstance inst);
-	IEnumerable<IShape> RenderFileInstance(FileSymbol sym);
+	IEnumerable<IShape> RenderFileInstance(FileInstance sym);
 
 	IEnumerable<(Instance, IEnumerable<IShape>)> RenderMap();
 }
@@ -457,7 +457,7 @@ public class MapRenderer2D : IMapRenderer2D
 		return new IShape[] { text };
 
 	}
-	public IEnumerable<IShape> RenderFileInstances(FileInstance inst)
+	public IEnumerable<IShape> RenderFileInstance(FileInstance inst)
 	{
 		var sym = RenderFileSymbol(inst.Symbol);
 
@@ -465,6 +465,8 @@ public class MapRenderer2D : IMapRenderer2D
 		{
 
 		}
+
+		return Enumerable.Empty<IShape>();
 	}
 
 	private VisualFill VisualFill(IEnumerable<IShape> shapes, vec4 aabb)
@@ -886,6 +888,16 @@ public sealed class WireframeMapRenderer2D : IMapRenderer2D
 	{
 		throw new NotImplementedException();
 	}
+
+    public IEnumerable<IShape> RenderFileSymbol(FileSymbol sym)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<IShape> RenderFileInstance(FileInstance sym)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public sealed class UncrossableMapRenderer2D : MapRenderer2D

@@ -8,12 +8,13 @@ using ownsmtp.logging;
 using OT = OTools.ObjectRenderer2D;
 using System.Globalization;
 using OTools.Common;
+using Avalonia.Media.Imaging;
 
 namespace OTools.AvaCommon;
 
 public static class ObjConvert
 {
-	public static IEnumerable<Shape> ConvertCollection(this IEnumerable<OT.IShape> shapes)
+	public static IEnumerable<Control> ConvertCollection(this IEnumerable<OT.IShape> shapes)
 	{
 		//return shapes.Select(el => (Shape)(el switch
 		//{
@@ -26,7 +27,7 @@ public static class ObjConvert
 		//	_ => throw new NotImplementedException(),
 		//}));
 
-		List<Shape> elements = new();
+		List<Control> elements = new();
 
 		foreach (var el in shapes)
 		{
@@ -38,6 +39,7 @@ public static class ObjConvert
 				case OT.Area a: elements.Add(ConvArea(a)); break;
 				case OT.Path p: elements.Add(ConvPath(p)); break;
 				case OT.Text t: elements.AddRange(ConvText(t)); break;
+				case OT.BitmapImage b: elements.Add(ConvBitmap(b)); break;
 			}
 		}
 
@@ -260,6 +262,35 @@ public static class ObjConvert
 		//output.SetTopLeft(path.TopLeft);
 
 		return output;
+	}
+
+	private static Image ConvBitmap(OT.BitmapImage img)
+	{
+		Image output = new()
+		{
+			Opacity = img.Opacity,
+			ZIndex = img.ZIndex,
+
+			Source = new Bitmap(img.Uri.AbsolutePath),
+
+			RenderTransform = new TransformGroup()
+			{
+                Children = new()
+				{
+                    new RotateTransform(img.Rotation),
+                    new ScaleTransform(img.Scaling.X, img.Scaling.Y),
+                }
+            },
+		};
+
+		output.SetTopLeft(img.TopLeft);
+
+		return output;
+	}
+
+	private static Image ConvVector(OT.VectorImage img)
+	{
+		throw new NotImplementedException(); // May implement as convert to other shapes
 	}
 
 	private static PathFigure ConvPathFigure(IList<OT.IPathSegment> segments, bool isClosed, vec2 topLeft)
