@@ -24,4 +24,10 @@
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="OTools.Common.StaticLogger">
+      <Static>True</Static>
+    </Using>
+  </ItemGroup>
 </Project>

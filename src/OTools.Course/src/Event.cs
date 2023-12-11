@@ -47,9 +47,12 @@ public sealed class CourseSymbols
 	public LineSymbol CourseLine { get; set; }
 	public LineSymbol MarkedLine { get; set; }
 
+	public LineSymbol UncrossableBoundary { get; set; }
+	public AreaSymbol OOBArea { get; set; }
+
 	public SymbolStore Extras { get; set; }
 
-    public CourseSymbols(PointSymbol start, PointSymbol finish, PointSymbol control, PointSymbol crossingPoint, PointSymbol exchange, LineSymbol courseLine, LineSymbol markedLine, SymbolStore? extras)
+    public CourseSymbols(PointSymbol start, PointSymbol finish, PointSymbol control, PointSymbol crossingPoint, PointSymbol exchange, LineSymbol courseLine, LineSymbol markedLine, LineSymbol uncrBoundary, AreaSymbol oobArea, SymbolStore? extras)
     {
         Start = start;
         Finish = finish;
@@ -59,6 +62,9 @@ public sealed class CourseSymbols
 
         CourseLine = courseLine;
         MarkedLine = markedLine;
+
+		UncrossableBoundary = uncrBoundary;
+		OOBArea = oobArea;
 
         Extras = extras ?? new();
     }

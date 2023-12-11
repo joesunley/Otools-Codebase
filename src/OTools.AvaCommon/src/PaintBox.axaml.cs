@@ -5,7 +5,7 @@ using Avalonia.Media;
 using OTools.Common;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
-using ownsmtp.logging;
+
 using System.Diagnostics;
 
 namespace OTools.AvaCommon
@@ -100,8 +100,8 @@ namespace OTools.AvaCommon
 		
 		public void Add(Guid id, IEnumerable<Control> objects)
 		{
-			ODebugger.Assert(!_ids.Contains(id));
-			ODebugger.Info($"Added {id}");
+			Debug.Assert(!_ids.Contains(id));
+			LogInfo($"Added {id}");
 
 			objects = objects.Select(x =>
 			{
@@ -117,7 +117,7 @@ namespace OTools.AvaCommon
 		}
 		public void Add(Tag tag, IEnumerable<Control> objects)
 		{
-			ODebugger.Info($"Added {tag}");
+			LogInfo($"Added {tag}");
 
 			objects = objects.Select(x =>
 			{
@@ -132,7 +132,7 @@ namespace OTools.AvaCommon
 		public void Update(Guid id, IEnumerable<Control> objects)
 		{
 			Debug.Assert(_ids.Contains(id));
-			ODebugger.Info($"Updated {id}");
+			LogInfo($"Updated {id}");
 			
 			objects = objects.Select(x =>
 			{
@@ -151,8 +151,8 @@ namespace OTools.AvaCommon
 		public void Update(Guid id, Tag tag, IEnumerable<Control> objects)
 		{
 			// Check only one id occurs
-			ODebugger.Assert(_ids.Where(x => x == id).Count() == 1);
-			ODebugger.Info($"Updated {tag}");
+			Debug.Assert(_ids.Where(x => x == id).Count() == 1);
+			LogInfo($"Updated {tag}");
 
 			objects = objects.Select(x =>
 			{
@@ -173,8 +173,8 @@ namespace OTools.AvaCommon
 
 		public void Remove(Guid id)
 		{
-			ODebugger.Assert(_ids.Contains(id));
-			ODebugger.Info($"Removed {id}");
+			Debug.Assert(_ids.Contains(id));
+			LogInfo($"Removed {id}");
 
             var els = canvas.Children.Where(x => (x.Tag?.ToString() ?? string.Empty).Contains(id.ToString()));
             canvas.Children.RemoveAll(els);
@@ -184,7 +184,7 @@ namespace OTools.AvaCommon
 		
 		public void Clear()
 		{
-			ODebugger.Info("Cleared");
+			LogInfo("Cleared");
 
 			foreach (Guid id in _ids)
 			{
@@ -197,7 +197,7 @@ namespace OTools.AvaCommon
 		}
 		public void Clear(Guid id)
 		{
-			ODebugger.Info($"Cleared {id}");
+			LogInfo($"Cleared {id}");
 
 			var els = canvas.Children.Where(x => (x.Tag?.ToString() ?? string.Empty).Contains(id.ToString()));
 
@@ -214,7 +214,7 @@ namespace OTools.AvaCommon
 
 		public void Add2(Guid id, IEnumerable<Control> objects)
 		{
-			ODebugger.Info($"Added {id} to {CurrentLayer}");
+			LogInfo($"Added {id} to {CurrentLayer}");
 
 			objects = objects.Select(x =>
 			{
@@ -232,7 +232,7 @@ namespace OTools.AvaCommon
 		}
 		public void AddLayer(Guid layerId, IEnumerable<(Guid id, IEnumerable<Control> objects)> layer)
 		{
-			ODebugger.Info($"Added Layer {layerId}");
+			LogInfo($"Added Layer {layerId}");
 
 			foreach (var obj in layer)
 			{

@@ -10,6 +10,7 @@ public sealed class Control : IStorable
     public vec2 Position { get; set; }  
     public ControlType Type { get; set; }
     public Description Description { get; set; }
+    public float Rotation { get; set; }
 
     public ControlGaps Gaps { get; set; }
 
@@ -44,14 +45,13 @@ public sealed class ControlGaps : List<(float startRad, float endRad)>
     public ControlGaps(int capacity) : base(capacity) { }
 }
 
-[Flags]
 public enum ControlType : byte
 {
-    Normal        = 0b00001,
-    Start         = 0b00010,
-    Finish        = 0b00100,
-    CrossingPoint = 0b01000,
-    Exchange      = 0b10000,
+    Normal,
+    Start,
+    Finish,
+    CrossingPoint,
+    Exchange,
 }
 
 public struct Description

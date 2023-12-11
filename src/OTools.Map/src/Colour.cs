@@ -1,8 +1,6 @@
 ﻿using OTools.Common;
-using ownsmtp.logging;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Xml.XPath;
 
 namespace OTools.Maps;
 

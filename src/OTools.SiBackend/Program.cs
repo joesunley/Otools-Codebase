@@ -35,7 +35,7 @@ namespace OTools.SiBackend
 
             var siInterface = new SiInterface();
 
-            int index = 5;
+            int index = 2;
 
             if (args.Length > 1)
                 index = int.Parse(args[1]);
@@ -51,9 +51,14 @@ namespace OTools.SiBackend
 
                     siInterface.SiCardRead += (sender, e) =>
                     {
-                        Create(e.Cards[0]).Serialize($"latest.card");
+                        Create(e.Cards[0]).Serialize($"cards");
                         Console.WriteLine($"Card {e.Cards[0].Siid} read!");
                     };
+
+                    //siInterface.SiCardOut += (s, e) =>
+                    //{
+                    //    siInterface.ReadCards();
+                    //};
 
                     siInterface.ReadCards();
 
@@ -119,7 +124,6 @@ namespace OTools.SiBackend
             node.AddChild(controlPunches);
 
             return new XMLDocument(node);
-
         }
 
         static XMLNode CreatePunchData(CardPunchData punch)

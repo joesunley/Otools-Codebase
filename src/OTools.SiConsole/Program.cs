@@ -1,6 +1,6 @@
 ﻿using OTools.SiIntegrator;
 
-var src = new SiDataSource(5);
+var src = new SiDataSource(2);
 
 src.StartWatching(Environment.CurrentDirectory);
 src.StartRead();

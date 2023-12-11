@@ -13,20 +13,21 @@ public class SiDataSource : ISiDataSource
     public SiDataSource(uint? comPort)
     {
         _comPort = comPort ?? 0;
+        _watcher = new();
     }
 
     public void StartRead()
     {
         Process p = new()
         {
-            StartInfo = new("OTools.SiBackend.exe"/*, $"read {_comPort}"*/)
+            StartInfo = new("OTools.SiBackend.exe", $"read {_comPort}")
             {
                 UseShellExecute = true,
                 CreateNoWindow = false,
                 WindowStyle = ProcessWindowStyle.Normal,
             }
         };
-        p.Exited += (sender, e) => Console.WriteLine("Exited");
+        p.Exited += (sender, e) => LogDebug("Exited");
 
         p.Start();
         p.WaitForExitAsync();
@@ -41,7 +42,7 @@ public class SiDataSource : ISiDataSource
             Path = filePath,
 
             NotifyFilter = NotifyFilters.LastWrite,
-            Filter = "*.card"
+            Filter = "card"
         };
 
         _watcher.Changed += _watcher_Changed;

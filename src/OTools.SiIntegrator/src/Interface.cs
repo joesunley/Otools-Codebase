@@ -1,9 +1,7 @@
-using ownsmtp.logging;
 using SPORTident;
 using SPORTident.Communication;
 using SPORTident.Communication.UsbDevice;
 using System.ComponentModel;
-using System.Security.AccessControl;
 
 namespace OTools.SiIntegrator;
 
@@ -44,8 +42,8 @@ public class SiInterface
 		}
 		catch (Exception ex)
 		{
-			ODebugger.Error($"Failed to set device to {deviceInfo}");
-			ODebugger.Error(ex.ToString());
+			LogError($"Failed to set device to {deviceInfo}");
+			LogError(ex.ToString());
 
 			return false;
 		}
@@ -60,8 +58,8 @@ public class SiInterface
 		}
 		catch (Exception ex)
 		{
-			ODebugger.Error($"Failed to set device to {deviceInfo}");
-			ODebugger.Error(ex.ToString());
+			LogError($"Failed to set device to {deviceInfo}");
+			LogError(ex.ToString());
 
 			return false;
 		}
@@ -78,8 +76,8 @@ public class SiInterface
 		}
 		catch (Exception ex)
 		{
-			ODebugger.Error("Failed to close device connecion");
-			ODebugger.Error(ex.ToString());
+			LogError("Failed to close device connecion");
+			LogError(ex.ToString());
 
 			return false;
 		}
@@ -110,13 +108,13 @@ public class SiInterface
 	{
 		if (_currentDevice == null)
 		{
-			ODebugger.Error("Please select a device connection!");
+			LogError("Please select a device connection!");
 			return false;
 		}
 
 		if (!OpenSiComm(_currentDevice, targetDevice))
 		{
-            ODebugger.Error("Failed to open device connection!");
+            LogError("Failed to open device connection!");
             return false;
         }
 
@@ -128,7 +126,7 @@ public class SiInterface
 	{
 		  if (_currentDevice == null)
 		{
-            ODebugger.Error("Please select a device connection!");
+            LogError("Please select a device connection!");
             return false;
         }
 
@@ -136,7 +134,7 @@ public class SiInterface
 
         if (!OpenSiComm(_currentDevice, targetDevice))
 		{
-            ODebugger.Error("Failed to open device connection!");
+            LogError("Failed to open device connection!");
             return false;
         }
 
@@ -146,69 +144,69 @@ public class SiInterface
 
 	private void Comm_SiCardOut(object sender, SiCardEventArgs e)
 	{
-		ODebugger.Info($"Card #{e.Card.Siid} out");
+		LogInfo($"Card #{e.Card.Siid} out");
 	}
 	private void Comm_SiCardIn(object sender, SiCardEventArgs e)
 	{
-		ODebugger.Info($"Card #{e.Card.Siid} in");
+		LogInfo($"Card #{e.Card.Siid} in");
 	}
 	private void SiComm_BackupReadProgressChanged(object sender, ProgressChangedEventArgs e)
 	{
-        ODebugger.Info($"Backup memory read progress: {e.ProgressPercentage:##0.0} %");
+        LogInfo($"Backup memory read progress: {e.ProgressPercentage:##0.0} %");
     }
 	private void SiComm_TriggerPunchReceived(object sender, SportidentDataEventArgs e)
 	{
-		ODebugger.Info("Trigger punch received");
+		LogInfo("Trigger punch received");
 
 		if (!e.HasPunchData) return;
 
-		ODebugger.Info("Punch data:");
+		LogInfo("Punch data:");
 		foreach (var punch in e.PunchData)
-            ODebugger.Debug($"Punch: {punch.CodeNumber}, {punch.PunchDateTime}");
+            LogDebug($"Punch: {punch.CodeNumber}, {punch.PunchDateTime}");
 	}
 	private void SiComm_SiCardReadCompleted(object sender, SportidentDataEventArgs e)
 	{
-		ODebugger.Info("Card read completed");
+		LogInfo("Card read completed");
 	}
 	private void SiComm_SiCardReadProgressChanged(object sender, ProgressChangedEventArgs e)
 	{
-        ODebugger.Info($"Card read progress: {e.ProgressPercentage:##0.0} %");
+        LogInfo($"Card read progress: {e.ProgressPercentage:##0.0} %");
     }
 	private void SiComm_BackupReadCompleted(object sender, SportidentDataEventArgs e)
 	{
-        ODebugger.Info("Backup memory read completed");
+        LogInfo("Backup memory read completed");
 
 		if (e.HasCards)
 		{
-			ODebugger.Info("Cards:");
+			LogInfo("Cards:");
 			foreach (var card in e.Cards)
-                ODebugger.Debug($"Card: {card.Siid}, {card.CardType}");
+                LogDebug($"Card: {card.Siid}, {card.CardType}");
 		}
 
 		if (e.HasPunchData)
 		{
-			ODebugger.Info("Punch data:");
+			LogInfo("Punch data:");
 			foreach (var punch in e.PunchData)
-                ODebugger.Debug($"Punch: {punch.CodeNumber}, {punch.PunchDateTime}");
+                LogDebug($"Punch: {punch.CodeNumber}, {punch.PunchDateTime}");
 		}
     }
 	private void SiComm_CommunicationRetried(object sender, InstructionEventArgs e)
 	{
-        ODebugger.Info($"Communication retried the last instruction 0x{e.Instruction.CommandByte:X2}");
+        LogInfo($"Communication retried the last instruction 0x{e.Instruction.CommandByte:X2}");
     }
 	private void SiComm_CommunicationFailed(object sender, InstructionEventArgs e)
 	{
 		bool allowRetry = (e.Source != null) && ((ActionItem)e.Source).AllowResume;
 		
-		ODebugger.Info($"Communication failed on instruction 0x{e.Instruction.CommandByte:X2}, allow retry: {allowRetry}");
+		LogInfo($"Communication failed on instruction 0x{e.Instruction.CommandByte:X2}, allow retry: {allowRetry}");
 	}
 	private void SiComm_ProgressCompleted(object sender, ProgressChangedEventArgs e)
 	{
-		ODebugger.Info("Current operation completed");
+		LogInfo("Current operation completed");
 	}
 	private void SiComm_StationConfigWritten(object sender, StationConfigurationEventArgs e)
 	{
-		ODebugger.Info("Station configuration written successfully");
+		LogInfo("Station configuration written successfully");
 	}
 	private void SiComm_StationConfigFailed(object sender, StationConfigurationEventArgs e)
 	{
@@ -229,11 +227,11 @@ public class SiInterface
                 break;
         }
 
-        ODebugger.Info($"The current operation failed: {msg}");
+        LogInfo($"The current operation failed: {msg}");
     }
 	private void SiComm_StationConfigRead(object sender, StationConfigurationEventArgs e)
 	{
-		  ODebugger.Info("Station configuration read successfully");
+		  LogInfo("Station configuration read successfully");
 	}
 	private void SiComm_DeviceStateChanged(object sender, DeviceStateChangedEventArgs e)
 	{
@@ -249,7 +247,7 @@ public class SiInterface
             _ => $"Current device state: Connected @ {_comm?.CurrentBaudRate} Baud",
         };
 
-		ODebugger.Info(stateStr);
+		LogInfo(stateStr);
     }
 
 	public void ToggleTargetDevice()

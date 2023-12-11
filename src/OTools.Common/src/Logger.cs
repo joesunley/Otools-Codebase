@@ -1,167 +1,88 @@
-﻿/*
- * CreatedBy: JosephPhilbert}
- * User: jphilbert
- * Date: 3/27/2015
- * Time: 8:16 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
+﻿using System.Diagnostics;
+using System.Net.Http.Headers;
+using System.Text;
 
-using System.Diagnostics;
+namespace OTools.Common;
 
-namespace ownsmtp.logging;
-
-static class Logger
+public enum LogLevel
 {
-
+    Debug = 5,
+    Info = 4,
+    Warn = 3,
+    Error = 2,
+    Fatal = 1,
+    None = 0,
 }
 
-public interface ServerLogger
+public class Logger
 {
-    ServerLogLevel LogLevel { get; set; }
+    private List<Action<string, LogLevel>> _targets;
+    private LogLevel _logLevel;
 
-    void Debug(string text, params object[] args);
-    void Info(string text, params object[] args);
-    void Warn(string text, params object[] args);
-    void Error(string text, params object[] args);
-    void Error(Exception ex);
-    void Error(Exception ex, string text, params object[] args);
+    public Logger()
+    {
+        _targets = new();
+    }
+
+    private void Log(string message, LogLevel level)
+    {
+        if (_logLevel < level)
+            return;
+
+        foreach (var target in _targets)
+            target(message, level);
+    }
+
+    public void Debug(string message, params object[] args) => Log(string.Format(message, args), LogLevel.Debug);
+    public void Info(string message, params object[] args) => Log(string.Format(message, args), LogLevel.Info);
+    public void Warn(string message, params object[] args) => Log(string.Format(message, args), LogLevel.Warn);
+    public void Error(string message, params object[] args) => Log(string.Format(message, args), LogLevel.Error);
+    public void Fatal(string message, params object[] args) => Log(string.Format(message, args), LogLevel.Fatal);
+
+    public void SetLogLevel(LogLevel level) => _logLevel = level;
+
+    public void AddTarget(Action<string, LogLevel> target) => _targets.Add(target);
 }
 
-public enum ServerLogLevel
+public static class StaticLogger
 {
-    Debug = 4,
-    Info = 3,
-    Warn = 2,
-    Error = 1,
-    None = 0
-}
-public class ConsoleLogger : ServerLogger
-{
+    private static Logger _logger;
 
-    public ServerLogLevel LogLevel { get; set; }
-
-    public ConsoleLogger(ServerLogLevel logLevel)
+    static StaticLogger()
     {
-        LogLevel = logLevel;
+        _logger = new();
     }
 
-    public void Info(string text, params object[] args)
+    public static void LogDebug(string message) => _logger.Debug(message);
+    public static void LogInfo(string message) => _logger.Info(message);
+    public static void LogWarn(string message) => _logger.Warn(message);
+    public static void LogError(string message) => _logger.Error(message);
+    public static void LogFatal(string message) => _logger.Fatal(message);
+
+    public static void AddConsoleTarget()
     {
-        if (LogLevel < ServerLogLevel.Info)
-            return;
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Conlog("(I) ", text, args);
+        _logger.AddTarget((s, l) =>
+        {
+            Console.ForegroundColor = l switch
+            {
+                LogLevel.Fatal => ConsoleColor.Red,
+                LogLevel.Error => ConsoleColor.Magenta,
+                LogLevel.Warn => ConsoleColor.Green,
+                LogLevel.Info => ConsoleColor.Cyan,
+                _ => ConsoleColor.White,
+            };
+
+            string o = $"[{Thread.CurrentThread.ManagedThreadId:D4}] [{DateTime.Now.ToString("HH:mm:ss.ffff")}] ({l}): {s}";
+            Console.WriteLine(o);
+        });
     }
 
-    public void Warn(string text, params object[] args)
+    public static void AddDebugTarget()
     {
-
-        if (LogLevel < ServerLogLevel.Warn)
-            return;
-        Console.ForegroundColor = ConsoleColor.Green;
-        Conlog("(W) ", text, args);
+        _logger.AddTarget((s, l) =>
+        {
+            string o = $"[{Thread.CurrentThread.ManagedThreadId:D4}] [{DateTime.Now.ToString("HH:mm:ss.ffff")}] ({l}): {s}";
+            Console.WriteLine(o);
+        });
     }
-
-    public void Error(Exception ex)
-    {
-
-        if (LogLevel < ServerLogLevel.Error)
-            return;
-        Console.ForegroundColor = ConsoleColor.Red;
-        Conlog("(E) ", ex.ToString());
-    }
-
-    public void Error(string text, params object[] args)
-    {
-
-        if (LogLevel < ServerLogLevel.Error)
-            return;
-        Console.ForegroundColor = ConsoleColor.Red;
-        Conlog("(E) ", text, args);
-    }
-
-    public void Error(Exception ex, string text, params object[] args)
-    {
-
-        if (LogLevel < ServerLogLevel.Error)
-            return;
-        Console.ForegroundColor = ConsoleColor.Red;
-        Conlog("(E) ", text, args);
-    }
-
-    public void Debug(string text, params object[] args)
-    {
-
-        if (LogLevel < ServerLogLevel.Debug)
-            return;
-        Conlog("(D) ", text, args);
-    }
-
-    private static void Conlog(string prefix, string text, params object[] args)
-    {
-        //            If you want to add unique thread identifier
-        
-        int threadId = Thread.CurrentThread.ManagedThreadId;
-        Console.Write("[{0:D4}] [{1}] ", threadId, DateTime.Now.ToString("HH:mm:ss.ffff"));
-        //Console.Write(DateTime.Now.ToString("HH:mm:ss.ffff"));
-        
-        Console.Write(prefix);
-        Console.WriteLine(text, args);
-        Console.ResetColor();
-    }
-}
-
-public static class ODebugger
-{
-    private static ServerLogger _logger;
-
-    static ODebugger()
-    {
-        _logger = new ConsoleLogger(ServerLogLevel.Info);
-    }
-
-    public static void SetLevel(ServerLogLevel level)
-    {
-        _logger.LogLevel = level;
-    }
-
-    public static void Debug(string text, params object[] args)
-    {
-        _logger.Debug(text, args);
-    }
-
-    public static void Info(string text, params object[] args)
-    {
-        _logger.Info(text, args);
-    }
-
-    public static void Warn(string text, params object[] args)
-    {
-        _logger.Warn(text, args);
-    }
-
-    public static void Error(string text, params object[] args)
-    {
-        _logger.Error(text, args);
-    }
-
-    public static void Error(Exception ex)
-    {
-        _logger.Error(ex);
-    }
-
-    public static void Error(Exception ex, string text, params object[] args)
-    {
-        _logger.Error(ex, text, args);
-    }
-
-    public static void Conlog(string prefix, string text, params object[] args)
-    {
-        Console.WriteLine(prefix + text, args);
-    }
-
-
-    public static void Assert(bool condition, string? message = null) 
-        => System.Diagnostics.Debug.Assert(condition, message);
 }

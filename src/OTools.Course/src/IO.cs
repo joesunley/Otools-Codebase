@@ -454,12 +454,11 @@ public class CourseLoaderV1 : ICourseLoaderV1
 
     public Event LoadEvent(XMLNode node)
     {
-        _event = new(node.Attributes["title"]);
+        //_event = new(node.Attributes["title"]);
         
         _event.Metadata = LoadMetadata(node.Children["Metadata"]);
 
         _event.Controls = new(LoadControls(node.Children["Controls"]));
-        _event.Courses = new(LoadCourses(node.Children["Courses"]));
         _event.Items = new(LoadItems(node.Children["Items"]));
 
         return _event;
@@ -659,7 +658,7 @@ public class CourseLoaderV1 : ICourseLoaderV1
 		
         Map map = new MapLoaderV1().LoadMap(node);
 
-        return map.Instances.Select(i => new Item(i));
+        //return map.Instances.Select(i => new Item(i));
     }
 
     public Metadata LoadMetadata(XMLNode node)

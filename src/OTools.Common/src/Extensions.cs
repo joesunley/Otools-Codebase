@@ -13,4 +13,21 @@ public static class Extensions
     {
         yield return item;
     }
+
+    private static Random s_rng = new();
+    public static IList<T> Shuffle<T>(this IList<T> list)
+    {
+        T[] arr = new T[list.Count];
+        list.CopyTo(arr, 0);
+        int n = arr.Length;
+        while (n > 1)
+        {
+            n--;
+            int k = s_rng.Next(n + 1);
+            T temp = arr[k];
+            arr[k] = arr[n];
+            arr[n] = temp;
+        }
+        return arr;
+    }
 }

@@ -10,10 +10,12 @@
   <ItemGroup>
     <PackageReference Include="ComputeSharp" Version="2.0.3" />
     <PackageReference Include="ComputeSharp.Dynamic" Version="2.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\OTools.Common\OTools.Common.csproj" />
+    <ProjectReference Include="..\..\src\OTools.StartTimeDistributor\OTools.StartTimeDistributor.csproj" />
   </ItemGroup>
 
 </Project>

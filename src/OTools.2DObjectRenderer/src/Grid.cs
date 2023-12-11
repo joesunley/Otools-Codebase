@@ -22,7 +22,7 @@ public sealed class GridRenderer2D : IVisualRenderer
         Extents = extents;
         GridSymbol = gridSymbol;
 
-        _mapRenderer = renderer ?? new MapRenderer2D();
+        _mapRenderer = renderer ?? new MapRenderer2D(null);
     }
 
     public IEnumerable<(Guid, IEnumerable<IShape>)> Render()

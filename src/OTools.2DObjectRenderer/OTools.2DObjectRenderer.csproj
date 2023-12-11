@@ -17,6 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="OTools.Common.StaticLogger">
+      <Static>True</Static>
+    </Using>
     <Using Include="Sunley.Mathematics" />
   </ItemGroup>
 

@@ -19,4 +19,11 @@
     <ProjectReference Include="..\OTools.SiBackend\OTools.SiBackend.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Using Include="OTools.Common.StaticLogger">
+      <Static>True</Static>
+    </Using>
+  </ItemGroup>
+
 </Project>

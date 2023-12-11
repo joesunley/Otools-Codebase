@@ -4,7 +4,7 @@ using AV = Avalonia.Controls.Shapes;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using OTools.Maps;
-using ownsmtp.logging;
+
 using OT = OTools.ObjectRenderer2D;
 using System.Globalization;
 using OTools.Common;
@@ -411,7 +411,7 @@ public static class ObjConvert
 			var s = shape;
 			//s.TopLeft += fill.Viewport.XY;
 
-			ODebugger.Debug(s.TopLeft.ToString() ?? "");
+			LogDebug(s.TopLeft.ToString() ?? "");
 
 			shapes.Add(s);
 		}

@@ -1,7 +1,4 @@
-﻿using OTools.Common;
-using OTools.Maps;
-using ownsmtp.logging;
-using Sunley.Mathematics;
+﻿using OTools.Maps;
 using System.Data;
 using System.Diagnostics;
 using static System.Diagnostics.Debug;
@@ -37,7 +34,7 @@ public class MapRenderer2D : IMapRenderer2D
 	protected Map? _activeMap;
 	protected ColourLUT? _lut;
     
-	public MapRenderer2D(Map? map = null)
+	public MapRenderer2D(Map? map)
 	{
 		_activeMap = map;
 		_lut = map?.MapInfo.ColourLUT;
@@ -1158,8 +1155,7 @@ internal static partial class _Utils
 
 		if (spacing * 0.8f > usableSpacing || spacing * 1.2f < usableSpacing)
 		{
-			WriteLine("!!!!! Spacing too large !!!!!");
-			ODebugger.Warn("Spacing too large");
+			LogWarn("Spacing too large");
 		}
 
 		List<vec2> mids = new();

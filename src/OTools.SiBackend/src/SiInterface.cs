@@ -4,13 +4,7 @@ using SPORTident.Communication.UsbDevice;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
-
-
 
 namespace OTools.SiBackend
 {
@@ -174,7 +168,9 @@ namespace OTools.SiBackend
 
         private void Comm_SiCardOut(object sender, SiCardEventArgs e)
         {
-            Console.WriteLine($"Card #{e.Card.Siid} out");
+            Console.WriteLine($"Card #{e.Card.Siid ?? ""} out");
+
+            SiCardOut?.Invoke(sender, e);
         }
         private void Comm_SiCardIn(object sender, SiCardEventArgs e)
         {
@@ -391,6 +387,7 @@ namespace OTools.SiBackend
         }
 
         public event EventHandler<SportidentDataEventArgs> SiCardRead;
+        public event EventHandler<SiCardEventArgs> SiCardOut;
 
         public static IEnumerable<DeviceInfo> GetAllDevices()
             => DeviceInfo.GetAvailableDeviceList(true, (int)DeviceType.Serial | (int)DeviceType.UsbHid);

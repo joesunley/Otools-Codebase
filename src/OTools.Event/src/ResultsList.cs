@@ -16,7 +16,7 @@ public class ResultsList
 
 	public static ResultsList Create(IEnumerable<Result> results)
 	{
-		IEnumerable<IGrouping<Course?, Result>> groups = results.GroupBy(x => x.Entry?.Course ?? null);
+		IEnumerable<IGrouping<Course?, Result>> groups = results.GroupBy(x => x.Entry.AsT0.Course ?? null);
 
 		Dictionary<Course, IList<Result>> res = new();
 		
@@ -24,10 +24,10 @@ public class ResultsList
 		{
 			if (g.Key is null) continue;
 			
-			List<(Result r, TimeSpan)> ordered = g.Select(x => (x, x.GetResultTime()))
-												  .OrderBy(tuple => tuple.Item2).ToList();
+			//List<(Result r, TimeSpan)> ordered = g.Select(x => (x, x.GetResultTime()))
+			//									  .OrderBy(tuple => tuple.Item2).ToList();
 
-			res.Add(g.Key, ordered.Select(x => x.r).ToList());
+			//res.Add(g.Key, ordered.Select(x => x.r).ToList());
 		}
 
 		return new(res);

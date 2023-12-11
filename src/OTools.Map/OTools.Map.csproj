@@ -10,4 +10,10 @@
     <ProjectReference Include="..\OTools.Common\OTools.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="OTools.Common.StaticLogger">
+      <Static>True</Static>
+    </Using>
+  </ItemGroup>
+
 </Project>

@@ -5,8 +5,9 @@ using OTools.AvaCommon;
 using OTools.Common;
 using OTools.Maps;
 using OTools.ObjectRenderer2D;
-using ownsmtp.logging;
+
 using Svg.Model.Drawables.Elements;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 
@@ -112,7 +113,7 @@ public class MapEdit
         Deselect();
 
         _selectedInstance = inst;
-        ODebugger.Debug($"Selected: {_selectedInstance.Id} at {_instance.PaintBox.MousePosition}");
+        LogDebug($"Selected: {_selectedInstance.Id} at {_instance.PaintBox.MousePosition}");
 
         if (inst is PathInstance path)
         {
@@ -280,7 +281,7 @@ public class PathEdit
         _index = _Utils.FindPoint(_pInstance.Segments, point);
 
         if (_index.Item1 == -1)
-            ODebugger.Error($"Couldn't find point: {point}");
+            LogError($"Couldn't find point: {point}");
     }
     public void LeftMouseUp()
     {
@@ -359,7 +360,7 @@ public class PathEdit
                 BezierPath path = (BezierPath)_pInstance.Segments[_index.Item1];
                 BezierPoint bezier = path[_index.Item2];
 
-                ODebugger.Assert(bezier.EarlyControl.IsT0, "Nearest Point is non-existent EarlyControl");
+                Debug.Assert(bezier.EarlyControl.IsT0, "Nearest Point is non-existent EarlyControl");
 
                 bezier.EarlyControl = _mInstance.PaintBox.MousePosition;
 
@@ -444,7 +445,7 @@ public class PathEdit
                 BezierPath path = (BezierPath)_pInstance.Segments[_index.Item1];
                 BezierPoint bezier = path[_index.Item2];
 
-                ODebugger.Assert(bezier.LateControl.IsT0, "Nearest Point is non-existent LateControl");
+                Debug.Assert(bezier.LateControl.IsT0, "Nearest Point is non-existent LateControl");
 
                 bezier.LateControl = _mInstance.PaintBox.MousePosition;
 
