@@ -3,5 +3,7 @@ start cmd.exe /k "build.bat"
 cd ../OTools.BofLevee
 start cmd.exe /k "build.bat"
 cd ../OTools.TeamMaker
-build.bat
+start cmd.exe /k "build.bat"
+cd ../OTools.BwStartTimeMaker
+start cmd.exe /k "build.bat"
 exit

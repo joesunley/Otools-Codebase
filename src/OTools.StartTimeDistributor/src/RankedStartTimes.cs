@@ -6,13 +6,15 @@ public class RankedStartTimes
 {
     private List<Entry> _entries;
     private DayStartTimeParameters _parameters;
-    private IList<(string, ushort)> _rankings;
+    private IList<(string, float)> _rankings;
+    private int _day;
 
-    public RankedStartTimes(IEnumerable<Entry> entries, IEnumerable<(string, ushort)> rankings, DayStartTimeParameters parameters)
+    public RankedStartTimes(IEnumerable<Entry> entries, IEnumerable<(string, float)> rankings, DayStartTimeParameters parameters, int day)
     {
         _entries = entries.ToList();
         _rankings = rankings.ToList();
         _parameters = parameters;
+        _day = day;
     }
 
     public Dictionary<Entry, DateTime> Create()
@@ -42,17 +44,18 @@ public class RankedStartTimes
     private IEnumerable<(Entry, DateTime)> CreateForCourse(byte course, GroupParameters parameters)
     {
         Dictionary<string, Entry> lookup = new(
-            _entries.Where(x => x.Course == course)
+            _entries.Where(x => x.Days[_day].Course == course && x.RankingKey != "")
+                    .Where(x => _rankings.Select(x => x.Item1).Contains(x.RankingKey))
                     .Select(x => new KeyValuePair<string, Entry>(x.RankingKey, x))     
             );
 
         List<(Entry, DateTime)> unshuffledStartTimes = new();
         List<(Entry, DateTime)> nonRankedTimes = new();
-        var nonRankedSlice = _entries.Where(x => x.RankingKey == "");
+        var nonRankedSlice = _entries.Where(x => x.Days[_day].Course == course && !lookup.ContainsKey(x.RankingKey)).ToArray();
 
-        DateTime currentTime = ParseDateTime(parameters.FirstStart);
+        DateTime currentTime = parameters.FirstStart;
 
-        foreach (var entry in nonRankedSlice)
+        foreach (var entry in nonRankedSlice.Shuffle())
         {
             nonRankedTimes.Add((entry, currentTime));
             currentTime += TimeSpan.FromMinutes(parameters.StartInterval);
@@ -67,42 +70,37 @@ public class RankedStartTimes
 
             currentTime += TimeSpan.FromMinutes(parameters.StartInterval);
 
-            if (currentTime > ParseDateTime(parameters.LastStart))
+            if (currentTime > parameters.LastStart)
                 throw new Exception("Too many entries");
         }
 
-        if (parameters.Grouping == -1)
+        if (parameters.Grouping <= 0)
             return Join(nonRankedTimes, unshuffledStartTimes);
 
         (Entry, DateTime)[] startTimes = unshuffledStartTimes.ToArray();
 
-        for (int i = 0; i < unshuffledStartTimes.Count; i += parameters.Grouping)
+        for (int i = 0; i < startTimes.Length; i += parameters.Grouping)
         {
-            if (i+4 > unshuffledStartTimes.Count)
+            if (i+4 >= startTimes.Length)
                 continue;
 
             var range = startTimes[i..(i + 4)];
             range = range.Shuffle().ToArray();
 
-            for (int j = i; j <= i + 4; j++)
+            for (int j = i; j < i + 4; j++)
                 startTimes[j] = range[j - i];
         }
 
         return Join(nonRankedTimes, startTimes);
     }
 
-    private static void FilterRankings(ref IList<(string, ushort)> rankings, IEnumerable<Entry> entries)
+    private static void FilterRankings(ref IList<(string, float)> rankings, IEnumerable<Entry> entries)
     {
         rankings = rankings.Where(x => entries.Select(y => y.RankingKey).Contains(x.Item1)).ToList();
     }
-    private static void OrderRankings(ref IList<(string, ushort)> rankings)
+    private static void OrderRankings(ref IList<(string, float)> rankings)
     {
-        rankings = rankings.OrderByDescending(x => x.Item2).ToList();
-    }
-
-    private static DateTime ParseDateTime(string input)
-    {
-        return DateTime.Parse(input, null, System.Globalization.DateTimeStyles.RoundtripKind);
+        rankings = rankings.OrderBy(x => x.Item2).ToList();
     }
 
     private static IEnumerable<T> Join<T>(IEnumerable<T> a, IEnumerable<T> b)
@@ -112,26 +110,32 @@ public class RankedStartTimes
 
 public static class WorldRanking
 {
-private const bool COMPENSATE_FOR_LESS_THAN_6_EVENTS = false;
+    private const bool COMPENSATE_FOR_LESS_THAN_6_EVENTS = false;
 
-public static Dictionary<string, ushort> FromCSV(string filePath)
-{
-    Dictionary<string, ushort> kvps = new();
-
-    string[] lines = File.ReadAllLines(filePath);
-
-    foreach (string line in lines.Skip(1))
+    public static Dictionary<string, float> FromCSV(string[] filePaths)
     {
-        string[] cells = line.Split(';');
+        Dictionary<string, float> kvps = new();
 
-        string iofID = cells[0];
-        ushort wrsPoints = ushort.Parse(cells[5]);
-        ushort avgWrsPoints = ushort.Parse(cells[7]);
+        List<string> lines = new();
 
-        kvps.Add(iofID, COMPENSATE_FOR_LESS_THAN_6_EVENTS 
-            ? avgWrsPoints : wrsPoints);
+        foreach (string path in filePaths)
+            lines.AddRange(File.ReadAllLines(path).Skip(1));
+
+
+        foreach (string line in lines)
+        {
+            string[] cells = line.Split(';');
+
+            string iofID = cells[0];
+            float wrsPoints = float.Parse(cells[5]);
+            float avgWrsPoints = float.Parse(cells[7]);
+
+            if (kvps.TryGetValue(iofID, out float existing))
+                kvps[iofID] = float.Max(existing, COMPENSATE_FOR_LESS_THAN_6_EVENTS ? avgWrsPoints : wrsPoints);
+            else
+                kvps.Add(iofID, COMPENSATE_FOR_LESS_THAN_6_EVENTS ? avgWrsPoints : wrsPoints);
+        }
+
+        return kvps;
     }
-
-    return kvps;
-}
 }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OTools.BwStartTimeMaker": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\Joe\\Downloads\\Start_Time_Generator_SUNLEY_ONLY.csv\" -o \"C:\\Users\\Joe\\Downloads\\starttimeoptions.json\" -m \"C:\\Users\\Joe\\Downloads\\iof_ranking_MEN_FS_11-12-2023.csv\" -w \"C:\\Users\\Joe\\Downloads\\iof_ranking_WOMEN_FS_11-12-2023.csv\" "
+    }
+  }
+}
