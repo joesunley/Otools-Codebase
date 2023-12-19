@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OTools.StartTimeGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "\".\\Hello.csv\" -r \".\\rankings.csv\""
+    }
+  }
+}

@@ -80,7 +80,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.SiBackend", "src\OTo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.TeamMaker", "src\OTools.TeamMaker\OTools.TeamMaker.csproj", "{C92098D1-2BB0-4146-827B-F2B1BC6718C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.BwStartTimeMaker", "src\OTools.BwStartTimeMaker\OTools.BwStartTimeMaker.csproj", "{43AC46A5-1704-4D5B-B7AA-687A9AF3F6A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.BwStartTimeMaker", "src\OTools.BwStartTimeMaker\OTools.BwStartTimeMaker.csproj", "{43AC46A5-1704-4D5B-B7AA-687A9AF3F6A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.StartTimeGenerator", "src\OTools.StartTimeGenerator\OTools.StartTimeGenerator.csproj", "{848501D3-919E-4A68-9E52-B8A9F7D4A653}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -204,6 +206,10 @@ Global
 		{43AC46A5-1704-4D5B-B7AA-687A9AF3F6A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43AC46A5-1704-4D5B-B7AA-687A9AF3F6A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43AC46A5-1704-4D5B-B7AA-687A9AF3F6A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{848501D3-919E-4A68-9E52-B8A9F7D4A653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{848501D3-919E-4A68-9E52-B8A9F7D4A653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{848501D3-919E-4A68-9E52-B8A9F7D4A653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{848501D3-919E-4A68-9E52-B8A9F7D4A653}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -217,6 +223,7 @@ Global
 		{383EE812-4D1C-403B-B88E-B8E3E88BE2C5} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
 		{C92098D1-2BB0-4146-827B-F2B1BC6718C3} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
 		{43AC46A5-1704-4D5B-B7AA-687A9AF3F6A0} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
+		{848501D3-919E-4A68-9E52-B8A9F7D4A653} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5827591C-8AF3-43EE-AD3F-8E7FBE7C7EC9}

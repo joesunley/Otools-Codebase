@@ -13,14 +13,18 @@ public struct Entry
 
     public string RankingKey { get; set; }
 
-    public Day[] Days { get; set; }
+    //public Day[] Days { get; set; }
 
-    public struct Day
-    {
-        public string Class { get; set; }
-        public byte Course { get; set; }
-        public StartTimeBlock Preference { get; set; }
-    }
+    //public struct Day
+    //{
+    //    public string Class { get; set; }
+    //    public byte Course { get; set; }
+    //    public StartTimeBlock Preference { get; set; }
+    //}
+
+    public string Class { get; set; }
+    public byte Course { get; set; }
+    public StartTimeBlock Preference { get; set; }
 }
 
 public enum StartTimeBlock { Early, Middle, Late, Open }
