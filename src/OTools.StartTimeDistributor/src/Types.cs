@@ -27,15 +27,10 @@ public struct Entry
     public StartTimeBlock Preference { get; set; }
 }
 
-public enum StartTimeBlock { Early, Middle, Late, Open }
+public enum StartTimeBlock { Early, Middle, Late, Open, None }
 
 
 public class StartTimeParameters
-{
-    public DayStartTimeParameters[] Days { get; set; }
-}
-
-public class DayStartTimeParameters
 {
     public int[][] CourseGroupings { get; set; }
     public GroupParameters[] Parameters { get; set; }

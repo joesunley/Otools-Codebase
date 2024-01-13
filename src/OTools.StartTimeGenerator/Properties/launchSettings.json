@@ -2,7 +2,7 @@
   "profiles": {
     "OTools.StartTimeGenerator": {
       "commandName": "Project",
-      "commandLineArgs": "\".\\Hello.csv\" -r \".\\rankings.csv\""
+      "commandLineArgs": "\"C:\\Users\\joe\\Downloads\\entries.csv\" -e \"inc-ryp\" -r \"C:\\Users\\joe\\Downloads\\rankings.csv\" -f \"k----v\" -o \"C:\\Users\\joe\\Downloads\\start.json\""
     }
   }
 }

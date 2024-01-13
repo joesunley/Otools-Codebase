@@ -5,16 +5,16 @@ namespace OTools.StartTimeDistributor;
 public class RankedStartTimes
 {
     private List<Entry> _entries;
-    private DayStartTimeParameters _parameters;
-    private IList<(string, float)> _rankings;
-    private int _day;
+    private List<(string, float)> _rankings;
+    private GroupParameters _parameters;
+    private int[] _courses;
 
-    public RankedStartTimes(IEnumerable<Entry> entries, IEnumerable<(string, float)> rankings, DayStartTimeParameters parameters, int day)
+    public RankedStartTimes(IEnumerable<Entry> entries, IEnumerable<(string, float)> rankings, GroupParameters parameters, int[] courses)
     {
         _entries = entries.ToList();
         _rankings = rankings.ToList();
         _parameters = parameters;
-        _day = day;
+        _courses = courses;
     }
 
     public Dictionary<Entry, DateTime> Create()
@@ -24,41 +24,36 @@ public class RankedStartTimes
 
         Dictionary<Entry, DateTime> startTimes = new();
 
-        for (int group = 0; group < _parameters.Parameters.Length; group++)
+        foreach (byte course in _courses)
         {
-            if (_parameters.Parameters[group].AssociationType != "ranked")
-                continue;
+            var tCourse = CreateForCourse(course);
 
-            foreach (byte course in _parameters.CourseGroupings[group])
-            {
-                var tCourse = CreateForCourse(course, _parameters.Parameters[group]);
-
-                foreach (var e in tCourse)
-                    startTimes.Add(e.Item1, e.Item2);
-            }
+            foreach (var e in tCourse)
+                startTimes.Add(e.Item1, e.Item2);
         }
 
         return startTimes;
     }
 
-    private IEnumerable<(Entry, DateTime)> CreateForCourse(byte course, GroupParameters parameters)
+
+    private IEnumerable<(Entry, DateTime)> CreateForCourse(byte course)
     {
         Dictionary<string, Entry> lookup = new(
-            _entries.Where(x => x.Days[_day].Course == course && x.RankingKey != "")
+            _entries.Where(x => x.Course == course && x.RankingKey != "")
                     .Where(x => _rankings.Select(x => x.Item1).Contains(x.RankingKey))
-                    .Select(x => new KeyValuePair<string, Entry>(x.RankingKey, x))     
+                    .Select(x => new KeyValuePair<string, Entry>(x.RankingKey, x))
             );
 
         List<(Entry, DateTime)> unshuffledStartTimes = new();
         List<(Entry, DateTime)> nonRankedTimes = new();
-        var nonRankedSlice = _entries.Where(x => x.Days[_day].Course == course && !lookup.ContainsKey(x.RankingKey)).ToArray();
+        var nonRankedSlice = _entries.Where(x => x.Course == course && !lookup.ContainsKey(x.RankingKey)).ToArray();
 
-        DateTime currentTime = parameters.FirstStart;
+        DateTime currentTime = _parameters.FirstStart;
 
         foreach (var entry in nonRankedSlice.Shuffle())
         {
             nonRankedTimes.Add((entry, currentTime));
-            currentTime += TimeSpan.FromMinutes(parameters.StartInterval);
+            currentTime += TimeSpan.FromMinutes(_parameters.StartInterval);
         }
 
         foreach (string ranking in _rankings.Select(x => x.Item1))
@@ -68,20 +63,20 @@ public class RankedStartTimes
 
             unshuffledStartTimes.Add((lookup[ranking], currentTime));
 
-            currentTime += TimeSpan.FromMinutes(parameters.StartInterval);
+            currentTime += TimeSpan.FromMinutes(_parameters.StartInterval);
 
-            if (currentTime > parameters.LastStart)
+            if (currentTime > _parameters.LastStart)
                 throw new Exception("Too many entries");
         }
 
-        if (parameters.Grouping <= 0)
+        if (_parameters.Grouping <= 0)
             return Join(nonRankedTimes, unshuffledStartTimes);
 
         (Entry, DateTime)[] startTimes = unshuffledStartTimes.ToArray();
 
-        for (int i = 0; i < startTimes.Length; i += parameters.Grouping)
+        for (int i = 0; i < startTimes.Length; i += _parameters.Grouping)
         {
-            if (i+4 >= startTimes.Length)
+            if (i + 4 >= startTimes.Length)
                 continue;
 
             var range = startTimes[i..(i + 4)];
@@ -94,19 +89,14 @@ public class RankedStartTimes
         return Join(nonRankedTimes, startTimes);
     }
 
-    private static void FilterRankings(ref IList<(string, float)> rankings, IEnumerable<Entry> entries)
-    {
-        rankings = rankings.Where(x => entries.Select(y => y.RankingKey).Contains(x.Item1)).ToList();
-    }
-    private static void OrderRankings(ref IList<(string, float)> rankings)
-    {
-        rankings = rankings.OrderBy(x => x.Item2).ToList();
-    }
+    private static void FilterRankings(ref List<(string, float)> rankings, IEnumerable<Entry> entries) 
+        => rankings = rankings.Where(x => entries.Select(y => y.RankingKey).Contains(x.Item1)).ToList();
+    private static void OrderRankings(ref List<(string, float)> rankings) 
+        => rankings = rankings.OrderBy(x => x.Item2).ToList();
 
     private static IEnumerable<T> Join<T>(IEnumerable<T> a, IEnumerable<T> b)
         => a.Concat(b);
 }
-
 
 public static class WorldRanking
 {

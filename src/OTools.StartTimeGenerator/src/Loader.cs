@@ -30,6 +30,15 @@ public static class Loader
         {
             string[] values = line.Split(',').Select(x => x.Replace("\"", "")).ToArray();
 
+            byte course = values[ef.clas] switch
+            {
+                "Long" => 1,
+                "Medium" => 2,
+                "Short" => 3,
+                "Junior/Novice" => 4,
+                "Not Entering Friday" => 5,
+            };
+
             entries.Add(new()
             {
                 Id = values[ef.id].Parse<int>(),
@@ -38,16 +47,19 @@ public static class Loader
                 Club = values[ef.club],
                 RankingKey = values[ef.rankingId],
 
-                Course = values[ef.course].Parse<byte>(),
+                //Course = values[ef.course].Parse<byte>(),
+                Course = course,
                 Class = values[ef.clas],
                 Preference = Enum.Parse<StartTimeBlock>(values[ef.preference]),
             });
+
+            
         }
 
         return entries;
     }
 
-    public static Dictionary<string, int> LoadRankings(string path, string filters)
+    public static Dictionary<string, float> LoadRankings(string path, string filters)
     {
         if (!File.Exists(path) || filters == string.Empty)
             return new();
@@ -55,7 +67,7 @@ public static class Loader
         int key = filters.IndexOf('k'),
             value = filters.IndexOf('v');
 
-        Dictionary<string, int> rankings = new();
+        Dictionary<string, float> rankings = new();
         string[] lines = File.ReadAllLines(path).Skip(1).ToArray();
 
         foreach (string line in lines)
@@ -64,7 +76,7 @@ public static class Loader
 
             rankings.Add(
                 values[key],
-                values[value].Parse<int>());
+                values[value].Parse<float>());
         }
 
         return rankings;

@@ -1,57 +1,54 @@
 ﻿using OTools.Common;
-using OTools.Events;
+using System.Runtime.InteropServices;
 
 namespace OTools.StartTimeDistributor;
 
 public class SimpleStartTimes
 {
     private List<Entry> _entries;
-    private DayStartTimeParameters _parameters;
-    private int _day;
+    private GroupParameters _parameters;
+    private int[] _courses;
 
-    public SimpleStartTimes(IEnumerable<Entry> entries, DayStartTimeParameters parameters, int day)
+    public SimpleStartTimes(IEnumerable<Entry> entries, GroupParameters parameters, int[] courses)
     {
         _entries = entries.ToList();
         _parameters = parameters;
-        _day = day;
+        _courses = courses;
     }
 
     public Dictionary<Entry, DateTime> Create()
     {
         Dictionary<Entry, DateTime> startTimes = new();
 
-        for (int group = 0; group < _parameters.Parameters.Length; group++)
+        if (_parameters.AssociationType != "simple")
+            throw new ArgumentException();
+
+        foreach (byte course in _courses)
         {
-            if (_parameters.Parameters[group].AssociationType != "simple")
-                continue;
+            var tCourse = CreateForCourse(course);
 
-            foreach (byte course in _parameters.CourseGroupings[group])
-            {
-                var tCourse = CreateForCourse(course, _parameters.Parameters[group]);
-
-                foreach (var e in tCourse)
-                    startTimes.Add(e.Item1, e.Item2);
-            }
+            foreach (var e in tCourse)
+                startTimes.Add(e.Item1, e.Item2);
         }
 
         return startTimes;
     }
 
-    private IEnumerable<(Entry, DateTime)> CreateForCourse(byte course, GroupParameters parameters)
+    private IEnumerable<(Entry, DateTime)> CreateForCourse(byte course)
     {
         Dictionary<DateTime, Entry> startList = new();
 
         var entries = _entries.Shuffle()
-                              .Where(x => x.Days[_day].Course == course)
+                              .Where(x => x.Course == course)
                               .ToList();
 
-        DateTime currentTime = parameters.LastStart;
+        DateTime currentTime = _parameters.LastStart;
         StartTimeBlock currentBlock = StartTimeBlock.Late;
 
-        while (entries.Count > 0 && currentTime > parameters.FirstStart)
+        while (entries.Count > 0 && currentTime > _parameters.FirstStart)
         {
             Entry? successful = null;
-            var selectFrom = entries.Where(x => x.Days[_day].Preference == currentBlock || x.Days[_day].Preference == StartTimeBlock.Open).ToArray();
+            var selectFrom = entries.Where(x => x.Preference == currentBlock || x.Preference == StartTimeBlock.Open).ToArray();
 
             if (selectFrom.Length == 0)
             {
@@ -60,7 +57,7 @@ public class SimpleStartTimes
             }
 
             int curr = -1;
-            while (curr < selectFrom.Length -1)
+            while (curr < selectFrom.Length - 1)
             {
                 curr++;
 
@@ -68,30 +65,30 @@ public class SimpleStartTimes
                 bool isFailed = false;
 
                 // Course Spacing
-                DateTime checkTime = currentTime + TimeSpan.FromMinutes(parameters.CourseSpacing - parameters.StartInterval);
+                DateTime checkTime = currentTime + TimeSpan.FromMinutes(_parameters.CourseSpacing - _parameters.StartInterval);
                 while (checkTime > currentTime && !isFailed)
                 {
-                    if (startList.TryGetValue(checkTime, out Entry entry) && selected.Days[_day].Class == entry.Days[_day].Class)
+                    if (startList.TryGetValue(checkTime, out Entry entry) && selected.Class == entry.Class)
                         isFailed = true;
-                    checkTime -= TimeSpan.FromMinutes(parameters.StartInterval);
+                    checkTime -= TimeSpan.FromMinutes(_parameters.StartInterval);
                 }
 
                 // Class Spacing
-                checkTime = currentTime + TimeSpan.FromMinutes(parameters.ClassSpacing - parameters.StartInterval);
+                checkTime = currentTime + TimeSpan.FromMinutes(_parameters.ClassSpacing - _parameters.StartInterval);
                 while (checkTime > currentTime && !isFailed)
                 {
-                    if (startList.TryGetValue(checkTime, out Entry entry) && selected.Days[_day].Class == entry.Days[_day].Class)
+                    if (startList.TryGetValue(checkTime, out Entry entry) && selected.Class == entry.Class)
                         isFailed = true;
-                    checkTime -= TimeSpan.FromMinutes(parameters.StartInterval);
+                    checkTime -= TimeSpan.FromMinutes(_parameters.StartInterval);
                 }
 
                 // Club Spacing
-                checkTime = currentTime + TimeSpan.FromMinutes(parameters.ClubSpacing - parameters.StartInterval);
+                checkTime = currentTime + TimeSpan.FromMinutes(_parameters.ClubSpacing - _parameters.StartInterval);
                 while (checkTime > currentTime && !isFailed)
                 {
                     if (startList.TryGetValue(checkTime, out Entry entry) && selected.Club == entry.Club)
                         isFailed = true;
-                    checkTime -= TimeSpan.FromMinutes(parameters.StartInterval);
+                    checkTime -= TimeSpan.FromMinutes(_parameters.StartInterval);
                 }
 
                 if (!isFailed)
@@ -107,7 +104,7 @@ public class SimpleStartTimes
                 entries.Remove(successful.Value);
             }
 
-            currentTime -= TimeSpan.FromMinutes(parameters.StartInterval);
+            currentTime -= TimeSpan.FromMinutes(_parameters.StartInterval);
         }
 
         return startList.Select(x => (x.Value, x.Key));
