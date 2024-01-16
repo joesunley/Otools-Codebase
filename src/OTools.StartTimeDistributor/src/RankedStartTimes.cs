@@ -31,7 +31,9 @@ public class RankedStartTimes
 
             foreach (byte course in _parameters.CourseGroupings[group])
             {
-                var tCourse = CreateForCourse(course, _parameters.Parameters[group]);
+                var tCourse = (_parameters.Parameters[group].Allocation == "start") ?
+                        CreateForCourseAtStart(course, _parameters.Parameters[group]) :
+                        CreateForCourseAtEnd(course, _parameters.Parameters[group]);
 
                 foreach (var e in tCourse)
                     startTimes.Add(e.Item1, e.Item2);
@@ -40,13 +42,12 @@ public class RankedStartTimes
 
         return startTimes;
     }
-
-    private IEnumerable<(Entry, DateTime)> CreateForCourse(byte course, GroupParameters parameters)
+    private IEnumerable<(Entry, DateTime)> CreateForCourseAtStart(byte course, GroupParameters parameters)
     {
         Dictionary<string, Entry> lookup = new(
             _entries.Where(x => x.Days[_day].Course == course && x.RankingKey != "")
                     .Where(x => _rankings.Select(x => x.Item1).Contains(x.RankingKey))
-                    .Select(x => new KeyValuePair<string, Entry>(x.RankingKey, x))     
+                    .Select(x => new KeyValuePair<string, Entry>(x.RankingKey, x))
             );
 
         List<(Entry, DateTime)> unshuffledStartTimes = new();
@@ -54,6 +55,13 @@ public class RankedStartTimes
         var nonRankedSlice = _entries.Where(x => x.Days[_day].Course == course && !lookup.ContainsKey(x.RankingKey)).ToArray();
 
         DateTime currentTime = parameters.FirstStart;
+
+        if (parameters.CourseSpacing == 0)
+            parameters.CourseSpacing = parameters.StartInterval;
+        if (parameters.ClassSpacing == 0)
+            parameters.ClassSpacing = parameters.StartInterval;
+        if (parameters.ClubSpacing == 0)
+            parameters.ClubSpacing = parameters.StartInterval;
 
         foreach (var entry in nonRankedSlice.Shuffle())
         {
@@ -69,6 +77,66 @@ public class RankedStartTimes
             unshuffledStartTimes.Add((lookup[ranking], currentTime));
 
             currentTime += TimeSpan.FromMinutes(parameters.StartInterval);
+
+            if (currentTime > parameters.LastStart)
+                throw new Exception("Too many entries");
+        }
+
+        if (parameters.Grouping <= 0)
+            return Join(nonRankedTimes, unshuffledStartTimes);
+
+        (Entry, DateTime)[] startTimes = unshuffledStartTimes.ToArray();
+
+        for (int i = 0; i < startTimes.Length; i += parameters.Grouping)
+        {
+            if (i + 4 >= startTimes.Length)
+                continue;
+
+            var range = startTimes[i..(i + 4)];
+            range = range.Shuffle().ToArray();
+
+            for (int j = i; j < i + 4; j++)
+                startTimes[j] = range[j - i];
+        }
+
+        return Join(nonRankedTimes, startTimes);
+    }
+
+    private IEnumerable<(Entry, DateTime)> CreateForCourseAtEnd(byte course, GroupParameters parameters)
+    {
+        Dictionary<string, Entry> lookup = new(
+            _entries.Where(x => x.Days[_day].Course == course && x.RankingKey != "")
+                    .Where(x => _rankings.Select(x => x.Item1).Contains(x.RankingKey))
+                    .Select(x => new KeyValuePair<string, Entry>(x.RankingKey, x))     
+            );
+
+        List<(Entry, DateTime)> unshuffledStartTimes = new();
+        List<(Entry, DateTime)> nonRankedTimes = new();
+        var nonRankedSlice = _entries.Where(x => x.Days[_day].Course == course && !lookup.ContainsKey(x.RankingKey)).ToArray();
+
+        DateTime currentTime = parameters.LastStart;
+
+        if (parameters.CourseSpacing == 0)
+            parameters.CourseSpacing = parameters.StartInterval;
+        if (parameters.ClassSpacing == 0)
+            parameters.ClassSpacing = parameters.StartInterval;
+        if (parameters.ClubSpacing == 0)
+            parameters.ClubSpacing = parameters.StartInterval;
+
+        foreach (var entry in nonRankedSlice.Shuffle())
+        {
+            nonRankedTimes.Add((entry, currentTime));
+            currentTime += TimeSpan.FromMinutes(parameters.StartInterval);
+        }
+
+        foreach (string ranking in _rankings.Select(x => x.Item1))
+        {
+            if (!lookup.Keys.Contains(ranking))
+                continue;
+
+            unshuffledStartTimes.Add((lookup[ranking], currentTime));
+
+            currentTime -= TimeSpan.FromMinutes(parameters.StartInterval);
 
             if (currentTime > parameters.LastStart)
                 throw new Exception("Too many entries");

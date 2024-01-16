@@ -26,6 +26,7 @@ public struct Entry
 public enum StartTimeBlock { Early, Middle, Late, Open }
 
 
+
 public class StartTimeParameters
 {
     public DayStartTimeParameters[] Days { get; set; }
@@ -42,9 +43,17 @@ public class GroupParameters
     public string AssociationType { get; set; }
     public DateTime FirstStart { get; set; }
     public DateTime LastStart { get; set; }
+    public ExcludedBlock[] ExcludedBlocks { get; set; } = new ExcludedBlock[0];
     public int CourseSpacing { get; set; }
     public int ClassSpacing { get; set; }
     public int ClubSpacing { get; set; }
     public int StartInterval { get; set; }
     public int Grouping { get; set; }
+    public string Allocation { get; set; }
+}
+
+public class ExcludedBlock
+{
+    public DateTime BlockStart { get; set; }
+    public DateTime BlockEnd { get; set; }
 }
