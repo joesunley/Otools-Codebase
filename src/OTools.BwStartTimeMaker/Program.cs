@@ -9,7 +9,9 @@ using System.Data;
 using System.Globalization;
 
 var app = new CommandApp<StartTimeCommand>();
-return app.Run(args);
+int result =  app.Run(args);
+Console.WriteLine(result);
+return result;
 
 internal sealed class StartTimeCommand : Command<StartTimeCommand.Settings>
 {
@@ -68,7 +70,7 @@ internal sealed class StartTimeCommand : Command<StartTimeCommand.Settings>
 
         var friStartTimes = new SimpleStartTimes(entries, parameters!.Days[0], 0).Create();
 
-        string[] rankings = File.ReadAllLines(settings.IofMalePath).Concat(File.ReadAllLines(settings.IofFemalePath)).ToArray();
+         string[] rankings = File.ReadAllLines(settings.IofMalePath).Concat(File.ReadAllLines(settings.IofFemalePath)).ToArray();
 
         var satEliteStartTimes = new RankedStartTimes(entries, WorldRanking.FromCSV(new[] { settings.IofMalePath, settings.IofFemalePath }).Select(x => (x.Key, x.Value)), parameters!.Days[1], 1).Create();
         var satNormalStartTimes = new SimpleStartTimes(entries, parameters!.Days[1], 1).Create();
@@ -271,7 +273,9 @@ Choice: ");
 
         //grid.AddRow(new string[] { "Start Time" }.Concat(courses).ToArray());
 
-        foreach (var time in startTimes.Values.Distinct().OrderBy(x => x))
+        //foreach (var time in startTimes.Values.Distinct().OrderBy(x => x))
+        var distinctStartTimes = startTimes.Values.Distinct();
+        for (DateTime time = distinctStartTimes.Min(); time <= distinctStartTimes.Max(); time += TimeSpan.FromMinutes(1))
         {
             List<string> row = new() { time.ToString("HH:mm:ss") };
 
