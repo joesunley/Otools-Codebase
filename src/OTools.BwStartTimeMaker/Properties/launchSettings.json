@@ -6,11 +6,11 @@
     },
     "Create": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\joe\\Downloads\\Start_Time_Generator_SUNLEY_ONLY.csv\" -o \"C:\\Users\\Joe\\Downloads\\starttimeoptions.json\" -m \"C:\\Users\\joe\\Downloads\\iof_ranking_MEN_FS_13-01-2024.csv\" -w \"C:\\Users\\joe\\Downloads\\iof_ranking_WOMEN_FS_13-01-2024.csv\""
+      "commandLineArgs": "\"C:\\Users\\joe\\Downloads\\entries.csv\" -o \"C:\\Users\\Joe\\Downloads\\starttimeoptions.json\" -m \"C:\\Users\\joe\\Downloads\\mwr.csv\" -w \"C:\\Users\\joe\\Downloads\\wwr.csv\""
     },
     "Load": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\joe\\Downloads\\save.csv\" -l"
+      "commandLineArgs": "\"C:\\Users\\joe\\Downloads\\nc.csv\" -l"
     }
   }
 }

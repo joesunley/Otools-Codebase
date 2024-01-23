@@ -47,12 +47,81 @@ internal sealed class StartTimeCommand : Command<StartTimeCommand.Settings>
 
 
         if (settings.IsLoad) {
-            var l = Load(settings.FilePath);
 
-            entries = l.entry;
-            friday = l.fri;
-            saturday = l.sat;
-            sunday = l.sun;
+            List<TempEntry> tEntr = new();
+
+            string[] lines = File.ReadAllLines(settings.FilePath);
+            string[] header = lines[0].Split(',');
+
+            foreach (string l in lines.Skip(1))
+            {
+                string[] line = l.Split(',');
+
+                DateTime time = DateTime.Parse(line[0]);
+
+                for (int i = 1; i < line.Length; i++)
+                {
+                    if (line[i] != "")
+                    {
+                        int id = line[i].Split(';')[1].Parse<int>();
+
+                        if (!tEntr.Select(x => x.id).Contains(id))
+                        {
+                            if (header[i].Contains("Friday"))
+                                tEntr.Add(new() { id = id, fri = time });
+                            else if (header[i].Contains("Saturday"))
+                                tEntr.Add(new() { id = id, sat = time });
+                            else if (header[i].Contains("Sunday"))
+                                tEntr.Add(new() { id = id, sat = time });
+                            else throw new Exception();
+                        }
+                        else
+                        {
+                            int index = tEntr.IndexOf(tEntr.First(x => x.id == id));
+
+                            if (header[i].Contains("Friday"))
+                                tEntr[index] = new() { id = id, fri = time, sat = tEntr[index].sat, sun = tEntr[index].sun };
+                            else if (header[i].Contains("Saturday"))
+                                tEntr[index] = new() { id = id, fri = tEntr[index].fri, sat = time, sun = tEntr[index].sun };
+                            else if (header[i].Contains("Sunday"))
+                                tEntr[index] = new() { id = id, fri = tEntr[index].fri, sat = tEntr[index].sat, sun = time };
+                            else throw new Exception();
+
+                        }
+                    }
+                }
+            }
+
+            AnsiConsole.Write("Filepath: ");
+            string path = Console.ReadLine() ?? throw new InvalidOperationException();
+
+            string[] outHeader = new string[] { "Participant - SiEntries ID", "Admin Only - Start Time Fri", "Admin Only - Start Time Sat", "Admin Only - Start Time Sun" };
+
+            List<string[]> outLines = new() { outHeader };
+
+            foreach (var e in tEntr)
+            {
+                string[] outEntry = new string[4];
+
+                outEntry[0] = e.id.ToString();
+
+                outEntry[1] = e.fri.TimeOfDay.ToString() ?? "";
+                outEntry[2] = e.sat.TimeOfDay.ToString() ?? "";
+                outEntry[3] = e.sun.TimeOfDay.ToString() ?? "";
+
+                if (outEntry[1] == "00:00:00") outEntry[1] = "";
+                if (outEntry[2] == "00:00:00") outEntry[2] = "";
+                if (outEntry[3] == "00:00:00") outEntry[3] = "";
+
+                outLines.Add(outEntry);
+            }
+
+            File.WriteAllLines(path, outLines.Select(x => string.Join(',', x)));
+
+            Console.WriteLine("Done");
+            Console.ReadLine();
+
+            return 0;
         }
         else
         {
@@ -215,6 +284,8 @@ Choice: ");
                     }
 
                     File.WriteAllLines(fPath, aLines.Select(x => string.Join(',', x)));
+
+                    AnsiConsole.WriteLine("Saved");
 
                 }
                 break;
@@ -522,4 +593,11 @@ Choice: ");
 
         return (entries, friday, saturday, sunday);
     }
+}
+
+struct TempEntry {
+    public int id;
+    public DateTime fri;
+    public DateTime sat;
+    public DateTime sun;
 }
