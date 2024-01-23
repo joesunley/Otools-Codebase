@@ -29,6 +29,9 @@ internal sealed class StartTimeCommand : Command<StartTimeCommand.Settings>
         [CommandOption("-o|--optionsPath")]
         public string? OptionsPath { get;init; }
 
+        [CommandOption("-l|--load")]
+        public bool IsLoad { get; init; }
+
     }
 
     public override int Execute(CommandContext context, Settings settings)
@@ -37,46 +40,63 @@ internal sealed class StartTimeCommand : Command<StartTimeCommand.Settings>
         if (!File.Exists(settings.FilePath))
             return 1;
 
-        string[] lines = File.ReadAllLines(settings.FilePath);
-
         List<Entry> entries = new();
+        Dictionary<Entry, DateTime> friday = new();
+        Dictionary<Entry, DateTime> saturday = new();
+        Dictionary<Entry, DateTime> sunday = new();
 
-        foreach (string? line in lines.Skip(1))
+
+        if (settings.IsLoad) {
+            var l = Load(settings.FilePath);
+
+            entries = l.entry;
+            friday = l.fri;
+            saturday = l.sat;
+            sunday = l.sun;
+        }
+        else
         {
-            string[] values = line.Split(',').Select(x => x.Replace("\"", "")).ToArray();
+            string[] lines = File.ReadAllLines(settings.FilePath);
 
-            int id = values[0].Parse<int>();
-            string name = values[1];
-            string club = values[2];
-            string bofId = values[3];
-            string iofId = values[4];
 
-            entries.Add(new()
+            foreach (string? line in lines.Skip(1))
             {
-                Id = id,
+                string[] values = line.Split(',').Select(x => x.Replace("\"", "")).ToArray();
 
-                Name =  name,
-                Club = club,
-                RankingKey = iofId,
+                int id = values[0].Parse<int>();
+                string name = values[1];
+                string club = values[2];
+                string bofId = values[3];
+                string iofId = values[4];
 
-                Days = GetDays(values),
-            });
+                entries.Add(new()
+                {
+                    Id = id,
+
+                    Name = name,
+                    Club = club,
+                    RankingKey = iofId,
+
+                    Days = GetDays(values),
+                });
+            }
+
+            if (!File.Exists(settings.OptionsPath) || !File.Exists(settings.IofMalePath) || !File.Exists(settings.IofFemalePath))
+                return 1;
+
+            var parameters = JsonConvert.DeserializeObject<StartTimeParameters>(File.ReadAllText(settings.OptionsPath));
+
+            friday = new SimpleStartTimes(entries, parameters!.Days[0], 0).Create();
+
+            string[] rankings = File.ReadAllLines(settings.IofMalePath).Concat(File.ReadAllLines(settings.IofFemalePath)).ToArray();
+
+            var satEliteStartTimes = new RankedStartTimes(entries, WorldRanking.FromCSV(new[] { settings.IofMalePath, settings.IofFemalePath }).Select(x => (x.Key, x.Value)), parameters!.Days[1], 1).Create();
+            var satNormalStartTimes = new SimpleStartTimes(entries, parameters!.Days[1], 1).Create();
+            saturday = satEliteStartTimes.Concat(satNormalStartTimes).ToDictionary(x => x.Key, x => x.Value);
+
+            sunday = new SimpleStartTimes(entries, parameters!.Days[2], 2).Create();
         }
 
-        if (!File.Exists(settings.OptionsPath) || !File.Exists(settings.IofMalePath) || !File.Exists(settings.IofFemalePath))
-            return 1;
-
-        var parameters = JsonConvert.DeserializeObject<StartTimeParameters>(File.ReadAllText(settings.OptionsPath));
-
-        var friStartTimes = new SimpleStartTimes(entries, parameters!.Days[0], 0).Create();
-
-         string[] rankings = File.ReadAllLines(settings.IofMalePath).Concat(File.ReadAllLines(settings.IofFemalePath)).ToArray();
-
-        var satEliteStartTimes = new RankedStartTimes(entries, WorldRanking.FromCSV(new[] { settings.IofMalePath, settings.IofFemalePath }).Select(x => (x.Key, x.Value)), parameters!.Days[1], 1).Create();
-        var satNormalStartTimes = new SimpleStartTimes(entries, parameters!.Days[1], 1).Create();
-        var satStartTimes = satEliteStartTimes.Concat(satNormalStartTimes).ToDictionary(x => x.Key, x => x.Value);
-
-        var sunStartTimes = new SimpleStartTimes(entries, parameters!.Days[2], 2).Create();
 
         while (true) {
             // Show Menu
@@ -86,7 +106,9 @@ internal sealed class StartTimeCommand : Command<StartTimeCommand.Settings>
 @"1. Show Friday Start Times
 2. Show Saturday Start Times
 3. Show Sunday Start Times
-4. Export Start Times
+4. Export Spreadsheet
+S. Save Start Times
+E. Export Start Times
 X. Exit
 
 Choice: ");
@@ -103,53 +125,126 @@ Choice: ");
                 case '1':
                     var filter = GetFilter();
                     AnsiConsole.Clear();
-                    AnsiConsole.Write(CreateStartListGrid(friStartTimes, 0, filter));
+                    AnsiConsole.Write(CreateStartListGrid(friday, 0, filter));
                     break;
 
                 case '2':
                     filter = GetFilter();
                     AnsiConsole.Clear();
-                    AnsiConsole.Write(CreateStartListGrid(satStartTimes, 1, filter));
+                    AnsiConsole.Write(CreateStartListGrid(saturday, 1, filter));
                     break;
                 case '3':
                     filter = GetFilter();
                     AnsiConsole.Clear();
-                    AnsiConsole.Write(CreateStartListGrid(sunStartTimes, 2, filter));
+                    AnsiConsole.Write(CreateStartListGrid(sunday, 2, filter));
                     break;
                 case '4':
+                {
+
+                    AnsiConsole.WriteLine();
+                    AnsiConsole.Write("Filepath: ");
+
+                    string fPath = Console.ReadLine() ?? throw new InvalidOperationException();
+
+
+                    var allTimes = friday.Select(x => x.Value).Concat(saturday.Select(x => x.Value)).Concat(sunday.Select(x => x.Value));
+                    TimeSpan firstStart = allTimes.Select(x => x.TimeOfDay).Min();
+                    TimeSpan lastStart = allTimes.Select(x => x.TimeOfDay).Max();
+
+                    TimeSpan curr = firstStart;
+
+                    var friCourses = friday.Keys.Select(x => x.Days[0].Course).Distinct();
+                    var satCourses = saturday.Keys.Select(x => x.Days[1].Course).Distinct();
+                    var sunCourses = sunday.Keys.Select(x => x.Days[2].Course).Distinct();
+
+
+                    List<string> header = new() { "TimeOfDay " };
+
+                    foreach (var c in friCourses)
+                        header.Add($"Friday {c}");
+                    foreach (var c in satCourses)
+                        header.Add($"Saturday {c}");
+                    foreach (var c in sunCourses)
+                        header.Add($"Sunday {c}");
+
+                    List<string[]> aLines = new() { header.ToArray() };
+
+                    while (curr < lastStart)
+                    {
+                        List<string> tLine = new() { curr.ToString() };
+
+                        foreach (var c in friCourses)
+                        {
+                            var r = friday.Where(x => x.Value.TimeOfDay == curr && x.Key.Days[0].Course == c);
+
+                            if (r.Count() == 0)
+                                tLine.Add("");
+                            else
+                            {
+                                var t = r.First().Key;
+                                tLine.Add($"{t.Name};{t.Id}");
+                            }
+                        }
+                        foreach (var c in satCourses)
+                        {
+                            var r = saturday.Where(x => x.Value.TimeOfDay == curr && x.Key.Days[1].Course == c);
+
+                            if (r.Count() == 0)
+                                tLine.Add("");
+                            else
+                            {
+                                var t = r.First().Key;
+                                tLine.Add($"{t.Name};{t.Id}");
+                            }
+                        }
+                        foreach (var c in sunCourses)
+                        {
+                            var r = sunday.Where(x => x.Value.TimeOfDay == curr && x.Key.Days[2].Course == c);
+
+                            if (r.Count() == 0)
+                                tLine.Add("");
+                            else
+                            {
+                                var t = r.First().Key;
+                                tLine.Add($"{t.Name};{t.Id}");
+                            }
+                        }
+
+                        aLines.Add(tLine.ToArray());
+                        curr += TimeSpan.FromMinutes(1);
+                    }
+
+                    File.WriteAllLines(fPath, aLines.Select(x => string.Join(',', x)));
+
+                }
+                break;
+                case 's':
+                {
                     AnsiConsole.WriteLine();
                     AnsiConsole.Write("Filepath: ");
 
                     string filePath = Console.ReadLine() ?? throw new InvalidOperationException();
 
-                    {
-                        string[] header = new string[] { "Participant - SiEntries ID", "Admin Only - Start Time Fri", "Admin Only - Start Time Sat", "Admin Only - Start Time Sun" };
-
-                        var allEntrys = friStartTimes.Keys.Concat(satStartTimes.Keys).Concat(sunStartTimes.Keys).Distinct().OrderBy(x => x.Id).ToArray();
-
-
-                        List<string[]> outLines = new();
-                        outLines.Add(header);
-
-                        foreach (var entry in allEntrys)
-                        {
-                            string[] outEntry = new string[4];
-
-                            outEntry[0] = entry.Id.ToString();
-
-                            outEntry[1] = friStartTimes.TryGetValue(entry, out DateTime friTime) ? friTime.ToString("G", CultureInfo.CurrentCulture) : "";
-                            outEntry[2] = satStartTimes.TryGetValue(entry, out DateTime satTime) ? satTime.ToString("G", CultureInfo.CurrentCulture) : "";
-                            outEntry[3] = sunStartTimes.TryGetValue(entry, out DateTime sunTime) ? sunTime.ToString("G", CultureInfo.CurrentCulture) : "";
-
-                            outLines.Add(outEntry);
-                        }
-
-                        File.WriteAllLines(filePath, outLines.Select(x => string.Join(',', x)));
-                    }
+                    Save(filePath, friday, saturday, sunday);
 
                     AnsiConsole.WriteLine("StartTimes saved\nPress any key to continue...");
                     Console.ReadKey();
                     break;
+                }
+                case 'e':
+                {
+                    AnsiConsole.WriteLine();
+                    AnsiConsole.Write("Filepath: ");
+
+                    string filePath = Console.ReadLine() ?? throw new InvalidOperationException();
+
+                    Export(filePath, friday, saturday, sunday);
+
+                    AnsiConsole.WriteLine("StartTimes saved\nPress any key to continue...");
+                    Console.ReadKey();
+                    break;
+
+                }
             }
 
             Console.ReadKey();
@@ -339,4 +434,92 @@ Choice: ");
 
         }
     }   
+
+    private static void Save(string filePath, Dictionary<Entry, DateTime> friday, Dictionary<Entry, DateTime> saturday, Dictionary<Entry, DateTime> sunday)
+    {
+        string[] header = new string[] { "Participant - SiEntries ID", "Participant - Full Name", "Admin Only - Start Time Fri", "Admin Only - Start Time Sat", "Admin Only - Start Time Sun" };
+
+        var allEntrys = friday.Keys.Concat(saturday.Keys).Concat(sunday.Keys).Distinct().OrderBy(x => x.Id).ToArray();
+
+        List<string[]> outLines = new() { header };
+
+        foreach (var entry in allEntrys)
+        {
+            string[] outEntry = new string[5];
+
+            outEntry[0] = entry.Id.ToString();
+            outEntry[1] = entry.Name.ToString();
+
+            outEntry[2] = friday.TryGetValue(entry, out DateTime friTime) ? friTime.ToString("G", CultureInfo.CurrentCulture) : "";
+            outEntry[3] = saturday.TryGetValue(entry, out DateTime satTime) ? satTime.ToString("G", CultureInfo.CurrentCulture) : "";
+            outEntry[4] = sunday.TryGetValue(entry, out DateTime sunTime) ? sunTime.ToString("G", CultureInfo.CurrentCulture) : "";
+
+            outLines.Add(outEntry);
+        }
+
+        File.WriteAllLines(filePath, outLines.Select(x => string.Join(',', x)));
+    }
+
+    private static void Export(string filePath, Dictionary<Entry, DateTime> friday, Dictionary<Entry, DateTime> saturday, Dictionary<Entry, DateTime> sunday)
+    {
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException(filePath);
+
+        string[] header = new string[] { "Participant - SiEntries ID", "Admin Only - Start Time Fri", "Admin Only - Start Time Sat", "Admin Only - Start Time Sun" };
+
+        var allEntrys = friday.Keys.Concat(saturday.Keys).Concat(sunday.Keys).Distinct().OrderBy(x => x.Id).ToArray();
+
+
+        List<string[]> outLines = new() { header };
+
+        foreach (var entry in allEntrys)
+        {
+            string[] outEntry = new string[4];
+
+            outEntry[0] = entry.Id.ToString();
+
+            outEntry[1] = friday.TryGetValue(entry, out DateTime friTime) ? friTime.ToString("G", CultureInfo.CurrentCulture) : "";
+            outEntry[2] = saturday.TryGetValue(entry, out DateTime satTime) ? satTime.ToString("G", CultureInfo.CurrentCulture) : "";
+            outEntry[3] = sunday.TryGetValue(entry, out DateTime sunTime) ? sunTime.ToString("G", CultureInfo.CurrentCulture) : "";
+
+            outLines.Add(outEntry);
+        }
+
+        File.WriteAllLines(filePath, outLines.Select(x => string.Join(',', x)));
+    }
+
+    private static (List<Entry> entry, Dictionary<Entry, DateTime> fri, Dictionary<Entry, DateTime> sat, Dictionary<Entry, DateTime> sun) Load(string filePath)
+    {
+        Dictionary<Entry, DateTime> friday = new();
+        Dictionary<Entry, DateTime> saturday = new();
+        Dictionary<Entry, DateTime> sunday = new();
+        List<Entry> entries = new();
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException(filePath);
+
+        string[] lines = File.ReadAllLines(filePath);
+
+        foreach (var line in lines.Skip(1))
+        {
+            string[] split = line.Split(',');
+
+            Entry e = new()
+            {
+                Id = split[0].Parse<int>(),
+                Name = split[1],
+            };
+
+            if (split[2] != "")
+                friday.Add(e, split[2].Parse<DateTime>());
+
+            if (split[3] != "")
+                saturday.Add(e, split[3].Parse<DateTime>());
+
+            if (split[4] != "")
+                sunday.Add(e, split[4].Parse<DateTime>());
+        }
+
+        return (entries, friday, saturday, sunday);
+    }
 }
