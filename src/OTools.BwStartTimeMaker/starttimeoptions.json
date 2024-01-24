@@ -1,0 +1,215 @@
+{
+	"Days": [
+		//{
+		//	"CourseGroupings": [ [ 1, 2, 3, 4 ] ],
+
+		//	"Parameters": [
+		//		{
+		//			"AssociationType": "simple",
+
+		//			"FirstStart": "2024/01/26T17:00:00.0",
+		//			"LastStart": "2024/01/26T19:30:00.0",
+
+		//			"StartInterval": 1,
+
+		//			"Grouping": -1,
+		//			"Allocation": "start"
+		//		}
+		//	]
+		//},
+
+		{
+			"CourseGroupings": [
+				[ 1 ],
+				[ 2, 3 ],
+				[ 4 ]
+			],
+
+			"Parameters": [
+				{ // Course 1
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/26T17:00:00",
+					"LastStart": "2024/01/26T19:30:00",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "end"
+				},
+				{ // Course 2, 3
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/26T17:00:00",
+					"LastStart": "2024/01/26T19:30:00",
+
+					"StartInterval": 2,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 4
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/26T17:00:00",
+					"LastStart": "2024/01/26T19:30:00",
+
+					"StartInterval": 3,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				}
+			]
+		},
+		{
+			"CourseGroupings": [
+				[ 1 ],
+				[ 2 ],
+				[ 3, 4, 5 ],
+				[ 6 ],
+				[ 7 ],
+				[ 8 ]
+			],
+
+			"Parameters": [
+				{ // Course 1
+					"AssociationType": "ranked",
+
+					"FirstStart": "2024/01/27T10:00:00.0",
+					"LastStart": "2024/01/27T12:00:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 2
+					"AssociationType": "ranked",
+
+					"FirstStart": "2024/01/27T12:00:00.0",
+					"LastStart": "2024/01/27T13:30:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 3, 4, 5
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/27T11:00:00.0",
+					"LastStart": "2024/01/27T13:15:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "end"
+				},
+				{ // Course 6
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/27T12:00:00.0",
+					"LastStart": "2024/01/27T13:30:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 7
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/27T12:15:00.0",
+					"LastStart": "2024/01/27T12:45:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 8
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/27T12:45:00.0",
+					"LastStart": "2024/01/27T13:00:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				}
+			]
+		},
+
+		{
+			"CourseGroupings": [
+				[ 1 ],
+				[ 2 ],
+				[ 3, 5, 6 ],
+				[ 4 ],
+				[ 7, 8 ]
+			],
+
+			"Parameters": [
+				{ // Course 1
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/28T11:45:00.0",
+					"LastStart": "2024/01/28T13:30:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 2
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/28T10:30:00.0",
+					"LastStart": "2024/01/28T11:45:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 3, 5, 6
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/28T10:30:00.0",
+					"LastStart": "2024/01/28T13:30:00.0",
+
+					"StartInterval": 2,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 4
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/28T10:30:00.0",
+					"LastStart": "2024/01/28T13:30:00.0",
+
+					"StartInterval": 1,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				},
+				{ // Course 7, 8
+					"AssociationType": "simple",
+
+					"FirstStart": "2024/01/28T10:30:00.0",
+					"LastStart": "2024/01/28T13:30:00.0",
+
+					"StartInterval": 3,
+
+					"Grouping": -1,
+					"Allocation": "start"
+				}
+			]
+		}
+	]
+}
+
+
+
