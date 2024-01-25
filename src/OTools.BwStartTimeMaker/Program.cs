@@ -6,6 +6,7 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using Sunley.Mathematics;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 
 var app = new CommandApp<StartTimeCommand>();
@@ -72,7 +73,7 @@ internal sealed class StartTimeCommand : Command<StartTimeCommand.Settings>
                             else if (header[i].Contains("Saturday"))
                                 tEntr.Add(new() { id = id, sat = time });
                             else if (header[i].Contains("Sunday"))
-                                tEntr.Add(new() { id = id, sat = time });
+                                tEntr.Add(new() { id = id, sun = time });
                             else throw new Exception();
                         }
                         else
@@ -238,7 +239,7 @@ Choice: ");
 
                     List<string[]> aLines = new() { header.ToArray() };
 
-                    while (curr < lastStart)
+                    while (curr <= lastStart)
                     {
                         List<string> tLine = new() { curr.ToString() };
 
@@ -595,6 +596,7 @@ Choice: ");
     }
 }
 
+[DebuggerDisplay("{id} - {fri} {sat} {sun}")]
 struct TempEntry {
     public int id;
     public DateTime fri;
