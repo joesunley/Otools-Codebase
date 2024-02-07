@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using Sys = System.Xml;
 
@@ -84,7 +85,7 @@ public sealed class XMLNode
     public XMLNode()
     {
         Name = "";
-        _children = new();
+        Children = new();
         Attributes = new();
     }
 
@@ -92,6 +93,13 @@ public sealed class XMLNode
         : this()
     {
         Name = name;
+    }
+
+    public XMLNode(string name, string innerText)
+        : this()
+    {
+        Name = name;
+        InnerText = innerText;
     }
 
     public void AddAttribute(string name, string value)
