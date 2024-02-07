@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OTools.ResultsFileMaker": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\joe\\Downloads\\results.json"
+    }
+  }
+}

@@ -84,6 +84,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OTools.BwStartTimeMaker", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.StartTimeGenerator", "src\OTools.StartTimeGenerator\OTools.StartTimeGenerator.csproj", "{848501D3-919E-4A68-9E52-B8A9F7D4A653}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OTools.ResultsFileMaker", "src\OTools.ResultsFileMaker\OTools.ResultsFileMaker.csproj", "{C4B44A3A-B751-4C4F-956B-41B5E24A9573}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -210,6 +212,10 @@ Global
 		{848501D3-919E-4A68-9E52-B8A9F7D4A653}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{848501D3-919E-4A68-9E52-B8A9F7D4A653}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{848501D3-919E-4A68-9E52-B8A9F7D4A653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4B44A3A-B751-4C4F-956B-41B5E24A9573}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4B44A3A-B751-4C4F-956B-41B5E24A9573}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4B44A3A-B751-4C4F-956B-41B5E24A9573}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4B44A3A-B751-4C4F-956B-41B5E24A9573}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -224,6 +230,7 @@ Global
 		{C92098D1-2BB0-4146-827B-F2B1BC6718C3} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
 		{43AC46A5-1704-4D5B-B7AA-687A9AF3F6A0} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
 		{848501D3-919E-4A68-9E52-B8A9F7D4A653} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
+		{C4B44A3A-B751-4C4F-956B-41B5E24A9573} = {CDE4B78C-96AA-45C4-A7E7-E75DD42F18AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5827591C-8AF3-43EE-AD3F-8E7FBE7C7EC9}
