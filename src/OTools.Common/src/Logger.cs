@@ -46,22 +46,22 @@ public class Logger
 
 public static class StaticLogger
 {
-    private static Logger _logger;
+    private static Logger s_logger;
 
     static StaticLogger()
     {
-        _logger = new();
+        s_logger = new();
     }
 
-    public static void LogDebug(string message) => _logger.Debug(message);
-    public static void LogInfo(string message) => _logger.Info(message);
-    public static void LogWarn(string message) => _logger.Warn(message);
-    public static void LogError(string message) => _logger.Error(message);
-    public static void LogFatal(string message) => _logger.Fatal(message);
+    public static void LogDebug(string message) => s_logger.Debug(message);
+    public static void LogInfo(string message) => s_logger.Info(message);
+    public static void LogWarn(string message) => s_logger.Warn(message);
+    public static void LogError(string message) => s_logger.Error(message);
+    public static void LogFatal(string message) => s_logger.Fatal(message);
 
     public static void AddConsoleTarget()
     {
-        _logger.AddTarget((s, l) =>
+        s_logger.AddTarget((s, l) =>
         {
             Console.ForegroundColor = l switch
             {
@@ -79,10 +79,12 @@ public static class StaticLogger
 
     public static void AddDebugTarget()
     {
-        _logger.AddTarget((s, l) =>
+        s_logger.AddTarget((s, l) =>
         {
             string o = $"[{Thread.CurrentThread.ManagedThreadId:D4}] [{DateTime.Now.ToString("HH:mm:ss.ffff")}] ({l}): {s}";
             Console.WriteLine(o);
         });
     }
+
+    public static void SetLogLevel(LogLevel level) => s_logger.SetLogLevel(level);
 }

@@ -18,4 +18,8 @@
   <ItemGroup>
     <ProjectReference Include="..\OTools.AvaCommon\OTools.AvaCommon.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\" />
+  </ItemGroup>
 </Project>
